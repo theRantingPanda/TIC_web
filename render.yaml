@@ -1,0 +1,39 @@
+# Render Static Site.
+#
+# All redirects live here, not in next.config.ts. With `output: 'export'` Next's
+# `redirects()` is inert — it emits a build warning and does nothing — so the platform
+# has to serve them. `type: redirect` is a 301.
+#
+# The generated block below is written by `npm run gen:redirects` from
+# content/_inventory/freshdesk/redirects.json. Do not hand-edit between the markers.
+#
+# NOT YET CONFIGURED — needs a decision, see README "Cross-domain redirects":
+#   help.asktic.com    -> /knowledge
+#   support.asktic.com -> per-article map
+# Render matches `source` on path only, with no host component, so those two only work
+# if the hostnames are attached to this service as custom domains. That is a DNS change,
+# and DNS is out of scope for this project. The article rules below are written on the
+# assumption that support.asktic.com eventually points here; until it does, they are
+# inert rather than wrong.
+
+services:
+  - type: web
+    name: tic-web
+    runtime: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./out
+    pullRequestPreviewsEnabled: false
+
+    routes:
+      # ---- Wix path changes (hard requirement: every other path stays as-is) ----
+      - type: redirect
+        source: /home-1
+        destination: /
+
+      - type: redirect
+        source: /file-access
+        destination: /forms
+
+      # BEGIN GENERATED freshdesk-article-map
+      # (empty until `npm run capture:freshdesk` has run)
+      # END GENERATED freshdesk-article-map

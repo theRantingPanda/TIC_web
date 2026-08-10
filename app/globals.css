@@ -1,0 +1,113 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens — the single source of truth for colour, type and spacing.
+ *
+ * Components must never hardcode a hex value. Brand green (#3a8c3f) and brand blue
+ * (#1b5faa) are the two fixed points; each scale is built around them at the 600 step,
+ * so `brand-green-600` and `brand-green` are the same colour.
+ *
+ * Scales are namespaced `brand-*` rather than overriding Tailwind's own `green`/`blue`
+ * so the default palette stays available for incidental UI.
+ */
+@theme {
+  /* ---- Brand: green ---- */
+  --color-brand-green: #3a8c3f;
+  --color-brand-green-50: #f2f8f2;
+  --color-brand-green-100: #e0efe1;
+  --color-brand-green-200: #c2dfc4;
+  --color-brand-green-300: #97c79b;
+  --color-brand-green-400: #66a96c;
+  --color-brand-green-500: #479a4d;
+  --color-brand-green-600: #3a8c3f;
+  --color-brand-green-700: #2e6f32;
+  --color-brand-green-800: #275a2a;
+  --color-brand-green-900: #214a24;
+  --color-brand-green-950: #0e280f;
+
+  /* ---- Brand: blue ---- */
+  --color-brand-blue: #1b5faa;
+  --color-brand-blue-50: #f0f6fc;
+  --color-brand-blue-100: #dfebf8;
+  --color-brand-blue-200: #c6dcf3;
+  --color-brand-blue-300: #9fc6ea;
+  --color-brand-blue-400: #71a8de;
+  --color-brand-blue-500: #4f8bd2;
+  --color-brand-blue-600: #1b5faa;
+  --color-brand-blue-700: #1a538f;
+  --color-brand-blue-800: #1a4776;
+  --color-brand-blue-900: #1a3d62;
+  --color-brand-blue-950: #112741;
+
+  /* ---- Semantic surfaces and text ---- */
+  --color-ink: #10231a;
+  --color-ink-muted: #55665c;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #f6f8f6;
+  --color-border: #dde4de;
+
+  /* ---- Type ---- */
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+
+  /* ---- Layout ---- */
+  --spacing-gutter: 1.25rem;
+  --spacing-section: 4rem;
+  --container-content: 72rem;
+  --radius-card: 0.75rem;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    line-height: 1.2;
+    text-wrap: balance;
+    font-weight: 600;
+  }
+
+  a {
+    color: var(--color-brand-blue);
+  }
+
+  a:hover {
+    color: var(--color-brand-blue-700);
+  }
+
+  /* Keyboard focus stays visible everywhere — this is the only focus treatment. */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-blue);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

@@ -1,0 +1,57 @@
+import { z } from 'zod'
+
+/**
+ * Frontmatter schema for knowledge-base articles (content/kb/*.mdx).
+ *
+ * Two fields decide whether an article reaches the public build:
+ *
+ *   audience === 'public'    — 'operator' articles belong to the CRM-side KB, not here
+ *   status   === 'published' — Freshdesk drafts must never ship
+ *
+ * Both are enforced in lib/content.ts. Widening that filter is a deliberate act, not
+ * something to do casually.
+ */
+
+const isoDate = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected an ISO date (YYYY-MM-DD)')
+
+export const kbStatus = z.enum(['published', 'draft', 'archived'])
+export const kbAudience = z.enum(['public', 'operator'])
+
+export const kbFrontmatterSchema = z.object({
+  /** URL segment under /knowledge. Must match the filename. */
+  slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be kebab-case'),
+  title: z.string().min(1),
+  summary: z.string().min(1),
+  /** e.g. 'allianz', 'bupa', 'aig'. Null for carrier-agnostic articles. */
+  carrier: z.string().nullable(),
+  /** e.g. 'international-health', 'employee-benefits', 'maternity'. */
+  productLine: z.string().nullable(),
+  audience: kbAudience,
+  topic: z.string(),
+  /** ISO 3166-1 alpha-2, or 'GLOBAL'. */
+  jurisdiction: z.string(),
+  lastReviewed: isoDate,
+  reviewDue: isoDate,
+  status: kbStatus,
+  /** Original Freshdesk article URL — this is what the per-article 301 map keys on. */
+  sourceUrl: z.string().url(),
+})
+
+export type KbFrontmatter = z.infer<typeof kbFrontmatterSchema>
+export type KbStatus = z.infer<typeof kbStatus>
+export type KbAudience = z.infer<typeof kbAudience>
+
+/** Freshdesk Solutions API encodes article status numerically. */
+export function freshdeskStatusToKbStatus(status: number): KbStatus {
+  switch (status) {
+    case 1:
+      return 'draft'
+    case 2:
+      return 'published'
+    default:
+      // Unknown values are treated as drafts — fail closed, never publish by accident.
+      return 'draft'
+  }
+}

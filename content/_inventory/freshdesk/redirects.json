@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "generatedAt": null,
+  "$comment": "Per-article 301 map for support.asktic.com/support/solutions/articles/*. Written by scripts/crawl-freshdesk.ts, spliced into render.yaml by scripts/gen-redirects.ts.",
+  "articles": []
+}
