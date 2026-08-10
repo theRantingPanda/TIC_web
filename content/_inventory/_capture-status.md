@@ -8,7 +8,34 @@ Last updated: 2026-08-10
 policy. Allowlist `asktic.com`, `*.asktic.com`, `*.wixstatic.com`, then run
 `npm run capture:site` and `npm run capture:assets`.
 
-## Freshdesk help centre — PARTIAL (4 of 33 articles to pull)
+## Freshdesk help centre — STOPPED BY DECISION (2026-08-10)
+
+**Article extraction is halted and will not be resumed.** Most Solutions content is
+stale; Steven will supply KB copy by hand instead. Do not restart the pull to "finish"
+this — the remaining 29 articles are not wanted.
+
+⚠ **The 4 captured Allianz articles below are NOT a source of truth.** They are a
+point-in-time archive of content already judged stale. Do not port them into
+`content/kb/`. KB copy comes from Steven.
+
+The folder inventory is still accurate and worth keeping — it is a record of what the
+help centre contained at migration time.
+
+### What this costs, and why it is probably fine
+
+The brief's hard constraint included a per-article 301 map for
+`support.asktic.com/support/solutions/articles/*`. Without extraction there are no
+article IDs, so that map cannot be built.
+
+That is very likely moot: `support.asktic.com` points at **Freshdesk**, not Render, so
+those URLs keep being served by Freshdesk exactly as they are today and need no
+redirect. The map only ever mattered if the hostname were repointed at the new site.
+
+If it is repointed later, the map needs **article IDs and titles only — not bodies**.
+That is a listing-only pull, a fraction of the cost of a content capture, and
+`npm run capture:freshdesk` already does it. The tooling stays in place for that case.
+
+### Inventory as captured (4 of 33 articles pulled before stopping)
 
 Every category and folder has been enumerated against the live Solutions API. Only the
 Allianz folder's articles have been pulled.

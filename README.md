@@ -12,7 +12,7 @@ section.
 
 | Phase | Status |
 | --- | --- |
-| **1 — Capture** | **Partial.** Wix: not started (egress blocked). Freshdesk: all folders enumerated, 4 of 34 articles pulled. See [`content/_inventory/_capture-status.md`](content/_inventory/_capture-status.md) — it also records three findings that contradict the brief. |
+| **1 — Capture** | Wix: **not started** (egress blocked). Freshdesk: **stopped by decision** — content is stale and will be supplied by hand; folder inventory kept. See [`content/_inventory/_capture-status.md`](content/_inventory/_capture-status.md). |
 | **2 — Scaffold** | Complete. Builds, exports, and passes the URL-contract check. |
 | 3 — Port content | Not started. |
 
@@ -28,26 +28,17 @@ npm run capture:site        # sitemap -> content/_inventory/pages/
 npm run capture:assets      # wixstatic images -> public/images/
 ```
 
-**Freshdesk — routed through n8n.** The pull goes through the workflow **Freshdesk
-Solutions Read** (`6bjXz8CZRHY1k2d9`, published), so **no Freshdesk API key enters this
-environment** — it stays on the workflow's node. That matters because cloud environments
-have no secrets store and a Freshdesk key carries its agent's full read/write
-permissions. Verified end to end against the live Solutions API.
+**Freshdesk — stopped by decision.** Solutions content is stale; KB copy will be written
+by hand into `content/kb/` rather than ported. Do not restart the article pull. The
+4 captured Allianz articles are an archive only and must not be ported — see
+[`_capture-status.md`](content/_inventory/_capture-status.md).
 
-Allowlist `asktic.app.n8n.cloud` and `s3.amazonaws.com` (signed attachment downloads),
-and set `DRIVE_INDEX_WEBHOOK_SECRET` — the webhook's own secret, which opens nothing but
-that one read-only workflow. Then:
-
-```bash
-npm run capture:freshdesk   # walks everything -> _raw.json
-npm run ingest:freshdesk    # _raw.json -> capture files + redirects.json
-npm run gen:redirects       # article map -> render.yaml
-```
-
-The same workflow can be driven over the n8n MCP connector with no allowlist or secret
-at all, which is right for spot checks but not for the migration: over MCP every article
-body travels through the model's context and back out to disk, which is why the first
-attempt stalled at 4 of 33 articles.
+The tooling remains for one specific future case: if `support.asktic.com` is ever
+repointed from Freshdesk to this site, its article URLs would need a 301 map, which
+requires a **listing-only** pull (IDs and titles, no bodies). `npm run capture:freshdesk`
+does that via the n8n workflow **Freshdesk Solutions Read** (`6bjXz8CZRHY1k2d9`), which
+keeps the Freshdesk API key inside n8n — it needs `asktic.app.n8n.cloud` allowlisted and
+`DRIVE_INDEX_WEBHOOK_SECRET` set.
 
 See `content/_inventory/README.md` for the action list and the `_raw.json` shape.
 
