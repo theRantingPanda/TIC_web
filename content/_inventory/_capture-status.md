@@ -8,20 +8,22 @@ Last updated: 2026-08-10
 policy. Allowlist `asktic.com`, `*.asktic.com`, `*.wixstatic.com`, then run
 `npm run capture:site` and `npm run capture:assets`.
 
-## Freshdesk help centre — PARTIAL (4 of 34 articles)
+## Freshdesk help centre — PARTIAL (4 of 33 articles to pull)
 
 Every category and folder has been enumerated against the live Solutions API. Only the
 Allianz folder's articles have been pulled.
 
 | Category | Folder | Folder ID | Articles | Visibility | Scope | Pulled |
 | --- | --- | --- | --- | --- | --- | --- |
-| General | AIG | 6000243819 | 0 | 1 | — | n/a (empty) |
+| General | AIG | 6000243819 | 0 | 1 | excluded | n/a (empty) |
 | Medical Insurance | Allianz | 6000244889 | 4 | 1 | public | **yes** |
 | Medical Insurance | BUPA | 6000189001 | 12 | 1 | public | no |
-| INTERNAL | AIG | 6000244183 | 1 | 1 | **public** | no |
+| INTERNAL | AIG | 6000244183 | 1 | 1 | **excluded** | no |
 | INTERNAL | BUPA | 6000244109 | 7 | 3 | internal | no |
 | INTERNAL | Corporate Accounts | 6000244110 | 9 | 3 | internal | no |
 | INTERNAL | Cigna | 6000244152 | 1 | 3 | internal | no |
+
+Public scope is therefore **16 articles** (Allianz 4 + BUPA 12), of which 4 are pulled.
 
 `_raw.json` carries `complete: false`, which propagates to `redirects.json` and makes
 `npm run gen:redirects` refuse to run. A partial 301 map is worse than no map — the
@@ -39,21 +41,34 @@ or the brief is wrong. Needs a decision before the KB information architecture i
 is empty. So the article the brief calls a public legacy article does exist, but it
 lives under INTERNAL.
 
+**RESOLVED (2026-08-10): AIG is dropped — the partnership is winding down.** The article
+is archived for the record but never published, and gets **no 301**; its indexed URL is
+meant to lapse. `EXCLUDED_FOLDERS` in `scripts/ingest-freshdesk.ts` records this
+explicitly rather than letting it depend on AIG happening to sit under INTERNAL — if
+the visibility rule below is ever revisited, the exclusion still holds.
+
+Open, if you want it tidier than a bare 404: the retiring
+`/support/solutions/articles/<id>-...` URL could 301 to `/knowledge` instead of dying,
+so stray inbound links land somewhere useful. A `410 Gone` is the other defensible
+option and is the stronger signal to search engines to drop it. Currently it will simply
+404. No action taken either way.
+
 **3. "The INTERNAL category is not publicly served" is not true as stated.** It is true
 of three of its four folders. Folder visibility, not category name, is what Freshdesk
 actually enforces.
 
 ### How the ingest classifies this
 
-`scripts/ingest-freshdesk.ts` currently treats *anything* under a category matching
-`/internal/i` as internal, **and** anything whose folder visibility is not `1` as
-internal. Under that rule the public AIG article would be classified internal and would
-not get a 301 — losing an indexed URL.
+`scripts/ingest-freshdesk.ts` applies, in order:
 
-This has deliberately **not** been silently changed. Folder visibility is the
-authoritative signal and arguably should win, but flipping it would mean an article
-filed under INTERNAL becomes eligible for the public build, and that is not a call to
-make without Steven confirming the AIG article is genuinely meant to be public.
+1. `EXCLUDED_FOLDERS` — retired by decision, archived only, never public, no redirect.
+2. Category matching `/internal/i`, **or** folder visibility ≠ 1 → internal.
+3. Otherwise → public.
+
+Rule 2 is deliberately fail-closed and remains unchanged. With AIG excluded outright,
+the practical conflict it created is gone, so there is no longer a reason to loosen it.
+Should another publicly-visible folder ever appear under INTERNAL, the same question
+returns — and it should be answered explicitly, not by changing the rule silently.
 
 Nothing is at risk in the meantime: only files in `content/kb/` reach the build, and
 that directory is still empty.

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-08-10T11:34:10.500Z",
+  "generatedAt": "2026-08-10T11:52:09.421Z",
   "complete": false,
   "$comment": "Per-article 301 map for the Freshdesk help centre. Public articles only — internal ones were never publicly indexed. Spliced into render.yaml by scripts/gen-redirects.ts.",
   "articles": [

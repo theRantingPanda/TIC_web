@@ -28,6 +28,23 @@ const RAW_PATH = path.join(FRESHDESK_DIR, '_raw.json')
 /** Freshdesk folder visibility: 1 = anyone. Everything else is gated. */
 const VISIBILITY_ALL = 1
 
+/**
+ * Folders excluded from the public site by explicit decision, whatever their Freshdesk
+ * visibility says.
+ *
+ * - `aig` — partnership being wound down (decision 2026-08-10). Its article is still
+ *   archived for the record, but is never published and gets no 301: the indexed URL
+ *   is meant to lapse.
+ *
+ * This is stated explicitly rather than left to fall out of the INTERNAL-category rule.
+ * AIG currently sits under INTERNAL, so today the two agree — but that is coincidence.
+ * If the visibility rule is ever revisited (see _capture-status.md), this list is what
+ * keeps the decision from silently reversing.
+ */
+const EXCLUDED_FOLDERS = new Set(['aig'])
+
+type Scope = 'public' | 'internal' | 'excluded'
+
 type RawArticle = {
   id: number
   title: string
@@ -96,6 +113,7 @@ const redirects: {
 
 let publicCount = 0
 let internalCount = 0
+let excludedCount = 0
 const draftsInPublicFolders: string[] = []
 
 for (const category of raw.categories) {
@@ -104,8 +122,13 @@ for (const category of raw.categories) {
   const isInternalCategory = /internal/i.test(category.name)
 
   for (const folder of category.folders) {
-    const scope: 'public' | 'internal' =
-      isInternalCategory || folder.visibility !== VISIBILITY_ALL ? 'internal' : 'public'
+    const folderSlug = slugify(folder.name)
+    // Explicit exclusion wins over everything, including a public folder visibility.
+    const scope: Scope = EXCLUDED_FOLDERS.has(folderSlug)
+      ? 'excluded'
+      : isInternalCategory || folder.visibility !== VISIBILITY_ALL
+        ? 'internal'
+        : 'public'
 
     for (const article of folder.articles) {
       const slug = slugify(article.title)
@@ -114,7 +137,7 @@ for (const category of raw.categories) {
       const status = freshdeskStatusToKbStatus(article.status)
 
       writeJson(
-        path.join(FRESHDESK_DIR, scope, slugify(folder.name), `${article.id}-${slug}.json`),
+        path.join(FRESHDESK_DIR, scope, folderSlug, `${article.id}-${slug}.json`),
         {
           id: article.id,
           title: article.title,
@@ -133,9 +156,14 @@ for (const category of raw.categories) {
         },
       )
 
-      if (scope === 'public') {
+      if (scope === 'excluded') {
+        excludedCount++
+      } else if (scope === 'internal') {
+        internalCount++
+      } else {
         publicCount++
-        // Internal articles were never publicly indexed, so they get no 301.
+        // Only public articles get a 301. Internal ones were never indexed; excluded
+        // ones are retired on purpose and their URLs are meant to lapse.
         redirects.push({
           articleId: article.id,
           title: article.title,
@@ -147,8 +175,6 @@ for (const category of raw.categories) {
         if (status !== 'published') {
           draftsInPublicFolders.push(`${article.id} — ${article.title} (${status})`)
         }
-      } else {
-        internalCount++
       }
     }
   }
@@ -174,9 +200,15 @@ writeJson(path.join(FRESHDESK_DIR, 'redirects.json'), {
 })
 
 console.log(
-  `✓ ${publicCount} public + ${internalCount} internal article(s) written to ` +
-    `${path.relative(ROOT, FRESHDESK_DIR)}`,
+  `✓ ${publicCount} public + ${internalCount} internal + ${excludedCount} excluded ` +
+    `article(s) written to ${path.relative(ROOT, FRESHDESK_DIR)}`,
 )
+if (excludedCount > 0) {
+  console.log(
+    `  ${excludedCount} archived but never published, and given no 301 ` +
+      `(excluded folders: ${[...EXCLUDED_FOLDERS].join(', ')}).`,
+  )
+}
 if (complete) {
   console.log(`  ${redirects.length} redirect(s) mapped. Next: npm run gen:redirects`)
 } else {

@@ -13,14 +13,6 @@
     },
     {
       "category": "INTERNAL",
-      "folder": "AIG",
-      "folderId": 6000244183,
-      "articles": 1,
-      "visibility": 1,
-      "scope": "public (folder visibility 1 despite INTERNAL category)"
-    },
-    {
-      "category": "INTERNAL",
       "folder": "BUPA",
       "folderId": 6000244109,
       "articles": 7,
@@ -42,6 +34,14 @@
       "articles": 1,
       "visibility": 3,
       "scope": "internal"
+    },
+    {
+      "category": "INTERNAL",
+      "folder": "AIG",
+      "folderId": 6000244183,
+      "articles": 1,
+      "visibility": 1,
+      "scope": "excluded (AIG partnership winding down) - archive only, no redirect"
     }
   ],
   "categories": [
