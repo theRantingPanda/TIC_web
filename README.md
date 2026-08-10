@@ -12,38 +12,45 @@ section.
 
 | Phase | Status |
 | --- | --- |
-| **1 — Capture** | Tooling written and typechecked. **Not run.** See [blocked](#phase-1-is-blocked) below. |
+| **1 — Capture** | Tooling written and typechecked. **Not run.** Wix half blocked on egress; Freshdesk half ready. See below. |
 | **2 — Scaffold** | Complete. Builds, exports, and passes the URL-contract check. |
 | 3 — Port content | Not started. |
 
-### Phase 1 is blocked
+### Phase 1: Wix is blocked, Freshdesk is not
 
-The capture scripts could not run in the environment where this scaffold was built.
-`www.asktic.com`, `support.asktic.com` and `static.wixstatic.com` all return `403` from
-the egress proxy — an organisation policy denial, not a transient failure.
+**Wix — blocked.** `www.asktic.com` and `static.wixstatic.com` return `403` from the
+egress proxy: an organisation policy denial, not a transient failure. Allowlist
+`asktic.com`, `*.asktic.com` and `*.wixstatic.com` on the environment's network settings
+([docs](https://code.claude.com/docs/en/claude-code-on-the-web)), then:
 
-**No page content, article text or inventory row has been invented to paper over this.**
-`content/_inventory/` contains empty containers and a format spec, nothing more. The
+```bash
+npm run capture:site        # sitemap -> content/_inventory/pages/
+npm run capture:assets      # wixstatic images -> public/images/
+```
+
+**Freshdesk — ready now, no setup.** The pull routes through the n8n workflow
+**Freshdesk Solutions Read** (`6bjXz8CZRHY1k2d9`) over the n8n MCP connector, which
+travels through Anthropic's servers rather than the session's network. So no Freshdesk
+host needs allowlisting and **no API key enters the environment** — deliberately, since
+cloud environments have no secrets store and a Freshdesk key carries its agent's full
+read/write permissions. Verified end to end against the live Solutions API.
+
+```bash
+# walk categories -> folders -> articles via mcp__n8n__execute_workflow,
+# assemble content/_inventory/freshdesk/_raw.json, then:
+npm run ingest:freshdesk    # _raw.json -> capture files + redirects.json
+npm run gen:redirects       # article map -> render.yaml
+```
+
+See `content/_inventory/README.md` for the action list and the `_raw.json` shape.
+
+**No page content, article text or inventory row has been invented to paper over the
+blocked half.** `content/_inventory/` contains empty containers and a format spec. The
 page list in `content/url-contract.json` is assembled from the project brief and has
 **not** been reconciled against the real sitemap.
 
-To unblock:
-
-1. Allowlist `www.asktic.com`, `support.asktic.com` and `static.wixstatic.com` on the
-   environment's network settings
-   ([docs](https://code.claude.com/docs/en/claude-code-on-the-web)).
-2. Set `FRESHDESK_API_KEY` (see `.env.example`).
-3. Run the capture chain:
-
-   ```bash
-   npm run capture:site        # sitemap -> content/_inventory/pages/
-   npm run capture:assets      # wixstatic images -> public/images/
-   npm run capture:freshdesk   # help centre + Solutions API -> content/_inventory/freshdesk/
-   npm run gen:redirects       # article map -> render.yaml
-   ```
-
-4. Reconcile `content/url-contract.json` against the captured sitemap, and correct the
-   nav grouping in `lib/site.ts` (currently a documented placeholder).
+Once captured, reconcile `content/url-contract.json` against the real sitemap and
+correct the nav grouping in `lib/site.ts` (currently a documented placeholder).
 
 The capture scripts enforce the brief's stop conditions as hard gates — sitemap over 20
 pages, suspected client-identifying content, or substantial `/blog` / `/projects`
@@ -169,4 +176,8 @@ Two fields gate the public build, filtered in one place (`getPublicKbArticles`):
 ## Out of scope
 
 `TIC_CRM_WebAPP` · the live Wix site (read-only) · Freshdesk content (read-only — the
-capture scripts issue `GET` only) · DNS.
+n8n proxy is `GET`-only and action-whitelisted to `/api/v2/solutions/*`) · DNS.
+
+The existing **Freshdesk Read Tool** workflow was deliberately left untouched: it is the
+CRM's canonical ticket path with a long validation history, and the site migration has
+no business regressing it. Solutions access is a separate, additive workflow.

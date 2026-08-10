@@ -6,26 +6,88 @@ hand-ported from here into `app/` and `content/kb/` in Phase 3.
 
 ## Status: empty, and deliberately so
 
-Nothing has been captured yet. The crawl could not run in the environment where this
-scaffold was built: `www.asktic.com`, `support.asktic.com` and `static.wixstatic.com`
-are all blocked by the egress policy (verified — `403 CONNECT` / `EGRESS_BLOCKED`).
+Nothing has been captured yet.
+
+The **Wix** crawl could not run in the environment where this scaffold was built:
+`www.asktic.com` and `static.wixstatic.com` are blocked by the egress policy (verified —
+`403 CONNECT` / `EGRESS_BLOCKED`).
+
+The **Freshdesk** pull is no longer blocked — it routes through n8n (see below) and the
+connection has been verified end to end against the live Solutions API. What is
+confirmed so far, and nothing more:
+
+| Category | Folder | Articles | Visibility |
+| --- | --- | --- | --- |
+| Medical Insurance | Allianz | 4 | 1 (public) |
+| Medical Insurance | BUPA | 12 | 1 (public) |
+
+Categories present: `General`, `Medical Insurance`, `INTERNAL`. The `General` and
+`INTERNAL` folder listings have **not** been enumerated yet — the brief's "FAQ folder
+and one legacy AIG article" is unverified.
 
 No page content, article text or inventory row has been invented to fill the gap. Every
 file below is either an empty container or a schema.
 
 ### To run the capture
 
-1. Allowlist `www.asktic.com`, `support.asktic.com` and `static.wixstatic.com` on the
-   environment's egress policy.
-2. Set `FRESHDESK_API_KEY` (see `.env.example`).
-3. Run, in order:
+The two halves have different blockers. The Freshdesk half is **already unblocked**;
+only the Wix half needs the egress allowlist.
 
-   ```
-   npm run capture:site        # sitemap -> pages/
-   npm run capture:assets      # wixstatic images -> ../../public/images
-   npm run capture:freshdesk   # help centre + Solutions API -> freshdesk/
-   npm run gen:redirects       # freshdesk/redirects.json -> render.yaml
-   ```
+**Wix (blocked):** allowlist `asktic.com`, `*.asktic.com` and `*.wixstatic.com` on the
+environment's network settings, then:
+
+```
+npm run capture:site        # sitemap -> pages/
+npm run capture:assets      # wixstatic images -> ../../public/images
+```
+
+**Freshdesk (no setup needed):** the pull goes through the n8n workflow
+**Freshdesk Solutions Read** (`6bjXz8CZRHY1k2d9`) over the n8n MCP connector. Connector
+traffic travels through Anthropic's servers rather than the session's network, so no
+Freshdesk host needs allowlisting and **no API key enters the environment** — the
+credential stays on the workflow's `Call Freshdesk API` node.
+
+```
+mcp__n8n__execute_workflow(workflowId: "6bjXz8CZRHY1k2d9", executionMode: "manual",
+  inputs: { type: "webhook", webhookData: { method: "POST",
+            body: { action: "list_categories" } } })
+```
+
+Actions: `list_categories`, `list_folders` (needs `category_id`), `list_articles`
+(needs `folder_id`, optional `page` / `per_page`). Walk categories → folders →
+articles, assemble `_raw.json` in the shape below, then:
+
+```
+npm run ingest:freshdesk    # _raw.json -> public/ + internal/ + redirects.json
+npm run gen:redirects       # redirects.json -> render.yaml
+```
+
+**ALWAYS check `statusCode` in the response.** The workflow runs with `neverError`, so a
+401 or 404 from Freshdesk still returns a successful-looking execution with
+`success: false`. Treating a completed execution as a successful fetch is the same
+silent-failure class the retired Make scenario had.
+
+#### `_raw.json` shape
+
+```jsonc
+{
+  "capturedAt": "2026-08-10T00:00:00.000Z",
+  "categories": [
+    {
+      "id": 6000136048,
+      "name": "Medical Insurance",
+      "folders": [
+        {
+          "id": 6000244889,
+          "name": "Allianz",
+          "visibility": 1,           // 1 = public; anything else is treated as internal
+          "articles": [ /* verbatim Freshdesk article objects */ ]
+        }
+      ]
+    }
+  ]
+}
+```
 
 ## Layout
 

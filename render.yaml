@@ -35,5 +35,5 @@ services:
         destination: /forms
 
       # BEGIN GENERATED freshdesk-article-map
-      # (empty until `npm run capture:freshdesk` has run)
+      # (empty until `npm run ingest:freshdesk` has run)
       # END GENERATED freshdesk-article-map

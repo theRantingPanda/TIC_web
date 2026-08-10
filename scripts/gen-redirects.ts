@@ -1,7 +1,7 @@
 /**
  * Splices the per-article Freshdesk 301 map into render.yaml.
  *
- * Source:      content/_inventory/freshdesk/redirects.json  (written by capture:freshdesk)
+ * Source:      content/_inventory/freshdesk/redirects.json  (written by ingest:freshdesk)
  * Destination: the BEGIN/END GENERATED block in render.yaml
  *
  * Idempotent — safe to re-run after every capture.
@@ -41,7 +41,7 @@ if (beginIndex === -1 || endIndex === -1) {
 
 const lines: string[] = []
 if (map.articles.length === 0) {
-  lines.push(`${INDENT}# (empty until \`npm run capture:freshdesk\` has run)`)
+  lines.push(`${INDENT}# (empty until \`npm run ingest:freshdesk\` has run)`)
 } else {
   lines.push(
     `${INDENT}# ${map.articles.length} article(s), generated ${map.generatedAt ?? 'unknown'}`,

@@ -128,7 +128,7 @@ async function main(): Promise<void> {
     console.error(`✗ ${failures} image(s) failed to download — see the log above.`)
     process.exit(1)
   }
-  console.log('  Next: npm run capture:freshdesk')
+  console.log('  Next: pull Freshdesk via n8n, then npm run ingest:freshdesk')
 }
 
 main().catch((error) => {
