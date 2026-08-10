@@ -1,6 +1,40 @@
 {
   "version": 1,
-  "generatedAt": null,
-  "$comment": "Per-article 301 map for support.asktic.com/support/solutions/articles/*. Written by scripts/ingest-freshdesk.ts, spliced into render.yaml by scripts/gen-redirects.ts.",
-  "articles": []
+  "generatedAt": "2026-08-10T11:34:10.500Z",
+  "complete": false,
+  "$comment": "Per-article 301 map for the Freshdesk help centre. Public articles only — internal ones were never publicly indexed. Spliced into render.yaml by scripts/gen-redirects.ts.",
+  "articles": [
+    {
+      "articleId": 6000279634,
+      "title": "Allianz - Family Policy Number & Access Rules",
+      "sourceUrl": "https://support.asktic.com/support/solutions/articles/6000279634-allianz-family-policy-number-access-rules",
+      "sourcePath": "/support/solutions/articles/6000279634-allianz-family-policy-number-access-rules",
+      "destination": "/knowledge/allianz-family-policy-number-access-rules",
+      "status": "published"
+    },
+    {
+      "articleId": 6000280620,
+      "title": "Protecting Your Medical Privacy",
+      "sourceUrl": "https://support.asktic.com/support/solutions/articles/6000280620-protecting-your-medical-privacy",
+      "sourcePath": "/support/solutions/articles/6000280620-protecting-your-medical-privacy",
+      "destination": "/knowledge/protecting-your-medical-privacy",
+      "status": "published"
+    },
+    {
+      "articleId": 6000280764,
+      "title": "Setting up Direct Billing for your treatment in the Hospital with Allianz",
+      "sourceUrl": "https://support.asktic.com/support/solutions/articles/6000280764-setting-up-direct-billing-for-your-treatment-in-the-hospital-with-allianz",
+      "sourcePath": "/support/solutions/articles/6000280764-setting-up-direct-billing-for-your-treatment-in-the-hospital-with-allianz",
+      "destination": "/knowledge/setting-up-direct-billing-for-your-treatment-in-the-hospital-with-allianz",
+      "status": "published"
+    },
+    {
+      "articleId": 6000282075,
+      "title": "Allianz - Submitting Claims Manually — What You Need to Know",
+      "sourceUrl": "https://support.asktic.com/support/solutions/articles/6000282075-allianz-submitting-claims-manually-what-you-need-to-know",
+      "sourcePath": "/support/solutions/articles/6000282075-allianz-submitting-claims-manually-what-you-need-to-know",
+      "destination": "/knowledge/allianz-submitting-claims-manually-what-you-need-to-know",
+      "status": "published"
+    }
+  ]
 }

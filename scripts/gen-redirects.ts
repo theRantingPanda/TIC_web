@@ -17,6 +17,7 @@ const INDENT = ' '.repeat(6)
 
 type RedirectMap = {
   generatedAt: string | null
+  complete?: boolean
   articles: {
     articleId: number
     title: string
@@ -30,6 +31,20 @@ const renderYamlPath = path.join(ROOT, 'render.yaml')
 const redirectsPath = path.join(FRESHDESK_DIR, 'redirects.json')
 
 const map = readJson<RedirectMap>(redirectsPath)
+
+// A partial map is worse than an empty one: every article it omits would 404 on
+// cutover with no signal, which is precisely the search equity this project protects.
+// Refuse rather than emit something that looks finished.
+if (map.articles.length > 0 && map.complete !== true) {
+  console.error(
+    'Refusing to generate: the Freshdesk capture is incomplete ' +
+      '(redirects.json has complete: false).\n' +
+      'Finish pulling every folder, re-run `npm run ingest:freshdesk`, then retry.\n' +
+      'See content/_inventory/_capture-status.md for what is outstanding.',
+  )
+  process.exit(1)
+}
+
 const yaml = fs.readFileSync(renderYamlPath, 'utf8')
 
 const beginIndex = yaml.indexOf(BEGIN)

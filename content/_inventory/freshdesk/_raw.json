@@ -1,0 +1,113 @@
+{
+  "capturedAt": "2026-08-10T11:33:10.010Z",
+  "complete": false,
+  "$comment": "PARTIAL CAPTURE. Only the Allianz folder has been pulled. See _capture-status.md. Do not treat redirects.json as a complete 301 map while complete=false.",
+  "pending": [
+    {
+      "category": "Medical Insurance",
+      "folder": "BUPA",
+      "folderId": 6000189001,
+      "articles": 12,
+      "visibility": 1,
+      "scope": "public"
+    },
+    {
+      "category": "INTERNAL",
+      "folder": "AIG",
+      "folderId": 6000244183,
+      "articles": 1,
+      "visibility": 1,
+      "scope": "public (folder visibility 1 despite INTERNAL category)"
+    },
+    {
+      "category": "INTERNAL",
+      "folder": "BUPA",
+      "folderId": 6000244109,
+      "articles": 7,
+      "visibility": 3,
+      "scope": "internal"
+    },
+    {
+      "category": "INTERNAL",
+      "folder": "Corporate Accounts",
+      "folderId": 6000244110,
+      "articles": 9,
+      "visibility": 3,
+      "scope": "internal"
+    },
+    {
+      "category": "INTERNAL",
+      "folder": "Cigna",
+      "folderId": 6000244152,
+      "articles": 1,
+      "visibility": 3,
+      "scope": "internal"
+    }
+  ],
+  "categories": [
+    {
+      "id": 6000075230,
+      "name": "General",
+      "folders": [
+        {
+          "id": 6000243819,
+          "name": "AIG",
+          "visibility": 1,
+          "articles": []
+        }
+      ]
+    },
+    {
+      "id": 6000136048,
+      "name": "Medical Insurance",
+      "folders": [
+        {
+          "id": 6000244889,
+          "name": "Allianz",
+          "visibility": 1,
+          "articles": [
+            {
+              "id": 6000279634,
+              "title": "Allianz - Family Policy Number & Access Rules",
+              "status": 2,
+              "updated_at": "2025-08-10T03:30:59Z",
+              "attachments": [
+                {
+                  "id": 6220789373,
+                  "name": "MyHealth Digital Services Guide.pdf",
+                  "content_type": "application/pdf",
+                  "size": 903555
+                }
+              ],
+              "description": "<p dir=\"ltr\"><br></p><pre class=\"fd-callout fd-callout--note\" dir=\"ltr\">The information in this article may only apply to Allianz members under the care of The Insurance Concierge Team</pre><p><br></p><p class=\"p1\"><strong>1. Shared Policy Number</strong></p><p class=\"p2\">Allianz issues <span class=\"s1\"><strong>one policy number per family</strong></span> to simplify the management of your insurance coverage. All insured family members use this same number for claims and portal access.</p><p class=\"p3\"><br></p><p class=\"p1\"><strong>2. Access for Insured Members (Age Rules)</strong></p><p class=\"p1\"><span class=\"s2\">In compliance with Singapore’s&nbsp;</span><strong>Personal Data Protection Act (PDPA)</strong><span class=\"s2\">:</span></p><ul><li><p class=\"p1\">Insured members aged <span class=\"s1\"><strong>16 years and above</strong></span> do <span class=\"s1\"><strong>not</strong></span> automatically grant the Main Member (Primary Policyholder) administrative access to their medical records.</p></li><li><p class=\"p1\">Adult members in the family automatically have access to administer the care of <span class=\"s1\"><strong>minors</strong></span> (under 16).</p></li></ul><p class=\"p3\"><br></p><p class=\"p1\"><strong>3. Granting Access</strong></p><p class=\"p2\">If the Main Member requires access to a spouse’s or older child’s medical information:</p><ul><li><p class=\"p1\">The individual must <span class=\"s1\"><strong>explicitly grant</strong></span> permission by creating their own Allianz member portal login.</p></li><li><p class=\"p1\">They can register using the shared family policy number here: <a href=\"https://my.allianzcare.com/myhealth/1/login\">Allianz Member Portal</a></p></li></ul><p class=\"p3\"><br></p><p class=\"p1\"><strong>4. Portal Guide</strong></p><p class=\"p2\" dir=\"ltr\">A step-by-step guide on how to use the portal is appended at the end of this article.</p><p dir=\"ltr\"><br></p>"
+            },
+            {
+              "id": 6000282075,
+              "title": "Allianz - Submitting Claims Manually — What You Need to Know",
+              "status": 2,
+              "updated_at": "2025-12-01T03:03:43Z",
+              "attachments": [],
+              "description": "<h2><br></h2><pre class=\"fd-callout fd-callout--note\" dir=\"ltr\">Disclaimer - This article is not from the insurer and is only for the reference for members under the care of The Insurance Concierge</pre><p><br></p><p class=\"p1\" dir=\"ltr\">If you prefer <span class=\"s1\"><strong>not</strong></span> to use the online portal to submit medical claims (or are unable to use it), you can still submit claims manually using the official claim form. Below is a step-by-step guide to help you submit correctly.&nbsp;</p><p class=\"p3\"><br></p><h3><strong dir=\"ltr\">What you need: the official claim form</strong></h3><ul><li><p class=\"p1\" dir=\"ltr\">Download the form from Allianz’s website <a href=\"https://www.allianzcare.com/content/dam/onemarketing/azcare/allianzcare/en/docs/FRM-CF-SG-0520.pdf\">https://www.allianzcare.com/content/dam/onemarketing/azcare/allianzcare/en/docs/FRM-CF-SG-0520.pdf</a></p></li><li><p>Email to: claims@allianzworldwidecare.com</p><p>Fax to: + 353 1 645 4033 or</p><p>Post to: Claims Department, Allianz Care, 15 Joyce Way, Park West Business Campus,</p><p dir=\"ltr\">Nangor Road, Dublin 12, Ireland</p></li></ul><hr><h3><strong dir=\"ltr\">How to submit a manual claim — Step by Step</strong></h3><table><thead><tr><th><p class=\"p1\"><strong>Step</strong></p></th><th><p class=\"p1\"><strong>Action</strong></p></th></tr></thead><tbody><tr><td><p class=\"p1\"><strong>1. Fill out the form carefully</strong></p></td><td><p class=\"p1\">Complete all required sections in the claim form: personal details, policy number, patient details, diagnosis/treatment dates, provider details, and treatment/medication costs. Ensure the form is signed where indicated.</p></td></tr><tr><td><p class=\"p1\"><strong>2. Attach supporting documents</strong></p></td><td><p class=\"p1\">Include original receipts/invoices from hospital/clinic/pharmacy, doctor’s referral (if required), diagnostic reports, prescriptions — whichever apply to your claim.</p></td></tr><tr><td><p class=\"p1\"><strong>3. Take copies (optional but recommended)</strong></p></td><td><p class=\"p1\">Keep a photocopy or scanned copy of everything you submit — receipt originals, form, reports — for your records.</p></td></tr><tr><td><p class=\"p1\"><strong dir=\"ltr\">4. Submit via email post&nbsp;</strong></p></td><td><p class=\"p1\">Send the completed form + documents to the claims address provided by the insurer. Check you have the correct mailing address.</p></td></tr><tr><td><p class=\"p1\"><strong dir=\"ltr\">5. Sections 5 &amp; 6</strong></p></td><td><p class=\"p1\" dir=\"ltr\">These section though not mandatory, but we strongly recommend getting your physician to populate them if&nbsp;</p><ul><li class=\"p1\" dir=\"ltr\">Your treatment bill is large</li><li class=\"p1\" dir=\"ltr\">The treatment plan is complex&nbsp;</li><li class=\"p1\" dir=\"ltr\">Bills are not itemised</li><li class=\"p1\" dir=\"ltr\">Your policy was enrolled under moratorium or full medical underwriting terms.</li></ul></td></tr><tr><td><p class=\"p1\"><strong dir=\"ltr\">6. Tracking your claims&nbsp;</strong></p></td><td><p class=\"p1\" dir=\"ltr\">The claims outcome will be published in your members' portal or you may also enquire on the status via the insurer's customer service email - asia.helpline@e.allianz.com</p></td></tr></tbody></table><h3><br></h3><h3><strong dir=\"ltr\">What to expect and approximate processing times</strong></h3><ul><li><p class=\"p1\">Once Allianz receives your claim package, they will process and review — this may take longer than portal claims (because of manual handling).</p></li><li><p class=\"p1\">After approval, reimbursement will be made via bank transfer (or as per your payment instructions); bank fees may apply (depending on your bank), and these are typically borne by the member under the policy’s “Currency and charges” clause.</p></li><li><p class=\"p1\">Keep an eye on your email / contact details — Allianz may reach out if they require additional documentation.</p></li></ul><hr><h3><strong dir=\"ltr\">When should you still consider using the online portal</strong></h3><p class=\"p2\"><br></p><p class=\"p3\">Using the portal remains the <span class=\"s2\"><strong>fastest and most convenient method</strong></span>. It helps to:</p><ul><li><p class=\"p1\">Automatically track claim status</p></li><li><p class=\"p1\">Upload digital scans/photos of invoices and reports</p></li><li><p class=\"p1\">Avoid postal delays or lost documents</p></li><li><p class=\"p1\">Receive quicker reimbursement</p></li></ul><p class=\"p2\"><br></p><p class=\"p3\" dir=\"ltr\">However, manual submission remains a valid and supported option — especially if you prefer paper handling or don’t have easy portal access.</p><h2><br></h2>"
+            },
+            {
+              "id": 6000280620,
+              "title": "Protecting Your Medical Privacy",
+              "status": 2,
+              "updated_at": "2025-08-10T03:23:55Z",
+              "attachments": [],
+              "description": "<p class=\"p1\" dir=\"ltr\">Imagine the consequences if sensitive medical information fell into the wrong hands:</p><ol start=\"1\"><li><p class=\"p1\">A prominent politician’s cancer treatment becomes public knowledge.</p></li><li><p class=\"p1\">A multinational corporation’s CEO’s depression treatment is leaked.</p></li><li><p class=\"p1\" dir=\"ltr\">Your executive assistant learned that you are undergoing treatment for a sexually transmitted disease.</p></li></ol><p class=\"p3\"><br></p><p class=\"p1\">In all these cases, personal medical information could be misused, causing reputational, professional, and emotional harm.</p><p class=\"p3\"><br></p><h3><strong dir=\"ltr\">Why Your Information Is Protected</strong></h3><p class=\"p1\">In Singapore, insurers, intermediaries, and healthcare partners are bound by both statutory (Personal Data Protection Act – PDPA) and common law duties to safeguard your medical information. These safeguards mean:</p><ul><li><p class=\"p1\">Your HR manager or insurance broker/intermediary does <span class=\"s1\"><strong>not</strong></span> have access to the details or nature of your claims.</p></li><li><p class=\"p1\">They cannot see how much of your benefit has been used or which specific benefit has been drawn down.</p></li><li><p class=\"p1\">Even adult family members — including your spouse or 18-year-old child — cannot access your records without your consent.</p></li></ul><p class=\"p3\"><br></p><p class=\"p1\">Insurers are legally prohibited from disclosing your health insurance claims outcomes to family members unless you have expressly consented, or where an exception under the PDPA applies (e.g., emergencies or legal obligations).</p><p class=\"p3\"><br></p><h3><strong dir=\"ltr\">Accessing Your Own Records</strong></h3><p class=\"p1\">To review your benefit entitlement or claim outcomes, please use the insurer’s membership portal or mobile application.</p><p class=\"p3\"><br></p><h3><strong dir=\"ltr\">Appealing a Claims Outcome</strong></h3><p class=\"p1\">If you wish to appeal a decision, please email <span class=\"s2\"><strong>hello@asktic</strong></span>. We will assist you, but we require context. Please provide:</p><ul><li><p class=\"p1\">The Claims Assessment Statement from the insurer</p></li><li><p class=\"p1\">All bills and medical reports submitted in support of the claim</p></li></ul><p class=\"p3\"><br></p><h3><strong dir=\"ltr\">Checking if Your Treatment Is Covered</strong></h3><p class=\"p1\">For certainty, we recommend requesting <span class=\"s2\"><strong>pre-authorisation</strong></span> from your insurer before starting treatment. This will confirm in writing:</p><ol start=\"1\"><li><p class=\"p1\">Whether the treatment plan aligns with the diagnosis and is medically necessary</p></li><li><p class=\"p1\">Whether the cost is reasonable and not inflated</p></li><li><p class=\"p1\">Whether the condition was pre-existing before your coverage began</p></li><li><p class=\"p1\">Whether the treatment falls within policy limits</p></li></ol><p class=\"p3\"><span style=\"color: rgb(85, 57, 130);\"><br></span></p><p class=\"p1\"><span style=\"color: rgb(85, 57, 130);\">The Insurance Concierge supports and complies fully with the PDPA — both in spirit and in practice.</span></p><p class=\"p1\" dir=\"ltr\"><br></p><p class=\"p1\" dir=\"ltr\"><br></p>"
+            },
+            {
+              "id": 6000280764,
+              "title": "Setting up Direct Billing for your treatment in the Hospital with Allianz",
+              "status": 2,
+              "updated_at": "2025-08-17T09:12:01Z",
+              "attachments": [],
+              "description": "<h3 dir=\"ltr\"><strong>Are you currently enrolled with Allianz and planning to receive hospital treatment? </strong></h3><p dir=\"ltr\"><br></p><p dir=\"ltr\">Pre-authorisations serve to verify that the treatment you need is covered by your membership, reducing worries about whether the insurer will fully reimburse your costs, and simplifying the process of gathering medical reports to speed up claims assessment.&nbsp;</p><p dir=\"ltr\"><br></p><p dir=\"ltr\"><br></p><p>If your <u><strong>treatment is scheduled within the next 72 hours</strong></u>, please reach out to the Allianz Helpline.&nbsp;</p><p>They can collect your information for the Treatment Guarantee over the phone.</p><p>(within Singapore: 1800 670 9766 and outside Singapore: +60 (0)3 92127818)</p><p dir=\"ltr\"><br></p><p dir=\"ltr\">If you are calling from other countries, here is <a href=\"https://www.allianzcare.com/en/pages/toll-free-numbers.html\" rel=\"noreferrer\">a list of alternative toll-free numbers.&nbsp;</a></p><p>&nbsp;</p><p><strong>Alternatively,</strong></p><p dir=\"ltr\">1. Please provide the pre-authorisation form to your doctor for completion to commence the Pre-authorisation process.</p><ul><li dir=\"ltr\"><a href=\"http://Setting%20up%20Direct%20Billing%20for%20your%20treatment%20in%20the%20Hospital%20with%20Allianz\" rel=\"noreferrer\" dir=\"ltr\"></a><a dir=\"ltr\" href=\"https://www.allianzcare.com/content/dam/onemarketing/azcare/allianzcare/en/docs/DOCS-AGCS-SING-Pre-authorisation-Form-EN-0524.pdf\" rel=\"noopener noreferrer\">Form for members residing in Singapore/Thailand/Vietnam/Malaysia</a></li><li dir=\"ltr\"><a href=\"https://www.allianzcare.com/content/dam/onemarketing/azcare/allianzcare/en/docs/FRM-PreAuth-EN-1123.pdf\" rel=\"noreferrer\">Form for members residing in Indonesia</a></li></ul><p>2. Email the completed form to <a href=\"mailto:medical.services@allianzworldwidecare.com\">medical.services@allianzworldwidecare.com</a></p><p>Once submitted, please note that the email channel may require up to 5 business days for a response regarding your treatment planning.</p>"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

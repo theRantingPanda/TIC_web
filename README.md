@@ -12,7 +12,7 @@ section.
 
 | Phase | Status |
 | --- | --- |
-| **1 — Capture** | Tooling written and typechecked. **Not run.** Wix half blocked on egress; Freshdesk half ready. See below. |
+| **1 — Capture** | **Partial.** Wix: not started (egress blocked). Freshdesk: all folders enumerated, 4 of 34 articles pulled. See [`content/_inventory/_capture-status.md`](content/_inventory/_capture-status.md) — it also records three findings that contradict the brief. |
 | **2 — Scaffold** | Complete. Builds, exports, and passes the URL-contract check. |
 | 3 — Port content | Not started. |
 

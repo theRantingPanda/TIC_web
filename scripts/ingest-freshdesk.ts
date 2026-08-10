@@ -18,6 +18,7 @@
  */
 import fs from 'node:fs'
 import path from 'node:path'
+import * as cheerio from 'cheerio'
 import { FRESHDESK_DIR, ROOT, ensureDir, writeJson } from './lib/paths.ts'
 import { freshdeskStatusToKbStatus } from '../lib/kb-schema.ts'
 
@@ -31,9 +32,24 @@ type RawArticle = {
   id: number
   title: string
   description: string
-  description_text: string
+  /** Optional — derived from `description` when absent. */
+  description_text?: string
   status: number
   updated_at: string
+}
+
+/**
+ * Freshdesk returns both an HTML `description` and a flattened `description_text`.
+ * The HTML is the source of truth for porting; the flattened form is only used for
+ * diffing, so it is derived here rather than carried twice through the capture.
+ */
+function toPlainText(html: string): string {
+  return cheerio
+    .load(html)
+    .root()
+    .text()
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 type RawFolder = {
   id: number
@@ -42,7 +58,12 @@ type RawFolder = {
   articles: RawArticle[]
 }
 type RawCategory = { id: number; name: string; folders: RawFolder[] }
-type RawDump = { capturedAt: string; categories: RawCategory[] }
+type RawDump = {
+  capturedAt: string
+  /** False while folders remain unpulled. Gates redirect generation — see below. */
+  complete?: boolean
+  categories: RawCategory[]
+}
 
 function slugify(value: string): string {
   return value
@@ -99,7 +120,7 @@ for (const category of raw.categories) {
           title: article.title,
           slug,
           body: article.description,
-          bodyText: article.description_text,
+          bodyText: article.description_text ?? toPlainText(article.description),
           folder: folder.name,
           folderVisibility: folder.visibility,
           category: category.name,
@@ -134,9 +155,17 @@ for (const category of raw.categories) {
 }
 
 ensureDir(FRESHDESK_DIR)
+const complete = raw.complete === true
+
 writeJson(path.join(FRESHDESK_DIR, 'redirects.json'), {
   version: 1,
   generatedAt: new Date().toISOString(),
+  /**
+   * Propagated from the raw dump. A partial 301 map is worse than none: the articles
+   * it omits would 404 silently on cutover, losing exactly the search equity this
+   * project exists to protect. gen-redirects.ts refuses to run while this is false.
+   */
+  complete,
   $comment:
     'Per-article 301 map for the Freshdesk help centre. Public articles only — ' +
     'internal ones were never publicly indexed. Spliced into render.yaml by ' +
@@ -148,7 +177,16 @@ console.log(
   `✓ ${publicCount} public + ${internalCount} internal article(s) written to ` +
     `${path.relative(ROOT, FRESHDESK_DIR)}`,
 )
-console.log(`  ${redirects.length} redirect(s) mapped. Next: npm run gen:redirects`)
+if (complete) {
+  console.log(`  ${redirects.length} redirect(s) mapped. Next: npm run gen:redirects`)
+} else {
+  console.log(
+    `\n  ⚠ PARTIAL CAPTURE — _raw.json has complete: false.\n` +
+      `  ${redirects.length} redirect(s) mapped so far. gen:redirects will refuse to run\n` +
+      `  until every folder is pulled: a partial 301 map would silently 404 the articles\n` +
+      `  it omits, losing the search equity this project exists to protect.`,
+  )
+}
 
 if (draftsInPublicFolders.length > 0) {
   console.log(
