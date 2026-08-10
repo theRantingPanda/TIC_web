@@ -28,19 +28,26 @@ npm run capture:site        # sitemap -> content/_inventory/pages/
 npm run capture:assets      # wixstatic images -> public/images/
 ```
 
-**Freshdesk — ready now, no setup.** The pull routes through the n8n workflow
-**Freshdesk Solutions Read** (`6bjXz8CZRHY1k2d9`) over the n8n MCP connector, which
-travels through Anthropic's servers rather than the session's network. So no Freshdesk
-host needs allowlisting and **no API key enters the environment** — deliberately, since
-cloud environments have no secrets store and a Freshdesk key carries its agent's full
-read/write permissions. Verified end to end against the live Solutions API.
+**Freshdesk — routed through n8n.** The pull goes through the workflow **Freshdesk
+Solutions Read** (`6bjXz8CZRHY1k2d9`, published), so **no Freshdesk API key enters this
+environment** — it stays on the workflow's node. That matters because cloud environments
+have no secrets store and a Freshdesk key carries its agent's full read/write
+permissions. Verified end to end against the live Solutions API.
+
+Allowlist `asktic.app.n8n.cloud` and `s3.amazonaws.com` (signed attachment downloads),
+and set `DRIVE_INDEX_WEBHOOK_SECRET` — the webhook's own secret, which opens nothing but
+that one read-only workflow. Then:
 
 ```bash
-# walk categories -> folders -> articles via mcp__n8n__execute_workflow,
-# assemble content/_inventory/freshdesk/_raw.json, then:
+npm run capture:freshdesk   # walks everything -> _raw.json
 npm run ingest:freshdesk    # _raw.json -> capture files + redirects.json
 npm run gen:redirects       # article map -> render.yaml
 ```
+
+The same workflow can be driven over the n8n MCP connector with no allowlist or secret
+at all, which is right for spot checks but not for the migration: over MCP every article
+body travels through the model's context and back out to disk, which is why the first
+attempt stalled at 4 of 33 articles.
 
 See `content/_inventory/README.md` for the action list and the `_raw.json` shape.
 

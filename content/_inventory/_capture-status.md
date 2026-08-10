@@ -47,11 +47,32 @@ meant to lapse. `EXCLUDED_FOLDERS` in `scripts/ingest-freshdesk.ts` records this
 explicitly rather than letting it depend on AIG happening to sit under INTERNAL — if
 the visibility rule below is ever revisited, the exclusion still holds.
 
-Open, if you want it tidier than a bare 404: the retiring
-`/support/solutions/articles/<id>-...` URL could 301 to `/knowledge` instead of dying,
-so stray inbound links land somewhere useful. A `410 Gone` is the other defensible
-option and is the stronger signal to search engines to drop it. Currently it will simply
-404. No action taken either way.
+### Decision: the AIG URL should return 410 Gone — and this repo cannot deliver it
+
+410 is the right call (it tells search engines to drop the URL outright rather than keep
+retrying a 404). But it cannot be implemented from this codebase, for two independent
+reasons. Recording them here rather than committing a rule that would never fire:
+
+**1. That URL is not served by this site.** The article lives at
+`support.asktic.com/support/solutions/articles/…`, and `support.asktic.com` points at
+Freshdesk, not Render. No `render.yaml` route can affect a hostname this service does
+not serve. Repointing it is a DNS change, which is out of scope.
+
+**2. Render's support for a custom status code is unverified.** Its static-site routes
+document `type: redirect` (301) and `type: rewrite` (200). Nothing found confirms an
+arbitrary status such as 410, and both `render.com` and its docs mirror are blocked by
+this environment's egress policy, so it could not be checked directly. Treat "Render can
+return 410" as unconfirmed until someone reads
+<https://render.com/docs/redirects-rewrites> on an unrestricted network.
+
+**What actually delivers the 410: retire the article in Freshdesk.** Unpublishing or
+deleting it there makes Freshdesk itself stop serving the URL, which is the only lever
+that works while `support.asktic.com` resolves to Freshdesk. That is a **write** to
+Freshdesk, and Freshdesk is read-only for this project — so it is Steven's action to
+take in the Freshdesk admin UI, not something this tooling does.
+
+Until then the URL keeps serving the live article as normal. Nothing in this repo
+changes that, and nothing here should be read as having retired it.
 
 **3. "The INTERNAL category is not publicly served" is not true as stated.** It is true
 of three of its four folders. Folder visibility, not category name, is what Freshdesk

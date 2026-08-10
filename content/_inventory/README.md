@@ -41,11 +41,36 @@ npm run capture:site        # sitemap -> pages/
 npm run capture:assets      # wixstatic images -> ../../public/images
 ```
 
-**Freshdesk (no setup needed):** the pull goes through the n8n workflow
-**Freshdesk Solutions Read** (`6bjXz8CZRHY1k2d9`) over the n8n MCP connector. Connector
-traffic travels through Anthropic's servers rather than the session's network, so no
-Freshdesk host needs allowlisting and **no API key enters the environment** — the
-credential stays on the workflow's `Call Freshdesk API` node.
+**Freshdesk:** the pull goes through the n8n workflow **Freshdesk Solutions Read**
+(`6bjXz8CZRHY1k2d9`, published). The Freshdesk API key never enters this environment —
+it lives on the workflow's `Call Freshdesk API` node.
+
+Two ways in, for different jobs:
+
+| | Webhook (`npm run capture:freshdesk`) | n8n MCP connector |
+| --- | --- | --- |
+| Bytes go | straight to disk | through the model's context, twice |
+| Good for | the bulk migration | ad-hoc reads, spot checks |
+| Needs | allowlist + webhook secret | nothing |
+
+Use the **webhook** for the migration. Over MCP every article body has to pass through
+context and be written back out, which does not scale past a handful of articles — that
+is why the first attempt stalled at 4 of 33.
+
+Setup for the webhook path:
+
+- allowlist `asktic.app.n8n.cloud` (the webhook) and `s3.amazonaws.com` (signed
+  attachment downloads)
+- set `DRIVE_INDEX_WEBHOOK_SECRET` — this is the webhook's own shared secret, not the
+  Freshdesk API key, and opens nothing but that one read-only workflow
+
+```
+npm run capture:freshdesk   # walks everything -> _raw.json (complete: true)
+npm run ingest:freshdesk    # _raw.json -> public/ + internal/ + excluded/ + redirects.json
+npm run gen:redirects       # redirects.json -> render.yaml
+```
+
+For a spot check over MCP instead:
 
 ```
 mcp__n8n__execute_workflow(workflowId: "6bjXz8CZRHY1k2d9", executionMode: "manual",
@@ -54,13 +79,7 @@ mcp__n8n__execute_workflow(workflowId: "6bjXz8CZRHY1k2d9", executionMode: "manua
 ```
 
 Actions: `list_categories`, `list_folders` (needs `category_id`), `list_articles`
-(needs `folder_id`, optional `page` / `per_page`). Walk categories → folders →
-articles, assemble `_raw.json` in the shape below, then:
-
-```
-npm run ingest:freshdesk    # _raw.json -> public/ + internal/ + redirects.json
-npm run gen:redirects       # redirects.json -> render.yaml
-```
+(needs `folder_id`, optional `page` / `per_page`).
 
 **ALWAYS check `statusCode` in the response.** The workflow runs with `neverError`, so a
 401 or 404 from Freshdesk still returns a successful-looking execution with
