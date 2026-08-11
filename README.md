@@ -292,12 +292,19 @@ Both share the block conversion in `scripts/lib/blocks.ts`, which is where the W
 quirks are handled — duplicated lists, nested lists serialised twice, zero-width-space
 padding.
 
-### The contact form needs one environment variable
+### The contact form is disabled
 
-`ContactForm` is mounted on `/employee-benefits`, the page that had one on Wix. It posts
-straight from the browser to n8n, so `NEXT_PUBLIC_N8N_CONTACT_WEBHOOK` must be set on
-the Render service or the form renders but cannot submit (it tells the visitor to email
-instead). That variable is the only one this service may ever hold — see `render.yaml`.
+`components/contact-form.tsx` works and is not mounted anywhere. It was briefly on
+`/employee-benefits` — the page that carried one on Wix — and was disabled on
+2026-08-11 because `NEXT_PUBLIC_N8N_CONTACT_WEBHOOK` is not configured. Without it the
+form renders, accepts input, and then tells the visitor to email instead, which is worse
+than not offering a form. The email address and phone number on that page are the live
+route meanwhile.
+
+**So the site currently needs no environment variables at all.** To re-enable the form,
+set `NEXT_PUBLIC_N8N_CONTACT_WEBHOOK` on the Render service **first**, then restore the
+two lines noted in `app/employee-benefits/page.tsx`. That variable would be the only one
+this service may ever hold — see `render.yaml`.
 
 ### Knowledge-base frontmatter
 
