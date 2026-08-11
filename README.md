@@ -15,7 +15,7 @@ has been ported.**
 | --- | --- |
 | **1 — Capture** | Wix: **done** — 21 pages and 18 images archived; 2 pages could not be captured (below). Freshdesk: **stopped by decision** — content is stale and will be supplied by hand; folder inventory kept. See [`content/_inventory/_capture-status.md`](content/_inventory/_capture-status.md). |
 | **2 — Scaffold** | Complete. Builds, exports, and passes the URL-contract check. Nav reconciled against the real Wix nav. |
-| **3 — Port content** | **In progress.** Ported: the 12 blog posts, `/income-preservation-1`, `/projects`, `/employee-benefits`, `/speciality-insurance`, `/privacy`. Remaining: `/` and `/international-health-insurance` (need copy decisions), plus `/blog` and `/maternity-insurance` (no captured content). |
+| **3 — Port content** | **Complete.** Every preserved path renders real content; no stubs remain. Four pages are built from existing site material rather than ported, because there was nothing to port — see below. |
 
 ### Phase 1: what came back
 
@@ -236,6 +236,21 @@ Two details worth knowing before editing:
 
 The port is mechanical: it reproduces the Wix copy, defects and all. See
 [`content/_inventory/port-worklist.md`](content/_inventory/port-worklist.md).
+
+### Four pages are built, not ported
+
+There was no Wix copy to reproduce for these. Nothing was invented for them either —
+each is assembled from material the site already publishes:
+
+| Page | Why | What it shows |
+| --- | --- | --- |
+| `/blog` | Client-rendered on Wix; never captured. It is the **Services** landing page, not a blog index. | The five service pages, plus the 12 posts — which also gives the posts an index, since the Wix category pages were dropped. |
+| `/maternity-insurance` | Client-rendered on Wix; never captured. | The firm's own maternity and newborn cards from the homepage, plus the maternity-related posts. |
+| `/knowledge` | New path. `content/kb/` is empty and stays empty — KB copy is being written by hand, not ported from Freshdesk. | The posts, and a link to the live help centre at `support.asktic.com`, which Freshdesk still serves. |
+| `/forms` | New path. The Wix `/file-access` original was an unconfigured template. | `public/forms/manifest.json`, which is empty — so an empty state that invites contact rather than a blank list. |
+
+Replace any of them the moment real copy exists. The first two in particular are
+placeholders standing in for pages that do exist on the live site.
 
 ### Where ported content lives
 

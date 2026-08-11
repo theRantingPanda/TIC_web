@@ -8,7 +8,13 @@ Two sources: a discovery review prepared 2026-08-10, and the page captures in `p
 the capture is the evidence, and the check is repeatable. Items marked ⚠ could not be
 confirmed from a capture and need a human eye.
 
-Nothing here is fixed yet. Phase 3 has not started.
+**Status 2026-08-11: every page is ported and the site renders end to end.** The copy is
+deliberately verbatim — Steven is revising content once it is running, so defects are
+reproduced rather than guessed at. This file is the list of what to revise.
+
+Fixed during the port (structural, not editorial): the © 2019 footer, the Wix-default
+header social links, missing meta descriptions, the dead "Read More" links on the
+homepage, the missing `h1` on `/speciality-insurance`, and the orphaned blog posts.
 
 ---
 
@@ -224,11 +230,32 @@ presentation choice, recorded and reversible, not a discarded fact. The logic li
 
 ---
 
-## Not captured, so not assessed
+## `/` and `/international-health-insurance` — PORTED 2026-08-11
 
-`/blog` and `/maternity-insurance` are rendered client-side by Wix and could not be
-captured — see `_capture-status.md`. Nothing in this file says anything about their
-content.
+Copy verbatim, including everything flagged above: the stray "COVID-19" label, the
+"pRE-EXISTING CONDITIONS" heading case, the "Continuous cover even you relocate"
+grammar, and the "INDICATIVE COST FOR A 30 YEAR OLD" heading that still has nothing
+beneath it. All of it reproduced deliberately rather than guessed at.
+
+Two structural fixes, neither of which touches the words:
+
+- **The five homepage cards now link.** Four had a dead "Read More" on Wix. Each points
+  at the page it describes — Maternity and Newborns to `/maternity-insurance`,
+  Contiguous cover to `/international-health-insurance` (where the one working link
+  went), Marine/Oil & Gas to `/speciality-insurance`, Employee Benefits to its own page.
+- **The hero reads "peace of mind" without the trailing pipe.** The capture has
+  "peace of mind |" — that pipe is the cursor of a Wix typewriter animation, not part of
+  the sentence.
+
+Still no card for Income Preservation, matching the original.
+
+## `/blog` and `/maternity-insurance` — BUILT, NOT PORTED
+
+Wix renders both client-side and their content could never be captured, so there is no
+original copy in this repo and none was invented. Both now render pages assembled from
+material the site already publishes — see the README table. **These are placeholders
+standing in for pages that genuinely exist on the live site**; replace them once
+`*.parastorage.com` is allowlisted and `capture:render` can reach the real content.
 
 ---
 
