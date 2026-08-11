@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit",
     "verify:urls": "tsx scripts/verify-urls.ts",
     "capture:site": "tsx scripts/crawl-site.ts",
+    "capture:render": "tsx scripts/render-pages.ts",
     "capture:assets": "tsx scripts/pull-assets.ts",
     "capture:freshdesk": "tsx scripts/crawl-freshdesk.ts",
     "ingest:freshdesk": "tsx scripts/ingest-freshdesk.ts",
@@ -36,6 +37,7 @@
     "eslint-config-next": "^16.3.0",
     "fast-xml-parser": "^5.2.0",
     "image-size": "^2.0.2",
+    "playwright": "^1.62.1",
     "tailwindcss": "^4.1.0",
     "tsx": "^4.20.0",
     "typescript": "^5.9.0"

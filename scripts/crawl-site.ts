@@ -3,14 +3,14 @@
  *
  * Enumerates every page from https://www.asktic.com/sitemap.xml (following a sitemap
  * index if present, which is how Wix exposes pages hidden behind the "More" nav menu),
- * then archives each page to content/_inventory/pages/.
+ * then archives the pages the URL contract preserves to content/_inventory/pages/.
  *
  * Read-only against the live site. Writes only into content/_inventory/.
  *
  * Stop conditions (hard gates — the script halts and exits 2):
- *   1. sitemap yields more than 20 pages
+ *   1. the sitemap contains a path the URL contract does not classify
  *   2. any page trips the client-identifying content scan
- *   3. /blog or /projects carry substantial content
+ *   3. /projects carries substantial content
  *
  * Usage: npm run capture:site
  */
@@ -23,17 +23,24 @@ import {
   INVENTORY_DIR,
   PAGES_DIR,
   ROOT,
+  URL_CONTRACT,
   ensureDir,
   pathToSlug,
+  readJson,
   stopAndReport,
   writeJson,
 } from './lib/paths.ts'
 
 const SITEMAP_URL = 'https://www.asktic.com/sitemap.xml'
 const ORIGIN = 'https://www.asktic.com'
-const MAX_PAGES = 20
-/** Blocks on /blog or /projects above this count count as "substantial". */
+/** Blocks on /projects above this count count as "substantial". */
 const SUBSTANTIAL_BLOCK_COUNT = 12
+
+type UrlContract = {
+  preserved: { path: string; source: string; note?: string }[]
+  redirectOnly: { path: string; destination: string }[]
+  dropped: { groups: { reason: string; paths: string[] }[] }
+}
 
 type Block =
   | { type: 'heading'; level: number; text: string }
@@ -195,10 +202,18 @@ function scanForClientContent(
 // ------------------------------------------------------------------- main
 
 async function main(): Promise<void> {
+  const contract = readJson<UrlContract>(URL_CONTRACT)
+  const droppedPaths = new Set(contract.dropped.groups.flatMap((g) => g.paths))
+  const classified = new Set([
+    ...contract.preserved.map((p) => p.path),
+    ...contract.redirectOnly.map((r) => r.path),
+    ...droppedPaths,
+  ])
+
   console.log(`Reading sitemap: ${SITEMAP_URL}`)
   const sitemapUrls = await collectSitemapUrls(SITEMAP_URL)
 
-  const pagePaths = [
+  const sitemapPaths = [
     ...new Set(
       sitemapUrls
         .filter((url) => url.startsWith(ORIGIN))
@@ -206,20 +221,60 @@ async function main(): Promise<void> {
     ),
   ].sort()
 
-  console.log(`Sitemap yielded ${pagePaths.length} page(s).`)
+  console.log(`Sitemap yielded ${sitemapPaths.length} page(s).`)
 
-  // ---- Stop condition 1: sitemap size ----
-  if (pagePaths.length > MAX_PAGES) {
-    stopAndReport(`Sitemap reveals ${pagePaths.length} pages (limit ${MAX_PAGES})`, [
-      `The sitemap enumerated **${pagePaths.length}** pages, above the ${MAX_PAGES}-page`,
-      'threshold in the brief. Nothing has been captured — the port estimate needs',
-      'revisiting before continuing.',
+  /**
+   * ---- Stop condition 1: an unclassified path ----
+   *
+   * This replaces the brief's raw 20-page ceiling. That gate fired on 2026-08-11 and
+   * did its job: the sitemap's real size (50) was reported, the port estimate was
+   * revisited, and every one of those URLs now carries a signed-off decision in
+   * content/url-contract.json (23 preserved, 25 dropped, 3 redirect-only) with the
+   * rationale in content/_inventory/url-decisions.md. Re-firing on a count that has
+   * already been adjudicated would only block the capture the same decision asked for.
+   *
+   * What still warrants a halt is scope the contract has NOT seen — a page published
+   * on Wix since that review. Capturing it silently would port a page nobody signed
+   * off; dropping it silently would 404 a live URL. Both need a human.
+   */
+  const unclassified = sitemapPaths.filter((p) => !classified.has(p))
+  if (unclassified.length > 0) {
+    stopAndReport(`${unclassified.length} sitemap path(s) missing from the URL contract`, [
+      `The sitemap contains **${unclassified.length}** path(s) that`,
+      '`content/url-contract.json` does not classify as preserved, dropped or',
+      'redirect-only. Nothing has been captured.',
       '',
-      '## Pages found',
+      'The contract was marked authoritative on 2026-08-11 against a 50-URL sitemap, so',
+      'a path appearing here means the live site has changed since. Each one needs a',
+      'decision — preserving it, dropping it or redirecting it — before the capture runs.',
       '',
-      ...pagePaths.map((p) => `- \`${p}\``),
+      '## Unclassified paths',
+      '',
+      ...unclassified.map((p) => `- \`${p}\``),
     ])
   }
+
+  // Capture only what the contract preserves and Wix actually serves. `source: 'new'`
+  // paths (/knowledge, /forms) have no Wix original to archive.
+  const wixPreserved = contract.preserved
+    .filter((p) => p.source === 'wix')
+    .map((p) => p.path)
+  const pagePaths = wixPreserved.filter((p) => sitemapPaths.includes(p)).sort()
+
+  // A preserved path the sitemap no longer lists is not a stop condition — the contract
+  // is the authority on what must exist — but it does mean there is nothing to capture.
+  const missingFromSitemap = wixPreserved.filter((p) => !sitemapPaths.includes(p))
+  if (missingFromSitemap.length > 0) {
+    console.warn(
+      `\n⚠ ${missingFromSitemap.length} preserved path(s) are not in the sitemap and ` +
+        `cannot be captured:\n${missingFromSitemap.map((p) => `    ${p}`).join('\n')}\n`,
+    )
+  }
+
+  console.log(
+    `Capturing ${pagePaths.length} preserved page(s); ` +
+      `skipping ${sitemapPaths.length - pagePaths.length} dropped/redirect-only path(s).`,
+  )
 
   ensureDir(PAGES_DIR)
   const captures: PageCapture[] = []
@@ -266,6 +321,13 @@ async function main(): Promise<void> {
     version: 1,
     capturedAt: new Date().toISOString(),
     sitemapUrl: SITEMAP_URL,
+    sitemapPathCount: sitemapPaths.length,
+    scope: 'url-contract preserved paths with source: wix',
+    notCaptured: {
+      newPaths: contract.preserved.filter((p) => p.source !== 'wix').map((p) => p.path),
+      preservedButMissingFromSitemap: missingFromSitemap,
+      droppedOrRedirectOnly: sitemapPaths.filter((p) => !pagePaths.includes(p)),
+    },
     pages: captures.map((c) => ({
       path: c.path,
       slug: pathToSlug(c.path),
@@ -279,11 +341,16 @@ async function main(): Promise<void> {
   // ---- Stop condition 2: client-identifying content ----
   const flagged = captures.filter((c) => c.flags.possibleClientContent.length > 0)
 
-  // ---- Stop condition 3: substantial /blog or /projects ----
+  /**
+   * ---- Stop condition 3: substantial /projects ----
+   *
+   * /blog was in this list and has been removed: its size was the subject of the
+   * 2026-08-11 review, which resolved it (12 posts preserved at their own
+   * /single-post/... paths, 8 category pages dropped). /projects has never been read,
+   * so the brief's assumption that it is one thin page is still untested.
+   */
   const heavy = captures.filter(
-    (c) =>
-      ['/blog', '/projects'].includes(c.path) &&
-      c.blocks.length >= SUBSTANTIAL_BLOCK_COUNT,
+    (c) => c.path === '/projects' && c.blocks.length >= SUBSTANTIAL_BLOCK_COUNT,
   )
 
   if (flagged.length > 0 || heavy.length > 0) {

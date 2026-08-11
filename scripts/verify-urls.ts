@@ -97,7 +97,12 @@ if (droppedPaths.length > 0) {
 console.log('\nChecking nav links resolve to preserved paths…')
 const siteSource = fs.readFileSync(path.join(ROOT, 'lib', 'site.ts'), 'utf8')
 const preservedSet = new Set(contract.preserved.map((p) => p.path))
-const navHrefs = [...siteSource.matchAll(/href:\s*'([^']+)'/g)].map((m) => m[1])
+const navHrefs = [...siteSource.matchAll(/href:\s*'([^']+)'/g)]
+  .map((m) => m[1])
+  // The contract governs this site's own paths. Off-site links (the footer's social
+  // profiles, mailto:) have no entry and never will — checking them would force every
+  // external link to be added to the contract as a fiction.
+  .filter((href) => href.startsWith('/'))
 for (const href of new Set(navHrefs)) {
   if (preservedSet.has(href)) {
     console.log(`  ✓ ${href}`)
