@@ -15,7 +15,7 @@ has been ported.**
 | --- | --- |
 | **1 — Capture** | Wix: **done** — 21 pages and 18 images archived; 2 pages could not be captured (below). Freshdesk: **stopped by decision** — content is stale and will be supplied by hand; folder inventory kept. See [`content/_inventory/_capture-status.md`](content/_inventory/_capture-status.md). |
 | **2 — Scaffold** | Complete. Builds, exports, and passes the URL-contract check. Nav reconciled against the real Wix nav. |
-| **3 — Port content** | **In progress.** Ported: the 12 blog posts, `/income-preservation-1`, `/projects`. Not ported: `/`, `/international-health-insurance`, `/employee-benefits`, `/speciality-insurance`, `/privacy` — and `/blog` + `/maternity-insurance`, which have no captured content. |
+| **3 — Port content** | **In progress.** Ported: the 12 blog posts, `/income-preservation-1`, `/projects`, `/employee-benefits`, `/speciality-insurance`, `/privacy`. Remaining: `/` and `/international-health-insurance` (need copy decisions), plus `/blog` and `/maternity-insurance` (no captured content). |
 
 ### Phase 1: what came back
 
@@ -236,6 +236,30 @@ Two details worth knowing before editing:
 
 The port is mechanical: it reproduces the Wix copy, defects and all. See
 [`content/_inventory/port-worklist.md`](content/_inventory/port-worklist.md).
+
+### Where ported content lives
+
+Two shapes, chosen by what the page is rather than by preference:
+
+| Page is… | Lives in | Example |
+| --- | --- | --- |
+| a document — prose, headings, lists | `content/pages/*.mdx`, rendered by its route | `/privacy` |
+| a layout — cards, grids, image groups | the route component itself | `/speciality-insurance` |
+
+`npm run port:page -- /privacy` converts a capture to the first form. The rule of thumb:
+if the structure is in the words, use MDX; if it is in the markup, use the component.
+A 9,500-character privacy policy inlined as JSX helps nobody.
+
+Both share the block conversion in `scripts/lib/blocks.ts`, which is where the Wix
+quirks are handled — duplicated lists, nested lists serialised twice, zero-width-space
+padding.
+
+### The contact form needs one environment variable
+
+`ContactForm` is mounted on `/employee-benefits`, the page that had one on Wix. It posts
+straight from the browser to n8n, so `NEXT_PUBLIC_N8N_CONTACT_WEBHOOK` must be set on
+the Render service or the form renders but cannot submit (it tells the visitor to email
+instead). That variable is the only one this service may ever hold — see `render.yaml`.
 
 ### Knowledge-base frontmatter
 

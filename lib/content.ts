@@ -155,6 +155,45 @@ export function getPublishedPostSlugs(): string[] {
   return getPublishedPosts().map((post) => post.frontmatter.slug)
 }
 
+// ----------------------------------------------------------------- prose pages
+
+const PAGES_DIR = path.join(process.cwd(), 'content', 'pages')
+
+export type ProsePage = {
+  slug: string
+  title: string
+  sourceUrl: string | null
+  body: string
+}
+
+/**
+ * Reads a long-form page from content/pages/.
+ *
+ * For pages that are a document rather than a layout — `/privacy` is 9,500 characters
+ * of legal text, which belongs in MDX where it can be read and amended, not inlined in
+ * JSX. Pages with real structure (cards, grids) stay as route components.
+ */
+export function readProsePage(slug: string): ProsePage {
+  const raw = fs.readFileSync(path.join(PAGES_DIR, `${slug}.mdx`), 'utf8')
+  const { data, content } = matter(raw)
+
+  if (typeof data.title !== 'string' || data.title.length === 0) {
+    throw new Error(`content/pages/${slug}.mdx: frontmatter needs a non-empty title.`)
+  }
+  if (data.slug !== slug) {
+    throw new Error(
+      `content/pages/${slug}.mdx: frontmatter slug "${data.slug}" does not match filename.`,
+    )
+  }
+
+  return {
+    slug,
+    title: data.title,
+    sourceUrl: typeof data.sourceUrl === 'string' ? data.sourceUrl : null,
+    body: content,
+  }
+}
+
 /** Compiles MDX to a React component. Build-time only. */
 export async function renderMdx(source: string) {
   const { default: Content } = await evaluate(source, {

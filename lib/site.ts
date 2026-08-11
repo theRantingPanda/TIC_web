@@ -107,6 +107,8 @@ export const footerNav: readonly { heading: string; items: readonly NavItem[] }[
  */
 export const contact = {
   email: 'hello@asktic.com',
+  /** From the /employee-benefits capture, the only page that publishes a number. */
+  phone: '+65 6681 6455',
   social: [
     { href: 'https://www.facebook.com/InsuranceConcierge', label: 'Facebook' },
     { href: 'https://sg.linkedin.com/in/dstevenneo', label: 'LinkedIn' },

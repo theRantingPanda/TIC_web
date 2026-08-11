@@ -23,7 +23,17 @@ services:
   # credentials and carrier API keys. tic-web sits in the same Render project as the
   # CRM services today but is not linked to any of them, and must stay that way: this
   # is a STATIC build, so any env var it can read is baked into published HTML and
-  # served to the public. The site needs no environment variables at all.
+  # served to the public.
+  #
+  # The site needs exactly ONE variable, and only because the contact form on
+  # /employee-benefits posts straight from the browser:
+  #
+  #   NEXT_PUBLIC_N8N_CONTACT_WEBHOOK
+  #
+  # It is safe to bake in — it is a public endpoint by design, which is why n8n has to
+  # do its own validation and rate limiting. Set it individually on this service. Until
+  # it is set the form renders but cannot submit; it tells the visitor to email instead.
+  # That is the only variable this service may ever hold.
   - type: web
     name: tic-web
     runtime: static

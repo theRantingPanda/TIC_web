@@ -15,6 +15,12 @@ import fs from 'node:fs'
 import path from 'node:path'
 import * as cheerio from 'cheerio'
 import { postFrontmatterSchema, type PostFrontmatter } from '../lib/blog-schema.ts'
+import {
+  blocksToMarkdown,
+  dropListEchoes,
+  unnestListItems,
+  type Block,
+} from './lib/blocks.ts'
 import { PAGES_DIR, ROOT, ensureDir } from './lib/paths.ts'
 
 const BLOG_DIR = path.join(ROOT, 'content', 'blog')
@@ -30,17 +36,6 @@ const SOURCE_PREFIX = '/single-post/'
  */
 const CHROME_START = 'Our Recent Posts'
 const CHROME_END = 'Tags'
-
-type Block = {
-  type: string
-  level?: number
-  text?: string
-  items?: string[]
-  ordered?: boolean
-  src?: string
-  localPath?: string | null
-  alt?: string
-}
 
 type Capture = {
   path: string
@@ -123,30 +118,6 @@ function stripChrome(capture: Capture): Block[] {
   return capture.blocks.slice(end + 1)
 }
 
-/**
- * Wix emits every bulleted list twice: once as a <ul>, then again as loose <p> elements
- * carrying the same strings. Verified exact across all captures that contain a list.
- * The page shows one list, so the duplicate paragraphs are dropped.
- */
-function dropListEchoes(blocks: Block[]): Block[] {
-  const out: Block[] = []
-
-  for (let i = 0; i < blocks.length; i++) {
-    const block = blocks[i]
-    out.push(block)
-    if (block.type !== 'list' || !block.items) continue
-
-    const echo = blocks.slice(i + 1, i + 1 + block.items.length)
-    const isEcho =
-      echo.length === block.items.length &&
-      echo.every((b, k) => b.type === 'paragraph' && b.text === block.items![k])
-
-    if (isEcho) i += block.items.length
-  }
-
-  return out
-}
-
 /** Trailing "#tag #tag" paragraphs are the post's tags, not prose. */
 function extractTags(blocks: Block[]): { tags: string[]; body: Block[] } {
   const body = [...blocks]
@@ -162,49 +133,6 @@ function extractTags(blocks: Block[]): { tags: string[]; body: Block[] } {
 
   // The original carries a duplicate ("#travelinsurance #travelinsurance").
   return { tags: [...new Set(tags)], body }
-}
-
-/** Markdown special characters that would otherwise change how the text renders. */
-function escapeMarkdown(text: string): string {
-  return text.replace(/([\\`*_{}[\]<>])/g, '\\$1')
-}
-
-function blocksToMarkdown(blocks: Block[]): string {
-  const parts: string[] = []
-
-  for (const block of blocks) {
-    switch (block.type) {
-      case 'heading': {
-        // Body headings start at h2: the page renders the title as its h1.
-        const level = Math.min(Math.max(block.level ?? 2, 2), 6)
-        parts.push(`${'#'.repeat(level)} ${escapeMarkdown(block.text ?? '')}`)
-        break
-      }
-      case 'paragraph':
-        parts.push(escapeMarkdown(block.text ?? ''))
-        break
-      case 'list': {
-        const marker = (i: number) => (block.ordered ? `${i + 1}.` : '-')
-        parts.push(
-          (block.items ?? [])
-            .map((item, i) => `${marker(i)} ${escapeMarkdown(item)}`)
-            .join('\n'),
-        )
-        break
-      }
-      case 'image': {
-        // localPath is written by capture:assets. Without it there is no local copy to
-        // reference, and hotlinking Wix is explicitly out.
-        if (!block.localPath) break
-        parts.push(`![${(block.alt ?? '').replace(/[[\]]/g, '')}](${block.localPath})`)
-        break
-      }
-      default:
-        break
-    }
-  }
-
-  return parts.join('\n\n')
 }
 
 /** Reads the BlogPosting JSON-LD, which carries the real metadata. */
@@ -295,7 +223,8 @@ function main(): void {
     }
 
     const body = stripChrome(capture)
-    const { tags, body: prose } = extractTags(dropListEchoes(body))
+    // Echo removal compares against the ORIGINAL item text, so it runs before unnesting.
+    const { tags, body: prose } = extractTags(unnestListItems(dropListEchoes(body)))
     const hero = prose.find((b) => b.type === 'image' && b.localPath)
 
     const sourceCreatedAt = createdAt.slice(0, 10)

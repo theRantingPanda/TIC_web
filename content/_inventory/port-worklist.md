@@ -104,6 +104,46 @@ Its image's alt text was the filename ("Online bill payment concept.jpg"), which
 worse than nothing for a screen reader, so it renders `alt=""` as a decorative image.
 Real alt text, or a decision that it stays decorative, is outstanding.
 
+## `/employee-benefits` — PORTED 2026-08-11
+
+Copy verbatim. Two things carried over that need a human:
+
+| # | Item |
+| --- | --- |
+| E1 | **EXPERIENCED / EXPERT ADVICE / CONFIDENTIALITY are three headings with nothing under them** — on Wix and here. They read as value propositions someone never finished writing. Kept, because they are real claims the firm makes, but they currently say nothing. |
+| E2 | **The contact form is now mounted here** — this is the page that had one on Wix, and `ContactForm` had been built in Phase 2 without ever being used. It needs `NEXT_PUBLIC_N8N_CONTACT_WEBHOOK` set on the Render service or it cannot submit; until then it tells the visitor to email instead. |
+
+The page is also the only one publishing a phone number (+65 6681 6455), now in
+`lib/site.ts` alongside the email so it is stated once.
+
+## `/speciality-insurance` — PORTED 2026-08-11
+
+Copy verbatim, including **"Specialty Covers"** with the American spelling in the
+heading while the URL and nav say "Speciality". The slug is indexed and cannot change;
+which spelling the prose uses is an editorial call.
+
+The original had **no h1 at all** — its top heading was an h2. Promoted, since a page
+with no h1 is a genuine accessibility and SEO defect and this is a rebuild.
+
+## `/privacy` — PORTED 2026-08-11
+
+Verbatim, and deliberately so: nothing in a privacy policy gets tidied, reworded or
+trimmed as part of a migration. It is a legal statement about how data is handled, and
+changing it is the firm's decision.
+
+Checked for loss rather than assumed: every distinct word in the capture appears in the
+MDX (373 of 373), and all 8 sections are present.
+
+Two things for the firm, not for the migration:
+
+- **It is dated "Last updated on 5 MAY 2018"** and describes a site with registration,
+  orders and a shopping cart. It should be reviewed against what the new site actually
+  does — which is a contact form and a file library.
+- **A nested list renders as a following list rather than an indented one.** Wix
+  serialised the sub-bullets both inside the parent item and as a separate list; the
+  duplicate is removed, the nesting is flattened. Content-complete, slightly flatter
+  than the original.
+
 ## Image alt text across the site
 
 Worth one pass rather than twelve. Of 18 captured images: three have empty alt, one is a
