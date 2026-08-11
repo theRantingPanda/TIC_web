@@ -40,7 +40,20 @@ export const postFrontmatterSchema = z.object({
    * Blogs are a great way to connect with your audience…"), which must not ship.
    */
   summary: z.string().min(1),
+  /**
+   * The date shown on the post.
+   *
+   * Not always the Wix timestamp — see `sourceCreatedAt`. Ten posts were saved in one
+   * two-minute burst on Wix, which is a bulk re-save rather than ten publications, so
+   * their display dates are spaced. The original is kept below rather than discarded.
+   */
   publishedAt: isoDate,
+  /**
+   * The `datePublished` Wix reported, verbatim. Provenance only — never displayed.
+   * Where this differs from `publishedAt`, the difference is deliberate and documented
+   * in scripts/port-blog.ts.
+   */
+  sourceCreatedAt: isoDate,
   author: z.string().min(1),
   status: postStatus,
   /** Hashtags as they appear at the foot of the original post. */

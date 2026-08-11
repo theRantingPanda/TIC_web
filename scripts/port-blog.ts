@@ -54,6 +54,57 @@ function slugFromPath(pagePath: string): string {
   return pagePath.slice(SOURCE_PREFIX.length)
 }
 
+/** Days between spaced posts in a bulk-save group. */
+const SPACING_DAYS = 7
+
+function addDays(isoDay: string, days: number): string {
+  const date = new Date(`${isoDay}T00:00:00Z`)
+  date.setUTCDate(date.getUTCDate() + days)
+  return date.toISOString().slice(0, 10)
+}
+
+/**
+ * Decides the date each post displays.
+ *
+ * Ten of the twelve posts carry `datePublished` values inside one 2.5-minute window on
+ * 2026-06-18 — 02:07:32 through 02:10:08, sequential. That is Wix writing a timestamp
+ * when content was saved, not ten posts published in one sitting, and showing ten
+ * identical dates advertises a content dump.
+ *
+ * So a group of posts sharing a creation date is spaced a week apart, in the order Wix
+ * created them, ENDING on the real date. The last post keeps its true date, none is
+ * dated into the future, and the ordering is the genuine one. The Wix timestamp is
+ * preserved on every post as `sourceCreatedAt`, so this is a presentation choice that
+ * can be reversed, not a loss of information.
+ *
+ * Posts with a unique creation date — the two from 2018 — are left exactly as they are.
+ */
+function assignDisplayDates(
+  posts: { slug: string; createdAt: string }[],
+): Map<string, string> {
+  const byDay = new Map<string, { slug: string; createdAt: string }[]>()
+  for (const post of posts) {
+    const day = post.createdAt.slice(0, 10)
+    byDay.set(day, [...(byDay.get(day) ?? []), post])
+  }
+
+  const display = new Map<string, string>()
+  for (const [day, group] of byDay) {
+    if (group.length === 1) {
+      display.set(group[0].slug, day)
+      continue
+    }
+
+    const ordered = [...group].sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    ordered.forEach((post, i) => {
+      const stepsBack = (ordered.length - 1 - i) * SPACING_DAYS
+      display.set(post.slug, addDays(day, -stepsBack))
+    })
+  }
+
+  return display
+}
+
 /** Drops the Wix sidebar. Throws if the capture is not the shape we verified. */
 function stripChrome(capture: Capture): Block[] {
   const texts = capture.blocks.map((b) => (b.text ?? '').trim())
@@ -187,6 +238,7 @@ function frontmatterYaml(frontmatter: PostFrontmatter): string {
     // Quoted so YAML yields a string rather than a Date. The schema accepts both, but
     // emitting the unambiguous form keeps hand-edited files consistent with generated ones.
     `publishedAt: ${quote(frontmatter.publishedAt)}`,
+    `sourceCreatedAt: ${quote(frontmatter.sourceCreatedAt)}`,
     `author: ${quote(frontmatter.author)}`,
     `status: ${frontmatter.status}`,
     frontmatter.tags.length
@@ -215,11 +267,25 @@ function main(): void {
   let written = 0
   let skipped = 0
 
-  for (const file of captureFiles) {
+  // Two passes: display dates depend on the whole set, not on one post at a time.
+  const loaded = captureFiles.map((file) => {
     const capture: Capture = JSON.parse(
       fs.readFileSync(path.join(PAGES_DIR, file), 'utf8'),
     )
     const slug = slugFromPath(capture.path)
+    const posting = readJsonLd(slug, file)
+    const createdAt = String(posting.datePublished ?? '')
+
+    if (!/^\d{4}-\d{2}-\d{2}T/.test(createdAt)) {
+      throw new Error(`${slug}: JSON-LD datePublished is missing or malformed.`)
+    }
+
+    return { file, capture, slug, posting, createdAt }
+  })
+
+  const displayDates = assignDisplayDates(loaded)
+
+  for (const { capture, slug, posting, createdAt } of loaded) {
     const destination = path.join(BLOG_DIR, `${slug}.mdx`)
 
     if (fs.existsSync(destination) && !force) {
@@ -228,21 +294,19 @@ function main(): void {
       continue
     }
 
-    const posting = readJsonLd(slug, file)
     const body = stripChrome(capture)
     const { tags, body: prose } = extractTags(dropListEchoes(body))
     const hero = prose.find((b) => b.type === 'image' && b.localPath)
 
-    const published = String(posting.datePublished ?? '')
-    if (!/^\d{4}-\d{2}-\d{2}T/.test(published)) {
-      throw new Error(`${slug}: JSON-LD datePublished is missing or malformed.`)
-    }
+    const sourceCreatedAt = createdAt.slice(0, 10)
+    const publishedAt = displayDates.get(slug) ?? sourceCreatedAt
 
     const frontmatter = postFrontmatterSchema.parse({
       slug,
       title: capture.h1 || capture.title,
       summary: String(posting.description ?? ''),
-      publishedAt: published.slice(0, 10),
+      publishedAt,
+      sourceCreatedAt,
       author:
         (posting.author as { name?: string } | undefined)?.name ?? 'The Insurance Concierge',
       status: 'published',

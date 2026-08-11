@@ -72,7 +72,7 @@ for a licensed firm and the wording should be settled once and used consistently
 | I2 | "INDICATIVE COST FOR A 30 YEAR OLD" heading with **nothing beneath it** | ✅ it is the last block on the page |
 | I3 | Broken heading case: "pRE-EXISTING CONDITIONS" | ✅ block 14 |
 | I4 | Grammar: "Continuous cover even you relocate to another country" | ✅ block 11 |
-| I5 | Hero image is a COVID mouth-swab stock photo | ⚠ visual — the image is captured, judge it by eye |
+| I5 | Hero image is a COVID mouth-swab stock photo | ✅ its alt text is `coronavirus-mouth-swab-test-virus-diseas` |
 
 I2 is the one worth thinking about rather than patching: an indicative pricing block is
 exactly the sort of thing to render from data — the repo already has quotation skills —
@@ -84,6 +84,33 @@ Note the capture also lists each bullet twice, once as a `list` and once as loos
 duplicated copy on the page.
 
 ---
+
+## `/income-preservation-1` — PORTED 2026-08-11
+
+The one page whose only open question has been answered, so it is ported.
+
+**The "since 2003" note in the 2026-08-10 discovery was wrong on two counts.** The live
+copy says **2023**, not 2003, and it is on this page, not the homepage — the homepage
+about block makes no such claim. The sentence read:
+
+> "…With years of experience since **2023**, we've come to understand each of our
+> clients' unique insurance needs…"
+
+Corrected to **2014**, the UEN registration year, on Steven's instruction 2026-08-11.
+This is advertising copy for a licensed firm, so the claim has to be one the entity can
+stand behind. The rest of the page is verbatim.
+
+Its image's alt text was the filename ("Online bill payment concept.jpg"), which is
+worse than nothing for a screen reader, so it renders `alt=""` as a decorative image.
+Real alt text, or a decision that it stays decorative, is outstanding.
+
+## Image alt text across the site
+
+Worth one pass rather than twelve. Of 18 captured images: three have empty alt, one is a
+filename, one is a photographer credit ("Image by Kelly Sikkema"), one is a stock-photo
+slug ("coronavirus-mouth-swab-test-virus-diseas"), and three are the header's social
+icons ("facebook", "linkedin", "youtube") which should be links, not images, on the
+rebuild. The rest are short and serviceable ("Container Ship", "Pregnant Belly").
 
 ## `/projects`
 
@@ -121,10 +148,27 @@ Still outstanding, and needing a human:
 | # | Item |
 | --- | --- |
 | B1 | **Copy is verbatim Wix.** Grammar errors are ported as-is — e.g. "Whilst travel insurance is designed manage the risk of travelling". Nothing has been rewritten; that is an editorial pass on advertising copy, not a migration task. |
-| B2 | **Hero images have no alt text.** Both posts with an image had an empty `alt` on Wix. `heroAlt: null` records that honestly and renders `alt=""`; real alt text needs writing. |
+| B2 | **One hero image has no alt text** — the travel post's. The other carries a real description ("patient wheeled in a hospital"), preserved. `heroAlt: null` renders `alt=""`, which is the honest encoding for "none was written". |
 | B3 | **`"Disaster-Proof" your holidays!`** renders as a paragraph because that is what the capture recorded. On the live page it reads as a heading — check and promote it if so. |
-| B4 | **Ten posts are dated 2026-06-18**, all within two minutes of each other, which is a Wix re-save rather than ten publications. The dates are faithful to the source but may not be the dates you want shown. |
+| B4 | ~~Ten posts dated 2026-06-18~~ **Resolved 2026-08-11** — see below. |
+| B6 | **Byline is inconsistent**: eleven posts say "Steven Neo", the 2018 major-illness post says "Steven". Faithful to Wix. Normalise if you want one byline. |
 | B5 | **No index lists the posts.** `/blog` is the Services page, and the category pages are dropped. The sibling links mitigate this; a real index would need a new path and is a decision, not an oversight. |
+
+### Post dates — resolved 2026-08-11
+
+Ten posts carried `datePublished` values inside one 2.5-minute window on 2026-06-18
+(02:07:32 → 02:10:08, sequential). That is Wix stamping a bulk save, not ten
+publications, and ten identical dates advertise a content dump.
+
+On Steven's instruction the display dates are now spaced a week apart, in the order Wix
+actually created them, **ending on the real date** — so the last post keeps its true
+date, nothing is dated into the future, and the ordering is genuine. The range is
+2026-04-16 to 2026-06-18. The two 2018 posts have unique creation dates and were left
+alone.
+
+The Wix timestamp is preserved on every post as `sourceCreatedAt`. This is a
+presentation choice, recorded and reversible, not a discarded fact. The logic lives in
+`assignDisplayDates` in `scripts/port-blog.ts` and applies to any future bulk-save group.
 
 ---
 
