@@ -168,8 +168,12 @@ exactly as they do today — no redirect is needed or wanted.
 The service sits in the same Render project as the Rainmaker CRM, whose `tic-crm-shared`
 env group holds ~93 variables including database credentials and carrier API keys.
 Nothing is linked, and nothing may be: this is a **static** build, so any variable it can
-read is baked into published HTML and served to the public. The site needs no environment
-variables at all.
+read is baked into published HTML and served to the public.
+
+The site needs exactly one variable, set individually on the service and never via a
+group: **`NEXT_PUBLIC_N8N_CONTACT_WEBHOOK`**, without which the contact form on
+`/employee-benefits` renders but cannot submit. See
+[below](#the-contact-form-needs-one-environment-variable).
 
 ---
 
