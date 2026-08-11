@@ -43,15 +43,18 @@ Three are unmodified Wix template posts. **RESOLVED (2026-08-11): dropped** —
 `manage-your-blog-from-your-live-site` are recorded in `url-contract.json` → `dropped`
 and enforced by `verify:urls`, on the same 404-not-301 basis as the store URLs above.
 
-**Still open for `/blog`:** the 12 real FAQ-style posts and the 9 category index pages.
-Both need decisions — whether to port the posts (they overlap the knowledge base
-heavily), and whether `/single-post/...` and `/blog/categories/...` are preserved
-verbatim. Note two posts carry a `/YYYY/MM/DD/` segment that URL preservation would
-freeze in place permanently.
+**RESOLVED (2026-08-11) for the rest of `/blog`:**
 
-Note the URL shape: posts live at `/single-post/...`, two of them with a `/YYYY/MM/DD/`
-segment. Under the URL-preservation constraint these paths have to survive exactly as
-they are, which is a Wix-ism worth a deliberate decision rather than a default.
+- **The 12 real posts are ported**, preserved verbatim at their original
+  `/single-post/...` paths per the hard constraint. Two carry a `/YYYY/MM/DD/` segment
+  (`/single-post/2018/04/30/...`, `/single-post/2018/05/06/...`) — indexed, so the
+  Wix-ism is frozen in place deliberately. The route is a catch-all
+  (`app/single-post/[...slug]/page.tsx`) precisely because of that depth difference.
+- **The 8 `/blog/categories/*` pages are dropped** — thin Wix-generated taxonomy with no
+  original content; the posts they list are preserved individually.
+
+⚠️ `/blog` itself appeared in the `blog-categories` child sitemap but is **preserved**,
+not dropped. The sitemap listed 9 URLs there; only 8 are category pages.
 
 ## 3. A Wix store exists and is entirely placeholder content
 
@@ -83,11 +86,11 @@ signal against the site — a clean 404/410 is the correct outcome.
 /quotation-questionaire       note the spelling; preserve exactly if kept
 ```
 
-Plus every `/single-post/*`, `/blog/categories/*` and `/product-page/*` URL above.
+These three are **still unresolved** — they are the only sitemap paths with no decision.
 
-`content/url-contract.json` currently lists 11 preserved paths. The real indexed surface
-is roughly 50. **The URL contract is materially incomplete** and must not be treated as
-authoritative until this is resolved.
+`content/url-contract.json` now lists **23 preserved** and **23 dropped** paths, against
+a real indexed surface of ~50. With these three settled the contract is complete; until
+then it is still not authoritative.
 
 ## 5. Images are still blocked
 
@@ -103,9 +106,12 @@ Nothing here says anything about named clients, logos or testimonials either way
 
 ## Recommended next steps
 
-1. Decide on the store: let the 12 placeholder product URLs go, or preserve them.
-2. Decide on the blog: port 12 posts, drop 3 Wix templates, and confirm `/single-post/`
-   paths are preserved verbatim.
-3. Confirm what `/file`, `/copy-of-upgrading-works` and `/quotation-questionaire` are.
-4. Get `static.wixstatic.com` unblocked.
-5. Then run `npm run capture:site` and review the client-content flags.
+1. Confirm what `/file`, `/copy-of-upgrading-works` and `/quotation-questionaire` are —
+   the last open URL decision.
+2. Get `static.wixstatic.com` unblocked (only the `asktic.com` allowlist lines took
+   effect; the wixstatic line has not).
+3. Then run `npm run capture:site` and review the client-content flags — that scan has
+   still never run, so nothing is known either way about named clients or testimonials.
+
+Resolved: the store URLs, the 3 Wix template posts, the 12 real posts, and the 8 blog
+category pages. See sections 2 and 3.

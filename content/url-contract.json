@@ -49,6 +49,66 @@
       "path": "/knowledge",
       "source": "new",
       "note": "redirect target for help.asktic.com"
+    },
+    {
+      "path": "/single-post/how-do-i-make-a-claim-with-my-international-health-insurance",
+      "source": "wix",
+      "note": "blog post"
+    },
+    {
+      "path": "/single-post/why-has-my-renewal-premium-increased",
+      "source": "wix",
+      "note": "blog post"
+    },
+    {
+      "path": "/single-post/what-happens-if-my-claim-is-rejected",
+      "source": "wix",
+      "note": "blog post"
+    },
+    {
+      "path": "/single-post/how-do-i-get-pre-authorisation-for-a-planned-procedure",
+      "source": "wix",
+      "note": "blog post"
+    },
+    {
+      "path": "/single-post/does-my-plan-cover-maternity-and-newborn-care",
+      "source": "wix",
+      "note": "blog post"
+    },
+    {
+      "path": "/single-post/will-my-pre-existing-conditions-be-covered",
+      "source": "wix",
+      "note": "blog post"
+    },
+    {
+      "path": "/single-post/what-is-the-difference-between-international-and-local-health-insurance-in-singapore",
+      "source": "wix",
+      "note": "blog post"
+    },
+    {
+      "path": "/single-post/how-does-the-insurance-concierge-get-paid",
+      "source": "wix",
+      "note": "blog post"
+    },
+    {
+      "path": "/single-post/when-should-i-start-my-policy-renewal-process",
+      "source": "wix",
+      "note": "blog post"
+    },
+    {
+      "path": "/single-post/am-i-covered-for-dental-and-optical-treatment",
+      "source": "wix",
+      "note": "blog post"
+    },
+    {
+      "path": "/single-post/2018/04/30/travel-insurance-tips-i-wished-i-knew",
+      "source": "wix",
+      "note": "Wix date-segment path - preserved verbatim"
+    },
+    {
+      "path": "/single-post/2018/05/06/with-health-insurance-is-major-illness-insurance-necessary",
+      "source": "wix",
+      "note": "Wix date-segment path - preserved verbatim"
     }
   ],
   "redirectOnly": [
@@ -92,6 +152,19 @@
           "/single-post/design-a-stunning-blog",
           "/single-post/grow-your-blog-community",
           "/single-post/manage-your-blog-from-your-live-site"
+        ]
+      },
+      {
+        "reason": "Wix-generated blog category index pages. Thin taxonomy pages with no original content; the posts they list are preserved individually and /blog itself is preserved. Note /blog appeared in the same child sitemap but is NOT dropped.",
+        "paths": [
+          "/blog/categories/renewals",
+          "/blog/categories/travel-insurance",
+          "/blog/categories/insurance",
+          "/blog/categories/travel",
+          "/blog/categories/eligibility",
+          "/blog/categories/major-illness",
+          "/blog/categories/claims",
+          "/blog/categories/general"
         ]
       }
     ]

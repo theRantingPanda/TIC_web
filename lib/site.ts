@@ -70,6 +70,25 @@ export const footerNav: readonly { heading: string; items: readonly NavItem[] }[
 /** Every path this build is contractually required to emit. */
 export const preservedPaths: readonly string[] = urlContract.preserved.map((p) => p.path)
 
+/**
+ * Blog posts carried over from Wix, at their original `/single-post/...` paths.
+ *
+ * Two of them carry a `/YYYY/MM/DD/` segment, which is why the route is a catch-all
+ * rather than a single `[slug]`. Those paths are indexed, so URL preservation freezes
+ * the Wix-ism in place — deliberately.
+ *
+ * This is the params source only until Phase 3 puts the posts in content/blog as MDX;
+ * at that point generateStaticParams should read the content directory instead, and
+ * the URL contract goes back to being purely an assertion.
+ */
+export const blogPostPaths: readonly string[] = preservedPathsFrom('/single-post/')
+
+function preservedPathsFrom(prefix: string): string[] {
+  return urlContract.preserved
+    .map((p) => p.path)
+    .filter((path) => path.startsWith(prefix))
+}
+
 /** Paths that must NOT emit a page — they are redirect sources handled by render.yaml. */
 export const redirectOnlyPaths: readonly string[] = urlContract.redirectOnly.map(
   (r) => r.path,
