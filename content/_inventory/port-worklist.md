@@ -112,12 +112,24 @@ slug ("coronavirus-mouth-swab-test-virus-diseas"), and three are the header's so
 icons ("facebook", "linkedin", "youtube") which should be links, not images, on the
 rebuild. The rest are short and serviceable ("Container Ship", "Pregnant Belly").
 
-## `/projects`
+## `/projects` — PORTED 2026-08-11, needs real content
 
-Two content blocks, one of which is the literal Wix placeholder
-"I'm a title. ​Click here to edit me." An unfinished template page that is in the nav and
-indexed. Preserved in the URL contract, so it has to emit something — what it should
-say is an open decision.
+The Wix original was an unfinished template: an "Our Services" heading and the literal
+placeholder "I'm a title. ​Click here to edit me." The placeholder is removed on Steven's
+instruction, which leaves the heading and nothing else.
+
+A page with only a heading is a dead end, and this one is in the nav and indexed, so it
+now lists the five service pages. **Those links are not captured content** — but they
+are not invented copy either: they come from `primaryNav`, so the page cannot drift out
+of step with the nav.
+
+Two things still open:
+
+- **The page is titled "Our Services" but lives at `/projects` and is labelled Projects
+  in the nav.** That mismatch is inherited from Wix. Settle which it is.
+- **It shows no projects.** If there is real project or case-study work to show, this is
+  where it goes — subject to the client-confidentiality rule: no named clients, logos or
+  testimonials without written permission.
 
 ---
 

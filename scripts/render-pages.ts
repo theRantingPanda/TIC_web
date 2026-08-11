@@ -26,8 +26,14 @@ import { chromium } from 'playwright'
 import { INVENTORY_DIR, PAGES_DIR, ROOT, pathToSlug, readJson, writeJson } from './lib/paths.ts'
 
 const ORIGIN = 'https://www.asktic.com'
-/** Wix hydration is not instant; give the main region a chance to fill. */
-const HYDRATION_TIMEOUT_MS = 20_000
+/**
+ * Wix hydration is not instant; give the main region a chance to fill.
+ *
+ * Generous because the gate is "did <main> get content", not "did the page finish".
+ * A Wix page never reaches networkidle — analytics and live-chat sockets keep talking —
+ * so navigation waits only for domcontentloaded and the real wait happens below.
+ */
+const HYDRATION_TIMEOUT_MS = 60_000
 
 /**
  * The npm `playwright` package pins a browser build number and refuses to launch
@@ -175,16 +181,21 @@ async function main(): Promise<void> {
       const page = await context.newPage()
       let html = ''
       try {
-        await page.goto(url, { waitUntil: 'networkidle', timeout: HYDRATION_TIMEOUT_MS })
-        // Hydration target: main having any text at all. Not fatal if it never fills —
-        // an empty main after hydration is itself a finding worth recording.
+        await page.goto(url, {
+          waitUntil: 'domcontentloaded',
+          timeout: HYDRATION_TIMEOUT_MS,
+        })
+        // Hydration target: main having real text. Not fatal if it never fills — an
+        // empty main after hydration is itself a finding worth recording.
         await page
           .waitForFunction(
-            () => (document.querySelector('main')?.textContent ?? '').trim().length > 0,
+            () => (document.querySelector('main')?.textContent ?? '').trim().length > 40,
             undefined,
-            { timeout: HYDRATION_TIMEOUT_MS },
+            { timeout: HYDRATION_TIMEOUT_MS, polling: 500 },
           )
           .catch(() => undefined)
+        // Wix fills the page in stages; let late blocks and lazy images land.
+        await page.waitForTimeout(3_000)
         html = await page.content()
       } finally {
         await page.close()

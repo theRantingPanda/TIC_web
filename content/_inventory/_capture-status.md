@@ -22,16 +22,30 @@ The deduplicated total is **49**: `/blog` is listed in both `pages-sitemap.xml` 
 `/knowledge` and `/forms`, which are new and not on Wix. No unclassified path appeared,
 so the contract still covers the live sitemap exactly.
 
-### `/blog` and `/maternity-insurance` cannot be captured here
+### `/blog` and `/maternity-insurance` still cannot be captured (2026-08-11, retried)
 
-Both return an **empty `<main>`** from the server: Wix renders them client-side. A
-headless-Chromium pass (`npm run capture:render`) confirmed they stay empty after
-hydration, because Wix's JS bundles live on `static.parastorage.com`, which **is**
-blocked by this environment's egress policy (proxy denies `CONNECT`). Without those
-bundles the page cannot build itself, so there is nothing to archive.
+Both return an **empty `<main>`** from the server: Wix renders them client-side.
 
-To capture them: allowlist `static.parastorage.com` (and `siteassets.parastorage.com`),
-then `npm run capture:render`. Otherwise their copy has to be supplied by hand.
+`static.parastorage.com` has since been allowlisted, and it moved things forward — the
+Wix framework now boots and the header and nav render. The page body does not: it shows
+Wix's own **"Widget Didn't Load — Check your internet and refresh this page."**
+
+The remaining blocked hosts were identified from the browser's own failed requests
+during a render, and confirmed one by one:
+
+| Host | Status | Matters? |
+| --- | --- | --- |
+| `static.parastorage.com` | **200 — allowed** | yes, framework |
+| `pages.parastorage.com` | 403 `CONNECT` denied | **yes — page data** |
+| `siteassets.parastorage.com` | 403 `CONNECT` denied | **yes — site assets** |
+| `bundler-velo.parastorage.com` | 403 `CONNECT` denied | probably |
+| `engage.wixapps.net` | 403 `CONNECT` denied | unclear |
+| `panorama.wixapps.net`, `frog.wix.com`, `sentry.wixpress.com`, `browser.sentry-cdn.com`, `www.googletagmanager.com` | denied | no — telemetry |
+
+**Allowlisting `*.parastorage.com` rather than individual hostnames is the ask.** Naming
+one host is what produced this second round trip. Then re-run `npm run capture:render`.
+
+Failing that, the copy for these two pages has to be supplied by hand.
 
 Note `/blog` is **not** a blog index — the live nav labels it **Services** and its title
 is "Resource | The Insurance Concierge". It is the services landing page.

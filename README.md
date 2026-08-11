@@ -15,7 +15,7 @@ has been ported.**
 | --- | --- |
 | **1 — Capture** | Wix: **done** — 21 pages and 18 images archived; 2 pages could not be captured (below). Freshdesk: **stopped by decision** — content is stale and will be supplied by hand; folder inventory kept. See [`content/_inventory/_capture-status.md`](content/_inventory/_capture-status.md). |
 | **2 — Scaffold** | Complete. Builds, exports, and passes the URL-contract check. Nav reconciled against the real Wix nav. |
-| **3 — Port content** | **Started.** The 12 blog posts are ported and rendering from MDX. The marketing pages are not — they need the copy decisions in the worklist first. |
+| **3 — Port content** | **In progress.** Ported: the 12 blog posts, `/income-preservation-1`, `/projects`. Not ported: `/`, `/international-health-insurance`, `/employee-benefits`, `/speciality-insurance`, `/privacy` — and `/blog` + `/maternity-insurance`, which have no captured content. |
 
 ### Phase 1: what came back
 
@@ -29,11 +29,13 @@ npm run capture:render      # client-rendered pages, via headless Chromium
 halts if the live sitemap contains a path the contract does not classify.
 
 **Two pages archived empty and stayed empty:** `/blog` and `/maternity-insurance` are
-rendered client-side by Wix, and Wix's JS CDN `static.parastorage.com` is denied by this
-environment's egress policy — so the pages cannot build themselves in a headless browser
-either. Allowlist that host
+rendered client-side by Wix. `static.parastorage.com` has been allowlisted and the Wix
+framework now boots — header and nav render — but the body still shows Wix's "Widget
+Didn't Load", because `pages.parastorage.com` and `siteassets.parastorage.com` are still
+denied. Allowlist **`*.parastorage.com`**
 ([docs](https://code.claude.com/docs/en/claude-code-on-the-web)) and re-run
-`capture:render`, or supply their copy by hand.
+`capture:render`, or supply their copy by hand. Full host-by-host breakdown in
+[`_capture-status.md`](content/_inventory/_capture-status.md).
 
 `static.wixstatic.com` is **not** blocked, despite earlier notes: its bare-root `403` is
 the origin's own answer, and media URLs under it download fine.
@@ -41,10 +43,8 @@ the origin's own answer, and media URLs under it download fine.
 **`/blog` is the Services landing page**, not a blog index — that is what the live nav
 calls it. The 12 posts live at `/single-post/...`.
 
-**Two things need a decision before porting:** `/projects` is an unfinished Wix template
-page (its one paragraph is the literal placeholder "I'm a title. Click here to edit
-me.") and is in the nav; and the client-content scan flagged `/privacy` for "Google
-Inc", which on reading is the Google Analytics disclosure, not a client.
+The client-content scan flagged `/privacy` for "Google Inc", which on reading is the
+Google Analytics disclosure, not a client reference.
 
 The live site's defects — dead "Read More" links, Wix-default social icons, a "© 2019"
 footer, missing meta descriptions, a Knowledge Base link to a hostname that does not
