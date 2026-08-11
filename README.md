@@ -113,9 +113,28 @@ it is.** These URLs are indexed and carry the site's only search equity.
 `content/url-contract.json` is the canonical list. `npm run verify:urls` checks the real
 build output and fails if:
 
+- **`out/` is stale** — see below, this one comes first, and
 - a preserved path emitted no artifact, or
 - a redirect-only path emitted a page (which would silently shadow its redirect), or
 - a nav link in `lib/site.ts` points somewhere not in the contract.
+
+#### `verify:urls` refuses to check a stale `out/`
+
+It asserts against whatever is in `out/`, which is only meaningful if `out/` came from
+the current source. On 2026-08-11 it did not: a build failed, `out/` still held the
+previous good export, and the check cheerfully reported the contract holding.
+
+So `npm run build` now has a second half — `scripts/stamp-build.ts` writes
+`out/.build-stamp.json`, a hash of every build input. `verify:urls` recomputes that hash
+and fails if it disagrees or the stamp is missing. A failed build never writes a new
+stamp, so the mismatch is exactly what catches it.
+
+`content/_inventory/` is excluded from the hash: the build never reads the capture
+archive, so re-capturing must not invalidate a perfectly good export. Content is hashed
+rather than mtimes, so a fresh clone or a `touch` does not cry wolf.
+
+**A green `verify:urls` is not a green build.** Check that `npm run build` succeeded
+too — the staleness guard exists because that distinction was missed once already.
 
 Run it after every build. `/income-preservation-1` keeps its odd trailing `-1` on
 purpose — do not "tidy" a slug in that file.
