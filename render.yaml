@@ -40,7 +40,13 @@ services:
   - type: web
     name: tic-web
     runtime: static
-    buildCommand: npm ci && npm run build
+    # `--include=dev` is load-bearing, not belt-and-braces. Render builds with
+    # NODE_ENV=production, under which `npm ci` skips devDependencies — and every tool
+    # this build needs is one: tailwindcss and @tailwindcss/postcss compile the CSS,
+    # typescript type-checks, tsx runs the build stamp. Without the flag the build dies
+    # on the Tailwind PostCSS plugin before it emits a single page. Verified by running
+    # the exact command both ways in a clean clone.
+    buildCommand: npm ci --include=dev && npm run build
     staticPublishPath: ./out
     pullRequestPreviewsEnabled: false
 
