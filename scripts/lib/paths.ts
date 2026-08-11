@@ -7,6 +7,15 @@ export const INVENTORY_DIR = path.join(ROOT, 'content', '_inventory')
 export const PAGES_DIR = path.join(INVENTORY_DIR, 'pages')
 export const FRESHDESK_DIR = path.join(INVENTORY_DIR, 'freshdesk')
 export const PUBLIC_IMAGES_DIR = path.join(ROOT, 'public', 'images')
+export const URL_CONTRACT = path.join(ROOT, 'content', 'url-contract.json')
+
+/**
+ * Script-owned: `stopAndReport` OVERWRITES this file on every halt.
+ *
+ * Nothing hand-written may live here. The record of closed URL decisions is
+ * content/_inventory/url-decisions.md — it used to be this path, and a capture run
+ * that tripped any gate would have silently destroyed it.
+ */
 export const STOP_REPORT = path.join(INVENTORY_DIR, 'STOP-REPORT.md')
 
 export function ensureDir(dir: string): void {

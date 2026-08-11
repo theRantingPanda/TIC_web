@@ -1,0 +1,230 @@
+{
+  "path": "/employee-benefits",
+  "url": "https://www.asktic.com/employee-benefits",
+  "capturedAt": "2026-08-11T00:43:56.507Z",
+  "title": "Employee Benefits | The Insurance Concierge",
+  "metaDescription": "",
+  "h1": "EMPLOYEE BENEFITS",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 1,
+      "text": "EMPLOYEE BENEFITS"
+    },
+    {
+      "type": "paragraph",
+      "text": "Attract & Retain"
+    },
+    {
+      "type": "paragraph",
+      "text": "​"
+    },
+    {
+      "type": "paragraph",
+      "text": "because turnovers and wrong hire always cost more"
+    },
+    {
+      "type": "image",
+      "src": "https://static.wixstatic.com/media/b4ab2e3cb4704a6b8d16f28e49bd2b01.jpg/v1/fill/w_122,h_82,al_c,q_80,usm_0.66_1.00_0.01,blur_2,enc_avif,quality_auto/b4ab2e3cb4704a6b8d16f28e49bd2b01.jpg",
+      "localPath": "/images/b4ab2e3cb4704a6b8d16f28e49bd2b01-73f5f5c0.jpg",
+      "alt": "Team Meeting",
+      "width": 1920,
+      "height": 1280
+    },
+    {
+      "type": "heading",
+      "level": 6,
+      "text": "Better Results!"
+    },
+    {
+      "type": "paragraph",
+      "text": "Your employees’ perception of their benefits is paramount because it affects your ability to attract and retain top talent. The healthcare benefit offer is a significant part of your employer brand. It affects employee satisfaction and loyalty, not to mention their health and productivity."
+    },
+    {
+      "type": "paragraph",
+      "text": "​"
+    },
+    {
+      "type": "paragraph",
+      "text": "​"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "EXPERIENCED"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "EXPERT ADVICE"
+    },
+    {
+      "type": "heading",
+      "level": 3,
+      "text": "CONFIDENTIALITY"
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "text": "GET IN TOUCH"
+    },
+    {
+      "type": "paragraph",
+      "text": "hello@asktic.com"
+    },
+    {
+      "type": "paragraph",
+      "text": "+65 6681 6455"
+    },
+    {
+      "type": "image",
+      "src": "https://static.wixstatic.com/media/0fdef751204647a3bbd7eaa2827ed4f9.png/v1/fill/w_26,h_26,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/0fdef751204647a3bbd7eaa2827ed4f9.png",
+      "localPath": "/images/0fdef751204647a3bbd7eaa2827ed4f9-0990f913.png",
+      "alt": "facebook",
+      "width": 200,
+      "height": 200
+    },
+    {
+      "type": "image",
+      "src": "https://static.wixstatic.com/media/6ea5b4a88f0b4f91945b40499aa0af00.png/v1/fill/w_26,h_26,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/6ea5b4a88f0b4f91945b40499aa0af00.png",
+      "localPath": "/images/6ea5b4a88f0b4f91945b40499aa0af00-c8f062f9.png",
+      "alt": "linkedin",
+      "width": 200,
+      "height": 200
+    },
+    {
+      "type": "image",
+      "src": "https://static.wixstatic.com/media/78aa2057f0cb42fbbaffcbc36280a64a.png/v1/fill/w_26,h_26,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/78aa2057f0cb42fbbaffcbc36280a64a.png",
+      "localPath": "/images/78aa2057f0cb42fbbaffcbc36280a64a-84ca69e4.png",
+      "alt": "youtube",
+      "width": 200,
+      "height": 200
+    },
+    {
+      "type": "paragraph",
+      "text": "Your details were sent successfully!"
+    }
+  ],
+  "links": [
+    {
+      "href": "https://www.asktic.com",
+      "text": "Home",
+      "external": false
+    },
+    {
+      "href": "https://www.asktic.com/blog",
+      "text": "Services",
+      "external": false
+    },
+    {
+      "href": "https://www.asktic.com/international-health-insurance",
+      "text": "International Health Insurance",
+      "external": false
+    },
+    {
+      "href": "https://www.asktic.com/maternity-insurance",
+      "text": "Maternity Insurance",
+      "external": false
+    },
+    {
+      "href": "https://www.asktic.com/employee-benefits",
+      "text": "Employee Benefits",
+      "external": false
+    },
+    {
+      "href": "https://www.asktic.com/speciality-insurance",
+      "text": "Speciality Insurance",
+      "external": false
+    },
+    {
+      "href": "https://www.asktic.com/income-preservation-1",
+      "text": "Income Preservation",
+      "external": false
+    },
+    {
+      "href": "https://www.asktic.com/file-access",
+      "text": "File Access",
+      "external": false
+    },
+    {
+      "href": "http://help.asktic.com",
+      "text": "Knowledge Base",
+      "external": true
+    },
+    {
+      "href": "https://www.asktic.com/projects",
+      "text": "Projects",
+      "external": false
+    },
+    {
+      "href": "http://www.facebook.com/wix",
+      "text": "",
+      "external": true
+    },
+    {
+      "href": "https://www.youtube.com/user/Wix",
+      "text": "",
+      "external": true
+    },
+    {
+      "href": "https://www.asktic.com/employee-benefits#employeebenefitscontact",
+      "text": "Get A Quote",
+      "external": false
+    },
+    {
+      "href": "mailto:hello@asktic.com",
+      "text": "hello@asktic.com",
+      "external": false
+    },
+    {
+      "href": "https://www.facebook.com/InsuranceConcierge",
+      "text": "",
+      "external": true
+    },
+    {
+      "href": "https://sg.linkedin.com/in/dstevenneo",
+      "text": "",
+      "external": true
+    },
+    {
+      "href": "https://www.youtube.com/channel/UC37r-aLP8nNnRn-StYGQrwQ",
+      "text": "",
+      "external": true
+    },
+    {
+      "href": "https://www.asktic.com/home-1",
+      "text": "THE INSURANCE CONCIERGE",
+      "external": false
+    },
+    {
+      "href": "https://www.facebook.com/InsuranceConcierge",
+      "text": "",
+      "external": true
+    },
+    {
+      "href": "https://sg.linkedin.com/in/dstevenneo",
+      "text": "",
+      "external": true
+    },
+    {
+      "href": "https://www.youtube.com/channel/UC37r-aLP8nNnRn-StYGQrwQ",
+      "text": "",
+      "external": true
+    },
+    {
+      "href": "mailto:hello@asktic.com",
+      "text": "hello@asktic.com",
+      "external": false
+    },
+    {
+      "href": "https://www.asktic.com/privacy",
+      "text": "Privacy",
+      "external": false
+    }
+  ],
+  "flags": {
+    "possibleClientContent": [],
+    "hasTestimonialMarkup": false,
+    "logoGridCandidate": false
+  }
+}

@@ -4,7 +4,8 @@ Rebuild of [asktic.com](https://www.asktic.com) off Wix — a statically-exporte
 site deployed to Render, with the Freshdesk help centre folded into a `/knowledge`
 section.
 
-**Current state: Phase 2 scaffold. Shell only — no page content has been ported.**
+**Current state: Phase 2 scaffold, Phase 1 capture done. Shell only — no page content
+has been ported.**
 
 ---
 
@@ -12,21 +13,48 @@ section.
 
 | Phase | Status |
 | --- | --- |
-| **1 — Capture** | Wix: **not started** (egress blocked). Freshdesk: **stopped by decision** — content is stale and will be supplied by hand; folder inventory kept. See [`content/_inventory/_capture-status.md`](content/_inventory/_capture-status.md). |
-| **2 — Scaffold** | Complete. Builds, exports, and passes the URL-contract check. |
-| 3 — Port content | Not started. |
+| **1 — Capture** | Wix: **done** — 21 pages and 18 images archived; 2 pages could not be captured (below). Freshdesk: **stopped by decision** — content is stale and will be supplied by hand; folder inventory kept. See [`content/_inventory/_capture-status.md`](content/_inventory/_capture-status.md). |
+| **2 — Scaffold** | Complete. Builds, exports, and passes the URL-contract check. Nav reconciled against the real Wix nav. |
+| **3 — Port content** | **Complete.** Every preserved path renders real content; no stubs remain. Four pages are built from existing site material rather than ported, because there was nothing to port — see below. |
 
-### Phase 1: Wix is blocked, Freshdesk is not
-
-**Wix — blocked.** `www.asktic.com` and `static.wixstatic.com` return `403` from the
-egress proxy: an organisation policy denial, not a transient failure. Allowlist
-`asktic.com`, `*.asktic.com` and `*.wixstatic.com` on the environment's network settings
-([docs](https://code.claude.com/docs/en/claude-code-on-the-web)), then:
+### Phase 1: what came back
 
 ```bash
 npm run capture:site        # sitemap -> content/_inventory/pages/
 npm run capture:assets      # wixstatic images -> public/images/
+npm run capture:render      # client-rendered pages, via headless Chromium
 ```
+
+`capture:site` is scoped to `url-contract.json` → `preserved` with `source: 'wix'`, and
+halts if the live sitemap contains a path the contract does not classify.
+
+**Two pages archived empty and stayed empty:** `/blog` and `/maternity-insurance` are
+rendered client-side by Wix. `static.parastorage.com` has been allowlisted and the Wix
+framework now boots — header and nav render — but the body still shows Wix's "Widget
+Didn't Load", because `pages.parastorage.com` and `siteassets.parastorage.com` are still
+denied. Allowlist **`*.parastorage.com`**
+([docs](https://code.claude.com/docs/en/claude-code-on-the-web)) and re-run
+`capture:render`, or supply their copy by hand. Full host-by-host breakdown in
+[`_capture-status.md`](content/_inventory/_capture-status.md).
+
+`static.wixstatic.com` is **not** blocked, despite earlier notes: its bare-root `403` is
+the origin's own answer, and media URLs under it download fine.
+
+**`/blog` is the Services landing page**, not a blog index — that is what the live nav
+calls it. The 12 posts live at `/single-post/...`.
+
+The client-content scan flagged `/privacy` for "Google Inc", which on reading is the
+Google Analytics disclosure, not a client reference.
+
+The live site's defects — dead "Read More" links, Wix-default social icons, a "© 2019"
+footer, missing meta descriptions, a Knowledge Base link to a hostname that does not
+resolve — are inventoried and verified against the captures in
+[`content/_inventory/port-worklist.md`](content/_inventory/port-worklist.md). That is
+the Phase 3 fix list; none of it is fixed yet.
+
+Images are pulled at **2000px on the long edge**, not at Wix's original resolution. With
+`images.unoptimized: true` the committed file is what every visitor downloads, and the
+largest original is 7133x4800 / 18 MB (513 KB at the cap).
 
 **Freshdesk — stopped by decision.** Solutions content is stale; KB copy will be written
 by hand into `content/kb/` rather than ported. Do not restart the article pull. The
@@ -42,19 +70,21 @@ keeps the Freshdesk API key inside n8n — it needs `asktic.app.n8n.cloud` allow
 
 See `content/_inventory/README.md` for the action list and the `_raw.json` shape.
 
-**No page content, article text or inventory row has been invented to paper over the
-blocked half.** `content/_inventory/` contains empty containers and a format spec. The
-page list in `content/url-contract.json` is assembled from the project brief and has
-**not** been reconciled against the real sitemap.
+**No page content, article text or inventory row has been invented to paper over
+anything that could not be captured.**
 
-Once captured, reconcile `content/url-contract.json` against the real sitemap and
-correct the nav grouping in `lib/site.ts` (currently a documented placeholder).
+`content/url-contract.json` has been reconciled against the real sitemap and is
+authoritative; the rationale for each decision is in
+[`content/_inventory/url-decisions.md`](content/_inventory/url-decisions.md). The nav in
+`lib/site.ts` is reconciled against the live Wix nav as captured.
 
-The capture scripts enforce the brief's stop conditions as hard gates — sitemap over 20
-pages, suspected client-identifying content, or substantial `/blog` / `/projects`
-content each halt the run, write `content/_inventory/STOP-REPORT.md` and exit non-zero.
-The client-content scan is a heuristic that **flags candidates for human review and does
-not clear anything**; an unflagged page is not a guarantee.
+The capture scripts enforce stop conditions as hard gates — an unclassified sitemap
+path, suspected client-identifying content, or substantial `/projects` content each halt
+the run, write `content/_inventory/STOP-REPORT.md` and exit non-zero. That file is
+script-owned and rewritten on every halt; the durable decision record is
+`url-decisions.md` beside it. The client-content scan is a heuristic that **flags
+candidates for human review and does not clear anything**; an unflagged page is not a
+guarantee.
 
 ---
 
@@ -83,9 +113,28 @@ it is.** These URLs are indexed and carry the site's only search equity.
 `content/url-contract.json` is the canonical list. `npm run verify:urls` checks the real
 build output and fails if:
 
+- **`out/` is stale** — see below, this one comes first, and
 - a preserved path emitted no artifact, or
 - a redirect-only path emitted a page (which would silently shadow its redirect), or
 - a nav link in `lib/site.ts` points somewhere not in the contract.
+
+#### `verify:urls` refuses to check a stale `out/`
+
+It asserts against whatever is in `out/`, which is only meaningful if `out/` came from
+the current source. On 2026-08-11 it did not: a build failed, `out/` still held the
+previous good export, and the check cheerfully reported the contract holding.
+
+So `npm run build` now has a second half — `scripts/stamp-build.ts` writes
+`out/.build-stamp.json`, a hash of every build input. `verify:urls` recomputes that hash
+and fails if it disagrees or the stamp is missing. A failed build never writes a new
+stamp, so the mismatch is exactly what catches it.
+
+`content/_inventory/` is excluded from the hash: the build never reads the capture
+archive, so re-capturing must not invalidate a perfectly good export. Content is hashed
+rather than mtimes, so a fresh clone or a `touch` does not cry wolf.
+
+**A green `verify:urls` is not a green build.** Check that `npm run build` succeeded
+too — the staleness guard exists because that distinction was missed once already.
 
 Run it after every build. `/income-preservation-1` keeps its odd trailing `-1` on
 purpose — do not "tidy" a slug in that file.
@@ -109,15 +158,19 @@ Render matches redirect `source` on path only — there is no host component. A
 break the homepage. Scoping a redirect to one hostname means giving that hostname its
 own service, which is what `tic-help-redirect` in `render.yaml` is.
 
-**It does nothing until someone attaches `help.asktic.com` as a custom domain on that
-service and points its DNS at Render.** DNS is out of scope for this repo, so that step
-is manual.
+**`help.asktic.com` does not exist (verified 2026-08-11).** It returns NXDOMAIN, and the
+Vodien zone load sheet has no `help` record — the KB subdomain that exists is
+`support.asktic.com`. The live Wix nav links "Knowledge Base" to `http://help.asktic.com`,
+so that link is **dead on the current site**.
 
-**Currently blocked (2026-08-11): a DNS migration from Wix to Vodien is pending.** No
-asktic.com hostname can be repointed at Render until nameservers move. That gates the
-entire cutover, not just this redirect — `asktic.com` still resolves to Wix, so
-`tic-web` cannot serve live traffic either. Everything in this repo is build-and-verify
-work until the migration completes.
+So `tic-help-redirect` is not waiting on DNS — there is no record to move. It becomes
+useful only if someone decides to *create* that hostname. Nothing in the rebuild depends
+on it: this site's nav links to `/knowledge` directly.
+
+**Separately, the cutover is blocked: a DNS migration from Wix to Vodien is pending.** No
+asktic.com hostname can be repointed at Render until nameservers move. `asktic.com` still
+resolves to Wix, so `tic-web` cannot serve live traffic either. Everything in this repo is
+build-and-verify work until the migration completes.
 
 Two assumptions in that service could **not** be verified — `render.com` is blocked by
 this environment's egress policy: that `destination` accepts an absolute off-site URL,
@@ -127,7 +180,19 @@ affect `tic-web`.
 
 `support.asktic.com` is deliberately not handled. Freshdesk Solutions is **parked, not
 retired**, so that hostname keeps pointing at Freshdesk and its article URLs keep working
-exactly as they do today — no redirect is needed or wanted. Both need a hosting decision before they do anything.
+exactly as they do today — no redirect is needed or wanted.
+
+### Never link an environment group to `tic-web`
+
+The service sits in the same Render project as the Rainmaker CRM, whose `tic-crm-shared`
+env group holds ~93 variables including database credentials and carrier API keys.
+Nothing is linked, and nothing may be: this is a **static** build, so any variable it can
+read is baked into published HTML and served to the public.
+
+The site needs exactly one variable, set individually on the service and never via a
+group: **`NEXT_PUBLIC_N8N_CONTACT_WEBHOOK`**, without which the contact form on
+`/employee-benefits` renders but cannot submit. See
+[below](#the-contact-form-needs-one-environment-variable).
 
 ---
 
@@ -168,6 +233,71 @@ render.yaml     deploy config and all redirects
 `#1b5faa` anchor two scales at their `600` step (`brand-green-600` === `brand-green`),
 namespaced so Tailwind's own `green`/`blue` stay available. Components must not hardcode
 hex values.
+
+### Blog posts
+
+The 12 posts live in `content/blog/**.mdx`, at paths mirroring their URLs — including
+the `2018/04/30/` prefix two of them carry, because those paths are indexed.
+
+```bash
+npm run port:blog            # captures -> content/blog (refuses to overwrite)
+npm run port:blog -- --force # overwrite deliberately
+```
+
+`generateStaticParams` reads the content directory, so the files decide what exists;
+`url-contract.json` is the assertion that they all still ship. Frontmatter is validated
+by `lib/blog-schema.ts` and invalid frontmatter fails the build.
+
+Two details worth knowing before editing:
+
+- **`summary` comes from each post's JSON-LD, not its `<meta description>`.** Every Wix
+  post shares one template default there ("This is your blog post. Blogs are a great way
+  to connect with your audience…") — that must never ship.
+- **Each post links three siblings at the foot.** The Wix original did this with a
+  sidebar, and the only other things linking to posts were the 8 blog-category pages,
+  which are deliberately dropped. Without those links the posts would be orphaned.
+
+The port is mechanical: it reproduces the Wix copy, defects and all. See
+[`content/_inventory/port-worklist.md`](content/_inventory/port-worklist.md).
+
+### Four pages are built, not ported
+
+There was no Wix copy to reproduce for these. Nothing was invented for them either —
+each is assembled from material the site already publishes:
+
+| Page | Why | What it shows |
+| --- | --- | --- |
+| `/blog` | Client-rendered on Wix; never captured. It is the **Services** landing page, not a blog index. | The five service pages, plus the 12 posts — which also gives the posts an index, since the Wix category pages were dropped. |
+| `/maternity-insurance` | Client-rendered on Wix; never captured. | The firm's own maternity and newborn cards from the homepage, plus the maternity-related posts. |
+| `/knowledge` | New path. `content/kb/` is empty and stays empty — KB copy is being written by hand, not ported from Freshdesk. | The posts, and a link to the live help centre at `support.asktic.com`, which Freshdesk still serves. |
+| `/forms` | New path. The Wix `/file-access` original was an unconfigured template. | `public/forms/manifest.json`, which is empty — so an empty state that invites contact rather than a blank list. |
+
+Replace any of them the moment real copy exists. The first two in particular are
+placeholders standing in for pages that do exist on the live site.
+
+### Where ported content lives
+
+Two shapes, chosen by what the page is rather than by preference:
+
+| Page is… | Lives in | Example |
+| --- | --- | --- |
+| a document — prose, headings, lists | `content/pages/*.mdx`, rendered by its route | `/privacy` |
+| a layout — cards, grids, image groups | the route component itself | `/speciality-insurance` |
+
+`npm run port:page -- /privacy` converts a capture to the first form. The rule of thumb:
+if the structure is in the words, use MDX; if it is in the markup, use the component.
+A 9,500-character privacy policy inlined as JSX helps nobody.
+
+Both share the block conversion in `scripts/lib/blocks.ts`, which is where the Wix
+quirks are handled — duplicated lists, nested lists serialised twice, zero-width-space
+padding.
+
+### The contact form needs one environment variable
+
+`ContactForm` is mounted on `/employee-benefits`, the page that had one on Wix. It posts
+straight from the browser to n8n, so `NEXT_PUBLIC_N8N_CONTACT_WEBHOOK` must be set on
+the Render service or the form renders but cannot submit (it tells the visitor to email
+instead). That variable is the only one this service may ever hold — see `render.yaml`.
 
 ### Knowledge-base frontmatter
 

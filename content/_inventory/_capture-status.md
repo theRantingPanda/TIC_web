@@ -1,12 +1,77 @@
 # Capture status
 
-Last updated: 2026-08-10
+Last updated: 2026-08-11
 
-## Wix site — NOT STARTED (blocked)
+## Wix site — CAPTURED (19 of 21 pages, plus all images)
 
-`www.asktic.com` and `static.wixstatic.com` are blocked by the environment's egress
-policy. Allowlist `asktic.com`, `*.asktic.com`, `*.wixstatic.com`, then run
-`npm run capture:site` and `npm run capture:assets`.
+`npm run capture:site` and `npm run capture:assets` have both run against the live site.
+
+- **21 preserved pages archived** to `pages/` — `<slug>.json` (structured) and
+  `<slug>.html` (raw server response).
+- **18 images pulled** to `public/images/`, capped at 2000px on the long edge.
+- **2 pages captured empty** — see below. Everything else has real content.
+
+The crawl is scoped to `url-contract.json` → `preserved` where `source: 'wix'`. Dropped
+and redirect-only paths are deliberately not fetched.
+
+### The 49-vs-50 sitemap count
+
+The 2026-08-11 review recorded 50 sitemap URLs, summed across the four child sitemaps.
+The deduplicated total is **49**: `/blog` is listed in both `pages-sitemap.xml` and
+`blog-categories-sitemap.xml`. Nothing is missing — 49 = every classified path except
+`/knowledge` and `/forms`, which are new and not on Wix. No unclassified path appeared,
+so the contract still covers the live sitemap exactly.
+
+### `/blog` and `/maternity-insurance` still cannot be captured (2026-08-11, retried)
+
+Both return an **empty `<main>`** from the server: Wix renders them client-side.
+
+`static.parastorage.com` has since been allowlisted, and it moved things forward — the
+Wix framework now boots and the header and nav render. The page body does not: it shows
+Wix's own **"Widget Didn't Load — Check your internet and refresh this page."**
+
+The remaining blocked hosts were identified from the browser's own failed requests
+during a render, and confirmed one by one:
+
+| Host | Status | Matters? |
+| --- | --- | --- |
+| `static.parastorage.com` | **200 — allowed** | yes, framework |
+| `pages.parastorage.com` | 403 `CONNECT` denied | **yes — page data** |
+| `siteassets.parastorage.com` | 403 `CONNECT` denied | **yes — site assets** |
+| `bundler-velo.parastorage.com` | 403 `CONNECT` denied | probably |
+| `engage.wixapps.net` | 403 `CONNECT` denied | unclear |
+| `panorama.wixapps.net`, `frog.wix.com`, `sentry.wixpress.com`, `browser.sentry-cdn.com`, `www.googletagmanager.com` | denied | no — telemetry |
+
+**Allowlisting `*.parastorage.com` rather than individual hostnames is the ask.** Naming
+one host is what produced this second round trip. Then re-run `npm run capture:render`.
+
+Failing that, the copy for these two pages has to be supplied by hand.
+
+Note `/blog` is **not** a blog index — the live nav labels it **Services** and its title
+is "Resource | The Insurance Concierge". It is the services landing page.
+
+### `static.wixstatic.com` was never the blocker it looked like
+
+Earlier notes recorded it as egress-blocked on the strength of `HTTPS 403` for
+`https://static.wixstatic.com/`. That 403 is **the origin's own answer to a bare root
+request** — Wix serves no directory listing. Media URLs under it download fine, which is
+why `capture:assets` now succeeds. `scripts/lib/net.ts` treats any 403 as an egress
+denial, which is right for a capture target but makes a bare-host probe misleading.
+`static.parastorage.com` is the genuinely blocked host, and it fails differently: the
+proxy refuses the `CONNECT` outright (`curl: (56) CONNECT tunnel failed`).
+
+### Pages that need a human decision before porting
+
+- **`/projects`** — 2 blocks, one of which is the literal Wix placeholder
+  "I'm a title. ​Click here to edit me." It is an unfinished template page, and it is in
+  the nav. Preserved in the contract, so it must emit something; what it should say is
+  an open question.
+- **`/privacy`** — flagged by the client-content scan for "Google Inc". Reading the
+  capture, that is the Google Analytics disclosure in the privacy policy, not a client
+  reference. No page was flagged for testimonials or a logo grid.
+
+The blog-post captures also pick up Wix sidebar chrome — "Our Recent Posts", the
+related-post headings, "Tags" — ahead of the real body. Strip that when porting.
 
 ## Freshdesk help centre — STOPPED BY DECISION (2026-08-10)
 
@@ -61,6 +126,14 @@ articles it omits would 404 silently on cutover.
 **1. There is no FAQ folder.** The brief lists "a FAQ folder" in public scope. No folder
 by that name exists in any category. Either it was removed, it is called something else,
 or the brief is wrong. Needs a decision before the KB information architecture is built.
+
+⚠ **Contradicted, unresolved (2026-08-11).** A separate discovery review dated
+2026-08-10 names a **FAQ folder `6000225632`** — medical underwriting, ward classes,
+co-insurance — under Medical Insurance. The enumeration in the table below, run the same
+day against the live Solutions API, did not return it. Neither has been re-checked. This
+only matters if KB content is ever ported from Freshdesk, which is stopped by decision,
+so it is recorded rather than chased. If it is ever chased, re-run
+`list_folders` for category `6000136048` and believe the API.
 
 **2. The legacy AIG article is inside the INTERNAL category, and it is public.**
 `INTERNAL > AIG` has `visibility: 1` (served to anyone), while its sibling folders are

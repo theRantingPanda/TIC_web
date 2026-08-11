@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Container } from '@/components/container'
-import { footerNav, siteConfig } from '@/lib/site'
+import { contact, footerNav, siteConfig } from '@/lib/site'
 
 export function SiteFooter() {
   return (
@@ -14,6 +14,27 @@ export function SiteFooter() {
             <p className="mt-2 max-w-xs text-sm text-ink-muted">
               {siteConfig.description}
             </p>
+            <p className="mt-4 text-sm">
+              <a
+                href={`mailto:${contact.email}`}
+                className="text-ink no-underline hover:text-brand-blue"
+              >
+                {contact.email}
+              </a>
+            </p>
+            <ul className="mt-3 flex gap-4">
+              {contact.social.map((item) => (
+                <li key={item.href}>
+                  <a
+                    href={item.href}
+                    rel="noreferrer"
+                    className="text-sm text-ink-muted no-underline hover:text-brand-blue"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
 
           {footerNav.map((group) => (

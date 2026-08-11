@@ -1,0 +1,116 @@
+{
+  "path": "/projects",
+  "url": "https://www.asktic.com/projects",
+  "capturedAt": "2026-08-11T00:44:02.721Z",
+  "title": "Projects (All) | Insurance Concierge",
+  "metaDescription": "",
+  "h1": "Our Services",
+  "blocks": [
+    {
+      "type": "heading",
+      "level": 1,
+      "text": "Our Services"
+    },
+    {
+      "type": "paragraph",
+      "text": "I'm a title. ​Click here to edit me."
+    }
+  ],
+  "links": [
+    {
+      "href": "https://www.asktic.com",
+      "text": "Home",
+      "external": false
+    },
+    {
+      "href": "https://www.asktic.com/blog",
+      "text": "Services",
+      "external": false
+    },
+    {
+      "href": "https://www.asktic.com/international-health-insurance",
+      "text": "International Health Insurance",
+      "external": false
+    },
+    {
+      "href": "https://www.asktic.com/maternity-insurance",
+      "text": "Maternity Insurance",
+      "external": false
+    },
+    {
+      "href": "https://www.asktic.com/employee-benefits",
+      "text": "Employee Benefits",
+      "external": false
+    },
+    {
+      "href": "https://www.asktic.com/speciality-insurance",
+      "text": "Speciality Insurance",
+      "external": false
+    },
+    {
+      "href": "https://www.asktic.com/income-preservation-1",
+      "text": "Income Preservation",
+      "external": false
+    },
+    {
+      "href": "https://www.asktic.com/file-access",
+      "text": "File Access",
+      "external": false
+    },
+    {
+      "href": "http://help.asktic.com",
+      "text": "Knowledge Base",
+      "external": true
+    },
+    {
+      "href": "https://www.asktic.com/projects",
+      "text": "Projects",
+      "external": false
+    },
+    {
+      "href": "http://www.facebook.com/wix",
+      "text": "",
+      "external": true
+    },
+    {
+      "href": "https://www.youtube.com/user/Wix",
+      "text": "",
+      "external": true
+    },
+    {
+      "href": "https://www.asktic.com/home-1",
+      "text": "THE INSURANCE CONCIERGE",
+      "external": false
+    },
+    {
+      "href": "https://www.facebook.com/InsuranceConcierge",
+      "text": "",
+      "external": true
+    },
+    {
+      "href": "https://sg.linkedin.com/in/dstevenneo",
+      "text": "",
+      "external": true
+    },
+    {
+      "href": "https://www.youtube.com/channel/UC37r-aLP8nNnRn-StYGQrwQ",
+      "text": "",
+      "external": true
+    },
+    {
+      "href": "mailto:hello@asktic.com",
+      "text": "hello@asktic.com",
+      "external": false
+    },
+    {
+      "href": "https://www.asktic.com/privacy",
+      "text": "Privacy",
+      "external": false
+    }
+  ],
+  "flags": {
+    "possibleClientContent": [],
+    "hasTestimonialMarkup": false,
+    "logoGridCandidate": false
+  }
+}

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { isoDate } from '@/lib/frontmatter'
 
 /**
  * Frontmatter schema for knowledge-base articles (content/kb/*.mdx).
@@ -11,10 +12,6 @@ import { z } from 'zod'
  * Both are enforced in lib/content.ts. Widening that filter is a deliberate act, not
  * something to do casually.
  */
-
-const isoDate = z
-  .string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected an ISO date (YYYY-MM-DD)')
 
 export const kbStatus = z.enum(['published', 'draft', 'archived'])
 export const kbAudience = z.enum(['public', 'operator'])
