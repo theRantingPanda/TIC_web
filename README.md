@@ -4,7 +4,8 @@ Rebuild of [asktic.com](https://www.asktic.com) off Wix — a statically-exporte
 site deployed to Render, with the Freshdesk help centre folded into a `/knowledge`
 section.
 
-**Current state: Phase 2 scaffold. Shell only — no page content has been ported.**
+**Current state: Phase 2 scaffold, Phase 1 capture done. Shell only — no page content
+has been ported.**
 
 ---
 
@@ -12,21 +13,48 @@ section.
 
 | Phase | Status |
 | --- | --- |
-| **1 — Capture** | Wix: **not started** (egress blocked). Freshdesk: **stopped by decision** — content is stale and will be supplied by hand; folder inventory kept. See [`content/_inventory/_capture-status.md`](content/_inventory/_capture-status.md). |
-| **2 — Scaffold** | Complete. Builds, exports, and passes the URL-contract check. |
-| 3 — Port content | Not started. |
+| **1 — Capture** | Wix: **done** — 21 pages and 18 images archived; 2 pages could not be captured (below). Freshdesk: **stopped by decision** — content is stale and will be supplied by hand; folder inventory kept. See [`content/_inventory/_capture-status.md`](content/_inventory/_capture-status.md). |
+| **2 — Scaffold** | Complete. Builds, exports, and passes the URL-contract check. Nav reconciled against the real Wix nav. |
+| 3 — Port content | Not started. The captures are the input. |
 
-### Phase 1: Wix is blocked, Freshdesk is not
-
-**Wix — blocked.** `www.asktic.com` and `static.wixstatic.com` return `403` from the
-egress proxy: an organisation policy denial, not a transient failure. Allowlist
-`asktic.com`, `*.asktic.com` and `*.wixstatic.com` on the environment's network settings
-([docs](https://code.claude.com/docs/en/claude-code-on-the-web)), then:
+### Phase 1: what came back
 
 ```bash
 npm run capture:site        # sitemap -> content/_inventory/pages/
 npm run capture:assets      # wixstatic images -> public/images/
+npm run capture:render      # client-rendered pages, via headless Chromium
 ```
+
+`capture:site` is scoped to `url-contract.json` → `preserved` with `source: 'wix'`, and
+halts if the live sitemap contains a path the contract does not classify.
+
+**Two pages archived empty and stayed empty:** `/blog` and `/maternity-insurance` are
+rendered client-side by Wix, and Wix's JS CDN `static.parastorage.com` is denied by this
+environment's egress policy — so the pages cannot build themselves in a headless browser
+either. Allowlist that host
+([docs](https://code.claude.com/docs/en/claude-code-on-the-web)) and re-run
+`capture:render`, or supply their copy by hand.
+
+`static.wixstatic.com` is **not** blocked, despite earlier notes: its bare-root `403` is
+the origin's own answer, and media URLs under it download fine.
+
+**`/blog` is the Services landing page**, not a blog index — that is what the live nav
+calls it. The 12 posts live at `/single-post/...`.
+
+**Two things need a decision before porting:** `/projects` is an unfinished Wix template
+page (its one paragraph is the literal placeholder "I'm a title. Click here to edit
+me.") and is in the nav; and the client-content scan flagged `/privacy` for "Google
+Inc", which on reading is the Google Analytics disclosure, not a client.
+
+The live site's defects — dead "Read More" links, Wix-default social icons, a "© 2019"
+footer, missing meta descriptions, a Knowledge Base link to a hostname that does not
+resolve — are inventoried and verified against the captures in
+[`content/_inventory/port-worklist.md`](content/_inventory/port-worklist.md). That is
+the Phase 3 fix list; none of it is fixed yet.
+
+Images are pulled at **2000px on the long edge**, not at Wix's original resolution. With
+`images.unoptimized: true` the committed file is what every visitor downloads, and the
+largest original is 7133x4800 / 18 MB (513 KB at the cap).
 
 **Freshdesk — stopped by decision.** Solutions content is stale; KB copy will be written
 by hand into `content/kb/` rather than ported. Do not restart the article pull. The
@@ -42,19 +70,21 @@ keeps the Freshdesk API key inside n8n — it needs `asktic.app.n8n.cloud` allow
 
 See `content/_inventory/README.md` for the action list and the `_raw.json` shape.
 
-**No page content, article text or inventory row has been invented to paper over the
-blocked half.** `content/_inventory/` contains empty containers and a format spec. The
-page list in `content/url-contract.json` is assembled from the project brief and has
-**not** been reconciled against the real sitemap.
+**No page content, article text or inventory row has been invented to paper over
+anything that could not be captured.**
 
-Once captured, reconcile `content/url-contract.json` against the real sitemap and
-correct the nav grouping in `lib/site.ts` (currently a documented placeholder).
+`content/url-contract.json` has been reconciled against the real sitemap and is
+authoritative; the rationale for each decision is in
+[`content/_inventory/url-decisions.md`](content/_inventory/url-decisions.md). The nav in
+`lib/site.ts` is reconciled against the live Wix nav as captured.
 
-The capture scripts enforce the brief's stop conditions as hard gates — sitemap over 20
-pages, suspected client-identifying content, or substantial `/blog` / `/projects`
-content each halt the run, write `content/_inventory/STOP-REPORT.md` and exit non-zero.
-The client-content scan is a heuristic that **flags candidates for human review and does
-not clear anything**; an unflagged page is not a guarantee.
+The capture scripts enforce stop conditions as hard gates — an unclassified sitemap
+path, suspected client-identifying content, or substantial `/projects` content each halt
+the run, write `content/_inventory/STOP-REPORT.md` and exit non-zero. That file is
+script-owned and rewritten on every halt; the durable decision record is
+`url-decisions.md` beside it. The client-content scan is a heuristic that **flags
+candidates for human review and does not clear anything**; an unflagged page is not a
+guarantee.
 
 ---
 
@@ -109,15 +139,19 @@ Render matches redirect `source` on path only — there is no host component. A
 break the homepage. Scoping a redirect to one hostname means giving that hostname its
 own service, which is what `tic-help-redirect` in `render.yaml` is.
 
-**It does nothing until someone attaches `help.asktic.com` as a custom domain on that
-service and points its DNS at Render.** DNS is out of scope for this repo, so that step
-is manual.
+**`help.asktic.com` does not exist (verified 2026-08-11).** It returns NXDOMAIN, and the
+Vodien zone load sheet has no `help` record — the KB subdomain that exists is
+`support.asktic.com`. The live Wix nav links "Knowledge Base" to `http://help.asktic.com`,
+so that link is **dead on the current site**.
 
-**Currently blocked (2026-08-11): a DNS migration from Wix to Vodien is pending.** No
-asktic.com hostname can be repointed at Render until nameservers move. That gates the
-entire cutover, not just this redirect — `asktic.com` still resolves to Wix, so
-`tic-web` cannot serve live traffic either. Everything in this repo is build-and-verify
-work until the migration completes.
+So `tic-help-redirect` is not waiting on DNS — there is no record to move. It becomes
+useful only if someone decides to *create* that hostname. Nothing in the rebuild depends
+on it: this site's nav links to `/knowledge` directly.
+
+**Separately, the cutover is blocked: a DNS migration from Wix to Vodien is pending.** No
+asktic.com hostname can be repointed at Render until nameservers move. `asktic.com` still
+resolves to Wix, so `tic-web` cannot serve live traffic either. Everything in this repo is
+build-and-verify work until the migration completes.
 
 Two assumptions in that service could **not** be verified — `render.com` is blocked by
 this environment's egress policy: that `destination` accepts an absolute off-site URL,
@@ -127,7 +161,15 @@ affect `tic-web`.
 
 `support.asktic.com` is deliberately not handled. Freshdesk Solutions is **parked, not
 retired**, so that hostname keeps pointing at Freshdesk and its article URLs keep working
-exactly as they do today — no redirect is needed or wanted. Both need a hosting decision before they do anything.
+exactly as they do today — no redirect is needed or wanted.
+
+### Never link an environment group to `tic-web`
+
+The service sits in the same Render project as the Rainmaker CRM, whose `tic-crm-shared`
+env group holds ~93 variables including database credentials and carrier API keys.
+Nothing is linked, and nothing may be: this is a **static** build, so any variable it can
+read is baked into published HTML and served to the public. The site needs no environment
+variables at all.
 
 ---
 

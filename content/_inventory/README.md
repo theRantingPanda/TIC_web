@@ -4,13 +4,13 @@ Archive of the pre-rebuild asktic.com Wix site and the Freshdesk help centre. Th
 **record**, not build input — the site build never reads this directory. Content is
 hand-ported from here into `app/` and `content/kb/` in Phase 3.
 
-## Status: empty, and deliberately so
+## Status: Wix captured, Freshdesk stopped by decision
 
-Nothing has been captured yet.
-
-The **Wix** crawl could not run in the environment where this scaffold was built:
-`www.asktic.com` and `static.wixstatic.com` are blocked by the egress policy (verified —
-`403 CONNECT` / `EGRESS_BLOCKED`).
+The **Wix** crawl has run (2026-08-11): 21 preserved pages in `pages/`, 18 images in
+`public/images/`. Two of those pages — `/blog` and `/maternity-insurance` — archived
+empty because Wix renders them client-side and their JS CDN is egress-blocked. Full
+detail, including the pages that need a human read before porting, is in
+[`_capture-status.md`](_capture-status.md).
 
 The **Freshdesk** pull is no longer blocked — it routes through n8n (see below) and the
 connection has been verified end to end against the live Solutions API. What is
@@ -25,21 +25,21 @@ Categories present: `General`, `Medical Insurance`, `INTERNAL`. The `General` an
 `INTERNAL` folder listings have **not** been enumerated yet — the brief's "FAQ folder
 and one legacy AIG article" is unverified.
 
-No page content, article text or inventory row has been invented to fill the gap. Every
-file below is either an empty container or a schema.
+No page content, article text or inventory row has been invented to fill any gap.
 
 ### To run the capture
 
-The two halves have different blockers. The Freshdesk half is **already unblocked**;
-only the Wix half needs the egress allowlist.
-
-**Wix (blocked):** allowlist `asktic.com`, `*.asktic.com` and `*.wixstatic.com` on the
-environment's network settings, then:
+**Wix:**
 
 ```
-npm run capture:site        # sitemap -> pages/
+npm run capture:site        # sitemap -> pages/   (scoped to the URL contract)
 npm run capture:assets      # wixstatic images -> ../../public/images
+npm run capture:render      # client-rendered pages, via headless Chromium
 ```
+
+`capture:render` needs `static.parastorage.com` allowlisted to be of any use — see
+[`_capture-status.md`](_capture-status.md). It rewrites the capture JSON in place and
+writes a `<slug>.rendered.html` beside the server snapshot, which it leaves alone.
 
 **Freshdesk:** the pull goes through the n8n workflow **Freshdesk Solutions Read**
 (`6bjXz8CZRHY1k2d9`, **unpublished** — see below). The Freshdesk API key never enters
@@ -121,10 +121,12 @@ silent-failure class the retired Make scenario had.
 ```
 _inventory/
   inventory.json            page manifest (one row per captured page)
-  STOP-REPORT.md            written only when a stop condition trips
+  url-decisions.md          the closed URL decisions and their rationale (hand-written)
+  STOP-REPORT.md            SCRIPT-OWNED — overwritten on every stop; never edit by hand
   pages/
     <slug>.json             structured capture
     <slug>.html             raw HTML snapshot, for fidelity checks
+    <slug>.rendered.html    post-hydration snapshot (capture:render only)
   freshdesk/
     public/<folder>/<id>-<slug>.json      publicly served articles
     internal/<folder>/<id>-<slug>.json    INTERNAL category (operator KB, not public)

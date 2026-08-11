@@ -18,6 +18,12 @@
 # to one hostname.
 
 services:
+  # NEVER attach an environment group to this service — specifically not
+  # `tic-crm-shared`, which holds ~93 Rainmaker CRM variables including database
+  # credentials and carrier API keys. tic-web sits in the same Render project as the
+  # CRM services today but is not linked to any of them, and must stay that way: this
+  # is a STATIC build, so any env var it can read is baked into published HTML and
+  # served to the public. The site needs no environment variables at all.
   - type: web
     name: tic-web
     runtime: static
@@ -56,11 +62,20 @@ services:
   # Attach `help.asktic.com` as a custom domain on THIS service (not on tic-web),
   # then point its DNS at Render.
   #
-  # BLOCKED as of 2026-08-11: a DNS migration from Wix to Vodien is pending. Until
-  # nameservers move, no record for any asktic.com hostname can be repointed at
-  # Render — so this service sits idle and help.asktic.com is unaffected. The same
-  # migration gates the whole cutover, not just this redirect: asktic.com itself
-  # still resolves to Wix, so tic-web cannot serve live traffic either.
+  # READ THIS BEFORE SPENDING ANY TIME ON THIS SERVICE (2026-08-11):
+  # `help.asktic.com` DOES NOT EXIST. It resolves NXDOMAIN today, and the Vodien
+  # zone load sheet has no `help` record — the KB subdomain that exists is
+  # `support.asktic.com`, a CNAME to asktic.freshdesk.com. The live Wix nav's
+  # "Knowledge Base" item points at http://help.asktic.com, so that link is dead on
+  # the current site.
+  #
+  # So this service is not "waiting on DNS" — there is no record to move. It only
+  # becomes useful if someone decides to CREATE help.asktic.com and point it here.
+  # Nothing in the rebuild depends on that: this site's own nav links to /knowledge
+  # directly. Left in place because it costs nothing and the decision is not ours.
+  #
+  # Separately, the Wix -> Vodien DNS migration is still pending and gates the whole
+  # cutover: asktic.com resolves to Wix, so tic-web cannot serve live traffic yet.
   #
   # TWO UNVERIFIED ASSUMPTIONS — check before relying on this. render.com is
   # blocked by this environment's egress policy, so neither could be confirmed:
