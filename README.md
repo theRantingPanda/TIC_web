@@ -111,7 +111,13 @@ own service, which is what `tic-help-redirect` in `render.yaml` is.
 
 **It does nothing until someone attaches `help.asktic.com` as a custom domain on that
 service and points its DNS at Render.** DNS is out of scope for this repo, so that step
-is manual. Until it happens, `help.asktic.com` is unaffected.
+is manual.
+
+**Currently blocked (2026-08-11): a DNS migration from Wix to Vodien is pending.** No
+asktic.com hostname can be repointed at Render until nameservers move. That gates the
+entire cutover, not just this redirect — `asktic.com` still resolves to Wix, so
+`tic-web` cannot serve live traffic either. Everything in this repo is build-and-verify
+work until the migration completes.
 
 Two assumptions in that service could **not** be verified — `render.com` is blocked by
 this environment's egress policy: that `destination` accepts an absolute off-site URL,

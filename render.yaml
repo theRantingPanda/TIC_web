@@ -54,9 +54,13 @@ services:
   # main site would apply it to www.asktic.com too.
   #
   # Attach `help.asktic.com` as a custom domain on THIS service (not on tic-web),
-  # then point its DNS at Render. DNS is out of scope for this repo — someone has
-  # to do that step by hand or the service sits idle and help.asktic.com is
-  # unaffected.
+  # then point its DNS at Render.
+  #
+  # BLOCKED as of 2026-08-11: a DNS migration from Wix to Vodien is pending. Until
+  # nameservers move, no record for any asktic.com hostname can be repointed at
+  # Render — so this service sits idle and help.asktic.com is unaffected. The same
+  # migration gates the whole cutover, not just this redirect: asktic.com itself
+  # still resolves to Wix, so tic-web cannot serve live traffic either.
   #
   # TWO UNVERIFIED ASSUMPTIONS — check before relying on this. render.com is
   # blocked by this environment's egress policy, so neither could be confirmed:
