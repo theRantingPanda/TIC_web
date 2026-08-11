@@ -10,7 +10,11 @@ import { useState } from 'react'
  * build time, which means it is public — n8n must therefore do its own validation and
  * rate limiting; treat this endpoint as unauthenticated by design.
  *
- * Built as infrastructure during Phase 2 but not yet mounted on any page.
+ * NOT CURRENTLY MOUNTED. It was briefly on /employee-benefits and was disabled again on
+ * 2026-08-11 because NEXT_PUBLIC_N8N_CONTACT_WEBHOOK is not configured: without it the
+ * form renders, accepts input, and then tells the visitor to email instead — worse than
+ * not offering a form. Kept because it works; see the note in app/employee-benefits for
+ * how to put it back once the webhook is set.
  */
 
 const WEBHOOK_URL = process.env.NEXT_PUBLIC_N8N_CONTACT_WEBHOOK

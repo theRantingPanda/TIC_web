@@ -1,20 +1,29 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import { Container } from '@/components/container'
-import { ContactForm } from '@/components/contact-form'
 import { contact } from '@/lib/site'
 
 /**
  * Ported from the Wix capture (content/_inventory/pages/employee-benefits.json).
  *
- * Copy is verbatim. Two things about the original are worth knowing:
+ * Copy is verbatim. Note EXPERIENCED / EXPERT ADVICE / CONFIDENTIALITY are three
+ * headings with no supporting copy underneath — on Wix and here. They read as three
+ * value propositions someone never finished writing. Kept because they are real claims
+ * the firm makes, flagged in the port worklist because they say nothing yet.
  *
- * 1. EXPERIENCED / EXPERT ADVICE / CONFIDENTIALITY are three headings with no
- *    supporting copy underneath — on Wix and here. They read as three value
- *    propositions someone never finished writing. Kept because they are real claims
- *    the firm makes, flagged in the port worklist because they say nothing yet.
- * 2. The page carries a contact form, which is why ContactForm — built in Phase 2 and
- *    never mounted — is mounted here first.
+ * THE CONTACT FORM IS DISABLED (2026-08-11, on instruction). The Wix original carried
+ * one here, and `components/contact-form.tsx` is built and working, but it posts to an
+ * n8n webhook that is not configured yet — so a visitor filling it in would be told to
+ * email instead, which is worse than not offering the form. The email address and phone
+ * number below are the live route in the meantime.
+ *
+ * To re-enable: set NEXT_PUBLIC_N8N_CONTACT_WEBHOOK on the Render service, then restore
+ *
+ *   import { ContactForm } from '@/components/contact-form'
+ *   <div className="mt-8 max-w-xl"><ContactForm /></div>
+ *
+ * at the foot of the "Get in touch" section. Do not restore it before the webhook is
+ * set — that is the state this change exists to avoid.
  */
 export const metadata: Metadata = {
   title: 'Employee Benefits',
@@ -83,9 +92,6 @@ export default function Page() {
           </a>
         </p>
 
-        <div className="mt-8 max-w-xl">
-          <ContactForm />
-        </div>
       </section>
     </Container>
   )
