@@ -38,8 +38,16 @@ heavily with the knowledge base:
 /single-post/2018/05/06/with-health-insurance-is-major-illness-insurance-necessary
 ```
 
-Three are unmodified Wix template posts and are almost certainly disposable:
-`design-a-stunning-blog`, `grow-your-blog-community`, `manage-your-blog-from-your-live-site`.
+Three are unmodified Wix template posts. **RESOLVED (2026-08-11): dropped** —
+`design-a-stunning-blog`, `grow-your-blog-community`,
+`manage-your-blog-from-your-live-site` are recorded in `url-contract.json` → `dropped`
+and enforced by `verify:urls`, on the same 404-not-301 basis as the store URLs above.
+
+**Still open for `/blog`:** the 12 real FAQ-style posts and the 9 category index pages.
+Both need decisions — whether to port the posts (they overlap the knowledge base
+heavily), and whether `/single-post/...` and `/blog/categories/...` are preserved
+verbatim. Note two posts carry a `/YYYY/MM/DD/` segment that URL preservation would
+freeze in place permanently.
 
 Note the URL shape: posts live at `/single-post/...`, two of them with a `/YYYY/MM/DD/`
 segment. Under the URL-preservation constraint these paths have to survive exactly as
@@ -51,10 +59,21 @@ they are, which is a Wix-ism worth a deliberate decision rather than a default.
 `/product-page/i-m-a-product` through `i-m-a-product-11`. This looks like a store
 template that was enabled and never removed. These are indexed today.
 
-**Decision needed:** carrying 12 placeholder product URLs into the new site to satisfy
-URL preservation would be absurd. The sensible move is to let them 404 (or 410) — but
-that is a deliberate exception to the hard constraint, so it needs sign-off rather than
-being quietly dropped.
+**RESOLVED (2026-08-11): dropped.** All 12 are recorded in `content/url-contract.json` →
+`dropped`, and `npm run verify:urls` now asserts they emit nothing — so the exception is
+enforced, not just documented. This is a deliberate, signed-off exception to the
+URL-preservation constraint.
+
+They will return **404**. A `410 Gone` is the better signal for content retired on
+purpose, and unlike the AIG case these URLs *are* on `www.asktic.com`, which this site
+will serve — so a rule here could actually fire. It is not implemented because Render's
+support for a custom status code is unverified (see `render.yaml`); its routes document
+`redirect` (301) and `rewrite` (200) only. Worth revisiting once someone can read
+<https://render.com/docs/redirects-rewrites> on an unrestricted network.
+
+Do **not** 301 these to the homepage or a category page. Redirecting placeholder product
+URLs to unrelated content is a soft-404 pattern that search engines treat as a quality
+signal against the site — a clean 404/410 is the correct outcome.
 
 ## 4. Paths in the sitemap that are missing from `url-contract.json`
 

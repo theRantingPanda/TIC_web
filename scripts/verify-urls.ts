@@ -21,6 +21,7 @@ const OUT_DIR = path.join(ROOT, 'out')
 type Contract = {
   preserved: { path: string; note?: string }[]
   redirectOnly: { path: string; destination: string; status: number }[]
+  dropped?: { groups: { reason: string; paths: string[] }[] }
 }
 
 const contract: Contract = JSON.parse(
@@ -71,6 +72,26 @@ for (const entry of contract.redirectOnly) {
   } else {
     console.log(`  ✓ ${entry.path.padEnd(36)} -> ${entry.status} ${entry.destination}`)
   }
+}
+
+// Deliberately dropped paths are a signed-off exception to URL preservation. Assert
+// they stay dropped, so nobody restores them later on the strength of the old sitemap.
+const droppedPaths = (contract.dropped?.groups ?? []).flatMap((g) => g.paths)
+if (droppedPaths.length > 0) {
+  console.log(`\nChecking ${droppedPaths.length} dropped path(s) emit nothing…`)
+  let restored = 0
+  for (const path of droppedPaths) {
+    const artifact = artifactFor(path)
+    if (artifact) {
+      restored++
+      failures.push(
+        `Dropped path ${path} emitted out/${artifact} — it was deliberately not ` +
+          `preserved (see content/url-contract.json → dropped).`,
+      )
+      console.error(`  ✗ ${path.padEnd(36)} UNEXPECTED out/${artifact}`)
+    }
+  }
+  if (restored === 0) console.log('  ✓ all dropped paths absent')
 }
 
 console.log('\nChecking nav links resolve to preserved paths…')

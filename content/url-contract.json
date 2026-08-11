@@ -64,5 +64,36 @@
     }
   ],
   "pendingSitemapConfirmation": true,
-  "$pendingNote": "INCOMPLETE — reconciled against the live sitemap on 2026-08-11 and found materially short. The sitemap index yields ~50 URLs (14 pages + 15 blog posts + 9 blog categories + 12 placeholder store products); this file lists 11. See content/_inventory/STOP-REPORT.md. Do NOT treat this as the authoritative URL contract until the open decisions there are resolved."
+  "$pendingNote": "INCOMPLETE — reconciled against the live sitemap on 2026-08-11 and found materially short. The sitemap index yields ~50 URLs (14 pages + 15 blog posts + 9 blog categories + 12 placeholder store products); this file lists 11. See content/_inventory/STOP-REPORT.md. Do NOT treat this as the authoritative URL contract until the open decisions there are resolved.",
+  "dropped": {
+    "$comment": "Indexed on the Wix site but DELIBERATELY NOT preserved (decision 2026-08-11). These are an explicit, signed-off exception to the URL-preservation constraint - not an oversight. They must emit no artifact; `npm run verify:urls` enforces that. Do not re-add them because they appear in the old sitemap.",
+    "status": "404 (see note in STOP-REPORT.md on 410)",
+    "groups": [
+      {
+        "reason": "Wix store template that was enabled and never removed. Every product is placeholder demo content; preserving these URLs would carry 12 fake product pages onto the new site.",
+        "paths": [
+          "/product-page/i-m-a-product",
+          "/product-page/i-m-a-product-1",
+          "/product-page/i-m-a-product-2",
+          "/product-page/i-m-a-product-3",
+          "/product-page/i-m-a-product-4",
+          "/product-page/i-m-a-product-5",
+          "/product-page/i-m-a-product-6",
+          "/product-page/i-m-a-product-7",
+          "/product-page/i-m-a-product-8",
+          "/product-page/i-m-a-product-9",
+          "/product-page/i-m-a-product-10",
+          "/product-page/i-m-a-product-11"
+        ]
+      },
+      {
+        "reason": "Unmodified Wix demo blog posts, not TIC content.",
+        "paths": [
+          "/single-post/design-a-stunning-blog",
+          "/single-post/grow-your-blog-community",
+          "/single-post/manage-your-blog-from-your-live-site"
+        ]
+      }
+    ]
+  }
 }
