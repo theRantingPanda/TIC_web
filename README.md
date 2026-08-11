@@ -292,6 +292,20 @@ Both share the block conversion in `scripts/lib/blocks.ts`, which is where the W
 quirks are handled — duplicated lists, nested lists serialised twice, zero-width-space
 padding.
 
+### Deploying
+
+The build command is `npm ci --include=dev && npm run build`, publishing `./out`.
+
+**`--include=dev` is load-bearing.** Render builds with `NODE_ENV=production`, under
+which `npm ci` skips devDependencies — and every tool this build needs is one:
+`tailwindcss` and `@tailwindcss/postcss` compile the CSS, `typescript` type-checks, and
+`tsx` runs the build stamp. Without it the build fails on the Tailwind PostCSS plugin
+before emitting a page.
+
+**If the Render service was created through the dashboard rather than from this
+blueprint, editing `render.yaml` changes nothing.** Check the build command on the
+service itself and make it match, or the first deploy will fail for the reason above.
+
 ### The contact form is disabled
 
 `components/contact-form.tsx` works and is not mounted anywhere. It was briefly on
