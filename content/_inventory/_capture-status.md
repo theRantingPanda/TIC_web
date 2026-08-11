@@ -92,14 +92,20 @@ this environment's egress policy, so it could not be checked directly. Treat "Re
 return 410" as unconfirmed until someone reads
 <https://render.com/docs/redirects-rewrites> on an unrestricted network.
 
-**What actually delivers the 410: retire the article in Freshdesk.** Unpublishing or
-deleting it there makes Freshdesk itself stop serving the URL, which is the only lever
-that works while `support.asktic.com` resolves to Freshdesk. That is a **write** to
-Freshdesk, and Freshdesk is read-only for this project — so it is Steven's action to
-take in the Freshdesk admin UI, not something this tooling does.
+**What would deliver the 410: retire the article in Freshdesk.** Unpublishing or
+deleting it there makes Freshdesk itself stop serving the URL — the only lever that
+works while `support.asktic.com` resolves to Freshdesk. That is a **write**, and
+Freshdesk is read-only for this project, so it is an admin-UI action, not a tooling one.
 
-Until then the URL keeps serving the live article as normal. Nothing in this repo
-changes that, and nothing here should be read as having retired it.
+**PARKED (2026-08-11).** Retiring Solutions in Freshdesk is deferred. Nothing is being
+unpublished or deleted for now, so:
+
+- the AIG article stays live at its current URL and returns 200, not 410
+- every other Solutions article stays live and unchanged
+- `support.asktic.com` keeps pointing at Freshdesk and is not this project's concern
+
+Nothing in this repo has retired anything, and nothing here should be read as having
+done so. Revisit when the AIG wind-down actually completes.
 
 **3. "The INTERNAL category is not publicly served" is not true as stated.** It is true
 of three of its four folders. Folder visibility, not category name, is what Freshdesk

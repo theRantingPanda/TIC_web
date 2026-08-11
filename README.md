@@ -95,24 +95,33 @@ purpose — do not "tidy" a slug in that file.
 Redirects are **not** in `next.config.ts`. With `output: 'export'`, Next's `redirects()`
 is inert — it emits a build warning and does nothing. They live in `render.yaml`:
 
-| From | To |
-| --- | --- |
-| `/home-1` | `/` |
-| `/file-access` | `/forms` |
-| `support.asktic.com/support/solutions/articles/*` | per-article, generated |
-| `help.asktic.com` | `/knowledge` — **not yet configured, see below** |
+| From | To | Where |
+| --- | --- | --- |
+| `/home-1` | `/` | `tic-web` routes |
+| `/file-access` | `/forms` | `tic-web` routes |
+| `help.asktic.com/*` | `https://www.asktic.com/knowledge` | `tic-help-redirect` service |
+| `support.asktic.com/...` | — | not handled; Freshdesk keeps serving these |
 
-#### Cross-domain redirects need a decision
+#### Why `help.asktic.com` gets its own service
 
-Render matches redirect `source` on path only — there is no host component. So the two
-cross-domain rules only fire if `help.asktic.com` and `support.asktic.com` are attached
-to this Render service as custom domains, which is a **DNS change**. DNS is out of scope
-for this project, so it has not been touched.
+Render matches redirect `source` on path only — there is no host component. A
+`/ → /knowledge` rule on the main site would therefore also hijack `www.asktic.com/` and
+break the homepage. Scoping a redirect to one hostname means giving that hostname its
+own service, which is what `tic-help-redirect` in `render.yaml` is.
 
-What exists today: the per-article map is generated into `render.yaml` on the assumption
-that `support.asktic.com` eventually points here (inert until it does), and the
-`help.asktic.com` rule is deliberately omitted because at the site root it would collide
-with `asktic.com/`. Both need a hosting decision before they do anything.
+**It does nothing until someone attaches `help.asktic.com` as a custom domain on that
+service and points its DNS at Render.** DNS is out of scope for this repo, so that step
+is manual. Until it happens, `help.asktic.com` is unaffected.
+
+Two assumptions in that service could **not** be verified — `render.com` is blocked by
+this environment's egress policy: that `destination` accepts an absolute off-site URL,
+and that `source: /*` matches the root path as well as sub-paths. Check both before
+relying on it. If either is wrong, the fix is contained to that service and cannot
+affect `tic-web`.
+
+`support.asktic.com` is deliberately not handled. Freshdesk Solutions is **parked, not
+retired**, so that hostname keeps pointing at Freshdesk and its article URLs keep working
+exactly as they do today — no redirect is needed or wanted. Both need a hosting decision before they do anything.
 
 ---
 

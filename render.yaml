@@ -7,14 +7,15 @@
 # The generated block below is written by `npm run gen:redirects` from
 # content/_inventory/freshdesk/redirects.json. Do not hand-edit between the markers.
 #
-# NOT YET CONFIGURED — needs a decision, see README "Cross-domain redirects":
-#   help.asktic.com    -> /knowledge
-#   support.asktic.com -> per-article map
-# Render matches `source` on path only, with no host component, so those two only work
-# if the hostnames are attached to this service as custom domains. That is a DNS change,
-# and DNS is out of scope for this project. The article rules below are written on the
-# assumption that support.asktic.com eventually points here; until it does, they are
-# inert rather than wrong.
+# support.asktic.com is NOT handled here. Freshdesk Solutions is parked, not retired, so
+# that hostname keeps pointing at Freshdesk and its article URLs keep working as they do
+# today. The generated block below stays empty by design.
+#
+# help.asktic.com is handled by a SECOND service (tic-help-redirect, below) rather than
+# by a route on this one. Render matches `source` on path only, with no host component,
+# so a `/ -> /knowledge` rule here would also hijack www.asktic.com/ and break the
+# homepage. A separate service with its own custom domain is the way to scope a redirect
+# to one hostname.
 
 services:
   - type: web
@@ -37,3 +38,33 @@ services:
       # BEGIN GENERATED freshdesk-article-map
       # (empty until `npm run ingest:freshdesk` has run)
       # END GENERATED freshdesk-article-map
+
+  # ---------------------------------------------------------------------------
+  # help.asktic.com -> https://www.asktic.com/knowledge
+  #
+  # A standalone service whose only job is to redirect one hostname. It exists
+  # because Render's redirect rules cannot match on host: putting this rule on the
+  # main site would apply it to www.asktic.com too.
+  #
+  # Attach `help.asktic.com` as a custom domain on THIS service (not on tic-web),
+  # then point its DNS at Render. DNS is out of scope for this repo — someone has
+  # to do that step by hand or the service sits idle and help.asktic.com is
+  # unaffected.
+  #
+  # TWO UNVERIFIED ASSUMPTIONS — check before relying on this. render.com is
+  # blocked by this environment's egress policy, so neither could be confirmed:
+  #   1. that `destination` accepts an absolute off-site URL
+  #   2. that `source: /*` matches the root path as well as sub-paths
+  # If either is wrong the fix is local to this service and cannot affect tic-web.
+  - type: web
+    name: tic-help-redirect
+    runtime: static
+    # No build: the service only ever answers with a redirect. The placeholder page
+    # is what gets served if a request somehow misses the rule below.
+    buildCommand: mkdir -p out && printf '<!doctype html><meta http-equiv="refresh" content="0;url=https://www.asktic.com/knowledge">' > out/index.html
+    staticPublishPath: ./out
+    pullRequestPreviewsEnabled: false
+    routes:
+      - type: redirect
+        source: /*
+        destination: https://www.asktic.com/knowledge
