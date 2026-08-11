@@ -121,10 +121,16 @@
       "path": "/file-access",
       "destination": "/forms",
       "status": 301
+    },
+    {
+      "path": "/file",
+      "destination": "/forms",
+      "status": 301,
+      "note": "Old file-access page (confirmed 2026-08-11) - same destination as /file-access"
     }
   ],
   "pendingSitemapConfirmation": true,
-  "$pendingNote": "INCOMPLETE — reconciled against the live sitemap on 2026-08-11 and found materially short. The sitemap index yields ~50 URLs (14 pages + 15 blog posts + 9 blog categories + 12 placeholder store products); this file lists 11. See content/_inventory/STOP-REPORT.md. Do NOT treat this as the authoritative URL contract until the open decisions there are resolved.",
+  "$pendingNote": "ONE PATH OUTSTANDING: /quotation-questionaire (note the spelling) has no decision yet - preserve, redirect, or drop. Everything else from the live sitemap is now classified: 23 preserved, 24 dropped, 3 redirect-only. See content/_inventory/STOP-REPORT.md.",
   "dropped": {
     "$comment": "Indexed on the Wix site but DELIBERATELY NOT preserved (decision 2026-08-11). These are an explicit, signed-off exception to the URL-preservation constraint - not an oversight. They must emit no artifact; `npm run verify:urls` enforces that. Do not re-add them because they appear in the old sitemap.",
     "status": "404 (see note in STOP-REPORT.md on 410)",
@@ -165,6 +171,12 @@
           "/blog/categories/major-illness",
           "/blog/categories/claims",
           "/blog/categories/general"
+        ]
+      },
+      {
+        "reason": "Wix duplicate-page artefact (\"copy of ...\"), confirmed junk 2026-08-11. No original content and nothing to redirect to.",
+        "paths": [
+          "/copy-of-upgrading-works"
         ]
       }
     ]

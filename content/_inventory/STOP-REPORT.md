@@ -81,16 +81,24 @@ signal against the site — a clean 404/410 is the correct outcome.
 ## 4. Paths in the sitemap that are missing from `url-contract.json`
 
 ```
-/copy-of-upgrading-works      probable Wix duplicate-page artefact
-/file                         distinct from /file-access — purpose unknown
-/quotation-questionaire       note the spelling; preserve exactly if kept
+/copy-of-upgrading-works      RESOLVED — junk, dropped
+/file                         RESOLVED — old file-access page, 301 -> /forms
+/quotation-questionaire       STILL OPEN — note the spelling; preserve exactly if kept
 ```
 
-These three are **still unresolved** — they are the only sitemap paths with no decision.
+**RESOLVED (2026-08-11):** `/copy-of-upgrading-works` is a Wix duplicate-page artefact
+with no original content — dropped, nothing to redirect to. `/file` is the older
+file-access page, so it redirects to `/forms`, the same destination as `/file-access`;
+both rules are in `render.yaml`. They are distinct paths, not a prefix pair — Render
+matches the full path, so neither shadows the other.
 
-`content/url-contract.json` now lists **23 preserved** and **23 dropped** paths, against
-a real indexed surface of ~50. With these three settled the contract is complete; until
-then it is still not authoritative.
+**`/quotation-questionaire` is the one remaining undecided path.** Preserve, redirect, or
+drop — it has not been classified either way, and nothing in this repo assumes an answer.
+
+`content/url-contract.json` now lists **23 preserved**, **24 dropped**, and **3
+redirect-only** paths — 50 in total, matching the sitemap. Only
+`/quotation-questionaire` is unclassified; settle it and the contract is complete and
+authoritative.
 
 ## 5. Images are still blocked
 
@@ -106,8 +114,7 @@ Nothing here says anything about named clients, logos or testimonials either way
 
 ## Recommended next steps
 
-1. Confirm what `/file`, `/copy-of-upgrading-works` and `/quotation-questionaire` are —
-   the last open URL decision.
+1. Decide `/quotation-questionaire` — the last open URL decision.
 2. Get `static.wixstatic.com` unblocked (only the `asktic.com` allowlist lines took
    effect; the wixstatic line has not).
 3. Then run `npm run capture:site` and review the client-content flags — that scan has

@@ -35,6 +35,13 @@ services:
         source: /file-access
         destination: /forms
 
+      # /file is the older file-access page (confirmed 2026-08-11). Same destination.
+      # Note it is a distinct path, not a prefix of /file-access — Render matches the
+      # full path, so this rule does not shadow the one above.
+      - type: redirect
+        source: /file
+        destination: /forms
+
       # BEGIN GENERATED freshdesk-article-map
       # (empty until `npm run ingest:freshdesk` has run)
       # END GENERATED freshdesk-article-map
