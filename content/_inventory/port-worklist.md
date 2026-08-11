@@ -102,14 +102,29 @@ URL contract and 301s to `/forms`, along with `/file`. Nothing to port.
 
 ---
 
-## Blog posts
+## Blog posts — PORTED 2026-08-11, copy not yet edited
 
-The 12 real posts under `/single-post/...` carry genuine FAQ-style content. Their
-captures also pick up Wix sidebar chrome ahead of the body — "Our Recent Posts", the
-related-post headings, "Tags". Strip that when porting; the body starts after it.
+All 12 are in `content/blog/` and rendering. `npm run port:blog` did the mechanical
+work: sidebar chrome stripped, Wix's duplicate list-then-paragraphs collapsed, trailing
+hashtags moved to frontmatter `tags`.
 
-Their meta description is the Wix template default ("This is your blog post. Blogs are a
-great way to connect with your audience…") on every post. Write real ones.
+Two defects were fixed by the port rather than carried across:
+
+- **Meta descriptions.** All 12 shared the Wix template default; `summary` now comes
+  from each post's JSON-LD, which carries a real one.
+- **Orphaned posts.** Dropping the 8 blog-category pages left nothing linking to the
+  posts. Each post now links three siblings at its foot, which is what the Wix sidebar
+  did.
+
+Still outstanding, and needing a human:
+
+| # | Item |
+| --- | --- |
+| B1 | **Copy is verbatim Wix.** Grammar errors are ported as-is — e.g. "Whilst travel insurance is designed manage the risk of travelling". Nothing has been rewritten; that is an editorial pass on advertising copy, not a migration task. |
+| B2 | **Hero images have no alt text.** Both posts with an image had an empty `alt` on Wix. `heroAlt: null` records that honestly and renders `alt=""`; real alt text needs writing. |
+| B3 | **`"Disaster-Proof" your holidays!`** renders as a paragraph because that is what the capture recorded. On the live page it reads as a heading — check and promote it if so. |
+| B4 | **Ten posts are dated 2026-06-18**, all within two minutes of each other, which is a Wix re-save rather than ten publications. The dates are faithful to the source but may not be the dates you want shown. |
+| B5 | **No index lists the posts.** `/blog` is the Services page, and the category pages are dropped. The sibling links mitigate this; a real index would need a new path and is a decision, not an oversight. |
 
 ---
 

@@ -121,23 +121,15 @@ export const contact = {
 export const preservedPaths: readonly string[] = urlContract.preserved.map((p) => p.path)
 
 /**
- * Blog posts carried over from Wix, at their original `/single-post/...` paths.
+ * Blog-post paths the contract requires.
  *
- * Two of them carry a `/YYYY/MM/DD/` segment, which is why the route is a catch-all
- * rather than a single `[slug]`. Those paths are indexed, so URL preservation freezes
- * the Wix-ism in place — deliberately.
- *
- * This is the params source only until Phase 3 puts the posts in content/blog as MDX;
- * at that point generateStaticParams should read the content directory instead, and
- * the URL contract goes back to being purely an assertion.
+ * These are no longer the params source — `generateStaticParams` reads content/blog,
+ * so the files decide what exists and this stays a pure assertion, checked against the
+ * real build output by `npm run verify:urls`.
  */
-export const blogPostPaths: readonly string[] = preservedPathsFrom('/single-post/')
-
-function preservedPathsFrom(prefix: string): string[] {
-  return urlContract.preserved
-    .map((p) => p.path)
-    .filter((path) => path.startsWith(prefix))
-}
+export const blogPostPaths: readonly string[] = urlContract.preserved
+  .map((p) => p.path)
+  .filter((path) => path.startsWith('/single-post/'))
 
 /** Paths that must NOT emit a page — they are redirect sources handled by render.yaml. */
 export const redirectOnlyPaths: readonly string[] = urlContract.redirectOnly.map(

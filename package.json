@@ -14,6 +14,7 @@
     "verify:urls": "tsx scripts/verify-urls.ts",
     "capture:site": "tsx scripts/crawl-site.ts",
     "capture:render": "tsx scripts/render-pages.ts",
+    "port:blog": "tsx scripts/port-blog.ts",
     "capture:assets": "tsx scripts/pull-assets.ts",
     "capture:freshdesk": "tsx scripts/crawl-freshdesk.ts",
     "ingest:freshdesk": "tsx scripts/ingest-freshdesk.ts",

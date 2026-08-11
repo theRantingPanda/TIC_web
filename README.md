@@ -15,7 +15,7 @@ has been ported.**
 | --- | --- |
 | **1 — Capture** | Wix: **done** — 21 pages and 18 images archived; 2 pages could not be captured (below). Freshdesk: **stopped by decision** — content is stale and will be supplied by hand; folder inventory kept. See [`content/_inventory/_capture-status.md`](content/_inventory/_capture-status.md). |
 | **2 — Scaffold** | Complete. Builds, exports, and passes the URL-contract check. Nav reconciled against the real Wix nav. |
-| 3 — Port content | Not started. The captures are the input. |
+| **3 — Port content** | **Started.** The 12 blog posts are ported and rendering from MDX. The marketing pages are not — they need the copy decisions in the worklist first. |
 
 ### Phase 1: what came back
 
@@ -210,6 +210,32 @@ render.yaml     deploy config and all redirects
 `#1b5faa` anchor two scales at their `600` step (`brand-green-600` === `brand-green`),
 namespaced so Tailwind's own `green`/`blue` stay available. Components must not hardcode
 hex values.
+
+### Blog posts
+
+The 12 posts live in `content/blog/**.mdx`, at paths mirroring their URLs — including
+the `2018/04/30/` prefix two of them carry, because those paths are indexed.
+
+```bash
+npm run port:blog            # captures -> content/blog (refuses to overwrite)
+npm run port:blog -- --force # overwrite deliberately
+```
+
+`generateStaticParams` reads the content directory, so the files decide what exists;
+`url-contract.json` is the assertion that they all still ship. Frontmatter is validated
+by `lib/blog-schema.ts` and invalid frontmatter fails the build.
+
+Two details worth knowing before editing:
+
+- **`summary` comes from each post's JSON-LD, not its `<meta description>`.** Every Wix
+  post shares one template default there ("This is your blog post. Blogs are a great way
+  to connect with your audience…") — that must never ship.
+- **Each post links three siblings at the foot.** The Wix original did this with a
+  sidebar, and the only other things linking to posts were the 8 blog-category pages,
+  which are deliberately dropped. Without those links the posts would be orphaned.
+
+The port is mechanical: it reproduces the Wix copy, defects and all. See
+[`content/_inventory/port-worklist.md`](content/_inventory/port-worklist.md).
 
 ### Knowledge-base frontmatter
 
