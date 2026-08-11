@@ -1,22 +1,68 @@
 {
   "$comment": "HARD CONSTRAINT. These paths are indexed and carry the site's only search equity. Every path in `preserved` must emit an artifact in out/ at build time; every path in `redirectOnly` must NOT. Enforced by `npm run verify:urls`. Do not rename, normalise or 'tidy' a slug here — /income-preservation-1 keeps its exact odd form on purpose.",
   "preserved": [
-    { "path": "/", "source": "wix", "note": "home" },
-    { "path": "/international-health-insurance", "source": "wix" },
-    { "path": "/maternity-insurance", "source": "wix" },
-    { "path": "/employee-benefits", "source": "wix" },
-    { "path": "/speciality-insurance", "source": "wix", "note": "spelling matches live site" },
-    { "path": "/income-preservation-1", "source": "wix", "note": "trailing -1 is intentional and indexed" },
-    { "path": "/blog", "source": "wix" },
-    { "path": "/projects", "source": "wix" },
-    { "path": "/privacy", "source": "wix" },
-    { "path": "/forms", "source": "new", "note": "redirect target for /file-access" },
-    { "path": "/knowledge", "source": "new", "note": "redirect target for help.asktic.com" }
+    {
+      "path": "/",
+      "source": "wix",
+      "note": "home"
+    },
+    {
+      "path": "/international-health-insurance",
+      "source": "wix"
+    },
+    {
+      "path": "/maternity-insurance",
+      "source": "wix"
+    },
+    {
+      "path": "/employee-benefits",
+      "source": "wix"
+    },
+    {
+      "path": "/speciality-insurance",
+      "source": "wix",
+      "note": "spelling matches live site"
+    },
+    {
+      "path": "/income-preservation-1",
+      "source": "wix",
+      "note": "trailing -1 is intentional and indexed"
+    },
+    {
+      "path": "/blog",
+      "source": "wix"
+    },
+    {
+      "path": "/projects",
+      "source": "wix"
+    },
+    {
+      "path": "/privacy",
+      "source": "wix"
+    },
+    {
+      "path": "/forms",
+      "source": "new",
+      "note": "redirect target for /file-access"
+    },
+    {
+      "path": "/knowledge",
+      "source": "new",
+      "note": "redirect target for help.asktic.com"
+    }
   ],
   "redirectOnly": [
-    { "path": "/home-1", "destination": "/", "status": 301 },
-    { "path": "/file-access", "destination": "/forms", "status": 301 }
+    {
+      "path": "/home-1",
+      "destination": "/",
+      "status": 301
+    },
+    {
+      "path": "/file-access",
+      "destination": "/forms",
+      "status": 301
+    }
   ],
   "pendingSitemapConfirmation": true,
-  "$pendingNote": "This list is assembled from the paths named in the Phase 1 brief. It has NOT been reconciled against https://www.asktic.com/sitemap.xml — that host is blocked by the egress policy in this environment. Re-run `npm run capture:site` once allowlisted and reconcile before treating this as complete."
+  "$pendingNote": "INCOMPLETE — reconciled against the live sitemap on 2026-08-11 and found materially short. The sitemap index yields ~50 URLs (14 pages + 15 blog posts + 9 blog categories + 12 placeholder store products); this file lists 11. See content/_inventory/STOP-REPORT.md. Do NOT treat this as the authoritative URL contract until the open decisions there are resolved."
 }
