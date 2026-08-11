@@ -42,7 +42,8 @@ npm run capture:assets      # wixstatic images -> ../../public/images
 ```
 
 **Freshdesk:** the pull goes through the n8n workflow **Freshdesk Solutions Read**
-(`6bjXz8CZRHY1k2d9`, published). The Freshdesk API key never enters this environment —
+(`6bjXz8CZRHY1k2d9`, **unpublished** — see below). The Freshdesk API key never enters
+this environment —
 it lives on the workflow's `Call Freshdesk API` node.
 
 Two ways in, for different jobs:
@@ -57,7 +58,14 @@ Use the **webhook** for the migration. Over MCP every article body has to pass t
 context and be written back out, which does not scale past a handful of articles — that
 is why the first attempt stalled at 4 of 33.
 
-Setup for the webhook path:
+> **The workflow is currently unpublished**, so the production webhook URL is not
+> served and `npm run capture:freshdesk` will not work until someone republishes it.
+> That is deliberate: article extraction was stopped (see `_capture-status.md`), and a
+> live endpoint nobody uses is surface area for nothing. The workflow itself is intact
+> and not archived — republishing is one action in n8n. The MCP path below works
+> regardless, since it never touches the webhook URL.
+
+Setup for the webhook path (once republished):
 
 - allowlist `asktic.app.n8n.cloud` (the webhook) and `s3.amazonaws.com` (signed
   attachment downloads)
