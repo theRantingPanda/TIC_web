@@ -1,6 +1,214 @@
 {
   "version": 1,
-  "capturedAt": null,
+  "capturedAt": "2026-08-11T00:44:40.160Z",
   "sitemapUrl": "https://www.asktic.com/sitemap.xml",
-  "pages": []
+  "sitemapPathCount": 49,
+  "scope": "url-contract preserved paths with source: wix",
+  "notCaptured": {
+    "newPaths": [
+      "/forms",
+      "/knowledge"
+    ],
+    "preservedButMissingFromSitemap": [],
+    "droppedOrRedirectOnly": [
+      "/blog/categories/claims",
+      "/blog/categories/eligibility",
+      "/blog/categories/general",
+      "/blog/categories/insurance",
+      "/blog/categories/major-illness",
+      "/blog/categories/renewals",
+      "/blog/categories/travel",
+      "/blog/categories/travel-insurance",
+      "/copy-of-upgrading-works",
+      "/file",
+      "/file-access",
+      "/home-1",
+      "/product-page/i-m-a-product",
+      "/product-page/i-m-a-product-1",
+      "/product-page/i-m-a-product-10",
+      "/product-page/i-m-a-product-11",
+      "/product-page/i-m-a-product-2",
+      "/product-page/i-m-a-product-3",
+      "/product-page/i-m-a-product-4",
+      "/product-page/i-m-a-product-5",
+      "/product-page/i-m-a-product-6",
+      "/product-page/i-m-a-product-7",
+      "/product-page/i-m-a-product-8",
+      "/product-page/i-m-a-product-9",
+      "/quotation-questionaire",
+      "/single-post/design-a-stunning-blog",
+      "/single-post/grow-your-blog-community",
+      "/single-post/manage-your-blog-from-your-live-site"
+    ]
+  },
+  "pages": [
+    {
+      "path": "/",
+      "slug": "index",
+      "title": "The Insurance Concierge | Expat | Singapore Medical Insurance",
+      "blockCount": 21,
+      "imageCount": 6,
+      "flagged": false
+    },
+    {
+      "path": "/blog",
+      "slug": "blog",
+      "title": "Resource | The Insurance Concierge",
+      "blockCount": 0,
+      "imageCount": 0,
+      "flagged": false
+    },
+    {
+      "path": "/employee-benefits",
+      "slug": "employee-benefits",
+      "title": "Employee Benefits | The Insurance Concierge",
+      "blockCount": 19,
+      "imageCount": 4,
+      "flagged": false
+    },
+    {
+      "path": "/income-preservation-1",
+      "slug": "income-preservation-1",
+      "title": "Income Preservation | The Insurance Concierge",
+      "blockCount": 4,
+      "imageCount": 1,
+      "flagged": false
+    },
+    {
+      "path": "/international-health-insurance",
+      "slug": "international-health-insurance",
+      "title": "International Health Insurance | The Insurance Concierge",
+      "blockCount": 25,
+      "imageCount": 1,
+      "flagged": false
+    },
+    {
+      "path": "/maternity-insurance",
+      "slug": "maternity-insurance",
+      "title": "Maternity Insurance | Insurance Concierge",
+      "blockCount": 0,
+      "imageCount": 0,
+      "flagged": false
+    },
+    {
+      "path": "/privacy",
+      "slug": "privacy",
+      "title": "Privacy Policy | Insurance Concierge",
+      "blockCount": 71,
+      "imageCount": 0,
+      "flagged": true
+    },
+    {
+      "path": "/projects",
+      "slug": "projects",
+      "title": "Projects (All) | Insurance Concierge",
+      "blockCount": 2,
+      "imageCount": 0,
+      "flagged": false
+    },
+    {
+      "path": "/single-post/2018/04/30/travel-insurance-tips-i-wished-i-knew",
+      "slug": "single-post__2018__04__30__travel-insurance-tips-i-wished-i-knew",
+      "title": "TRAVEL INSURANCE - Tips I wished I Knew",
+      "blockCount": 20,
+      "imageCount": 1,
+      "flagged": false
+    },
+    {
+      "path": "/single-post/2018/05/06/with-health-insurance-is-major-illness-insurance-necessary",
+      "slug": "single-post__2018__05__06__with-health-insurance-is-major-illness-insurance-necessary",
+      "title": "With health insurance, is major illness insurance necessary?",
+      "blockCount": 18,
+      "imageCount": 1,
+      "flagged": false
+    },
+    {
+      "path": "/single-post/am-i-covered-for-dental-and-optical-treatment",
+      "slug": "single-post__am-i-covered-for-dental-and-optical-treatment",
+      "title": "Am I covered for dental and optical treatment?",
+      "blockCount": 12,
+      "imageCount": 0,
+      "flagged": false
+    },
+    {
+      "path": "/single-post/does-my-plan-cover-maternity-and-newborn-care",
+      "slug": "single-post__does-my-plan-cover-maternity-and-newborn-care",
+      "title": "Does my plan cover maternity and newborn care?",
+      "blockCount": 12,
+      "imageCount": 0,
+      "flagged": false
+    },
+    {
+      "path": "/single-post/how-do-i-get-pre-authorisation-for-a-planned-procedure",
+      "slug": "single-post__how-do-i-get-pre-authorisation-for-a-planned-procedure",
+      "title": "How do I get pre-authorisation for a planned procedure?",
+      "blockCount": 12,
+      "imageCount": 0,
+      "flagged": false
+    },
+    {
+      "path": "/single-post/how-do-i-make-a-claim-with-my-international-health-insurance",
+      "slug": "single-post__how-do-i-make-a-claim-with-my-international-health-insurance",
+      "title": "How do I make a claim with my international health insurance?",
+      "blockCount": 12,
+      "imageCount": 0,
+      "flagged": false
+    },
+    {
+      "path": "/single-post/how-does-the-insurance-concierge-get-paid",
+      "slug": "single-post__how-does-the-insurance-concierge-get-paid",
+      "title": "How does The Insurance Concierge get paid?",
+      "blockCount": 12,
+      "imageCount": 0,
+      "flagged": false
+    },
+    {
+      "path": "/single-post/what-happens-if-my-claim-is-rejected",
+      "slug": "single-post__what-happens-if-my-claim-is-rejected",
+      "title": "What happens if my claim is rejected?",
+      "blockCount": 12,
+      "imageCount": 0,
+      "flagged": false
+    },
+    {
+      "path": "/single-post/what-is-the-difference-between-international-and-local-health-insurance-in-singapore",
+      "slug": "single-post__what-is-the-difference-between-international-and-local-health-insurance-in-singapore",
+      "title": "What is the difference between international and local health insurance in Singapore?",
+      "blockCount": 12,
+      "imageCount": 0,
+      "flagged": false
+    },
+    {
+      "path": "/single-post/when-should-i-start-my-policy-renewal-process",
+      "slug": "single-post__when-should-i-start-my-policy-renewal-process",
+      "title": "When should I start my policy renewal process?",
+      "blockCount": 12,
+      "imageCount": 0,
+      "flagged": false
+    },
+    {
+      "path": "/single-post/why-has-my-renewal-premium-increased",
+      "slug": "single-post__why-has-my-renewal-premium-increased",
+      "title": "Why has my renewal premium increased?",
+      "blockCount": 14,
+      "imageCount": 0,
+      "flagged": false
+    },
+    {
+      "path": "/single-post/will-my-pre-existing-conditions-be-covered",
+      "slug": "single-post__will-my-pre-existing-conditions-be-covered",
+      "title": "Will my pre-existing conditions be covered?",
+      "blockCount": 12,
+      "imageCount": 0,
+      "flagged": false
+    },
+    {
+      "path": "/speciality-insurance",
+      "slug": "speciality-insurance",
+      "title": "Speciality Insurance | The Insurance Concierge",
+      "blockCount": 14,
+      "imageCount": 4,
+      "flagged": false
+    }
+  ]
 }
