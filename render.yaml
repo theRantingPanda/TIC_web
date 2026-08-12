@@ -1,6 +1,25 @@
 # Render Static Site.
 #
-# All redirects live here, not in next.config.ts. With `output: 'export'` Next's
+# ⚠ THIS FILE IS NOT APPLIED. Verified against the live Render API on 2026-08-12: the
+# `tic-web` service (srv-d9sogvijobas73fouu7g) was created through the dashboard, not
+# from this blueprint, so nothing here governs it. Its actual configuration is:
+#
+#   branch          main          autoDeploy    yes, on commit
+#   buildCommand    npm run build publishPath   out
+#   env vars        none          routes        the three redirects below
+#
+# The redirects were MISSING from the service until 2026-08-12 — they existed only in
+# this file, so /home-1, /file-access and /file returned 404 on the live site instead of
+# redirecting. They are now configured directly on the service. If you change a redirect
+# here you must change it there too, or adopt this file as a Blueprint so that stops
+# being true. Note adopting it would also create `tic-help-redirect` below, a service
+# for a hostname that does not exist.
+#
+# `npm run verify:urls` cannot catch that class of drift: it asserts a redirect-only
+# path emits no artifact in out/, which is necessary but says nothing about whether
+# Render serves the redirect. Check the service's routes when changing this file.
+#
+# All redirects live here rather than in next.config.ts. With `output: 'export'` Next's
 # `redirects()` is inert — it emits a build warning and does nothing — so the platform
 # has to serve them. `type: redirect` is a 301.
 #
@@ -40,12 +59,17 @@ services:
   - type: web
     name: tic-web
     runtime: static
-    # `--include=dev` is load-bearing, not belt-and-braces. Render builds with
-    # NODE_ENV=production, under which `npm ci` skips devDependencies — and every tool
-    # this build needs is one: tailwindcss and @tailwindcss/postcss compile the CSS,
-    # typescript type-checks, tsx runs the build stamp. Without the flag the build dies
-    # on the Tailwind PostCSS plugin before it emits a single page. Verified by running
-    # the exact command both ways in a clean clone.
+    # NOTE this is NOT the command Render runs — the service uses its own
+    # `npm run build` (see the header). Kept as the correct command for anyone adopting
+    # this blueprint or rebuilding the service.
+    #
+    # `--include=dev` matters only if the install step runs with NODE_ENV=production,
+    # under which `npm ci` skips devDependencies — and every tool this build needs is
+    # one: tailwindcss and @tailwindcss/postcss compile the CSS, typescript type-checks,
+    # tsx runs the build stamp. Verified in a clean clone that `NODE_ENV=production npm
+    # ci && npm run build` fails on the Tailwind PostCSS plugin while the form below
+    # succeeds. Render's own static-site install includes dev dependencies, which is why
+    # the live service builds fine without it.
     buildCommand: npm ci --include=dev && npm run build
     staticPublishPath: ./out
     pullRequestPreviewsEnabled: false
