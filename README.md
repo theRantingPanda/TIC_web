@@ -326,17 +326,36 @@ padding.
 
 ### Deploying
 
-The build command is `npm ci --include=dev && npm run build`, publishing `./out`.
+Live at [tic-web.onrender.com](https://tic-web.onrender.com), auto-deploying from `main`
+on every commit. Deploys take about 30 seconds.
 
-**`--include=dev` is load-bearing.** Render builds with `NODE_ENV=production`, under
-which `npm ci` skips devDependencies — and every tool this build needs is one:
-`tailwindcss` and `@tailwindcss/postcss` compile the CSS, `typescript` type-checks, and
-`tsx` runs the build stamp. Without it the build fails on the Tailwind PostCSS plugin
-before emitting a page.
+**`render.yaml` does not govern the service.** `tic-web` was created through the Render
+dashboard, so its real configuration lives there — verified against the API on
+2026-08-12:
 
-**If the Render service was created through the dashboard rather than from this
-blueprint, editing `render.yaml` changes nothing.** Check the build command on the
-service itself and make it match, or the first deploy will fail for the reason above.
+| | |
+| --- | --- |
+| branch | `main`, auto-deploy on commit |
+| build command | `npm run build` |
+| publish path | `out` |
+| environment variables | none |
+| redirects | the three from the URL contract |
+
+That divergence has already cost something: the redirects existed only in `render.yaml`,
+so `/home-1`, `/file-access` and `/file` returned **404 on the live site** until
+2026-08-12. They are now set on the service directly. Either keep both in step by hand,
+or adopt `render.yaml` as a Blueprint — which would also create `tic-help-redirect`, a
+service for a hostname that does not exist.
+
+**`verify:urls` cannot catch this.** It asserts a redirect-only path emits no artifact in
+`out/`, which is necessary but says nothing about whether Render serves the redirect.
+Platform routing is outside what the build can check, so check the service when you
+change `render.yaml`.
+
+The blueprint's `npm ci --include=dev` is still the right command for anyone adopting it
+or rebuilding the service: with `NODE_ENV=production`, `npm ci` skips devDependencies and
+the build fails on the Tailwind PostCSS plugin. Render's own static-site install includes
+them, which is why the live service builds fine without the flag.
 
 ### The contact form is disabled
 
