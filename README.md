@@ -28,13 +28,17 @@ npm run capture:render      # client-rendered pages, via headless Chromium
 `capture:site` is scoped to `url-contract.json` → `preserved` with `source: 'wix'`, and
 halts if the live sitemap contains a path the contract does not classify.
 
-**Two pages archived empty and stayed empty:** `/blog` and `/maternity-insurance` are
-rendered client-side by Wix. `static.parastorage.com` has been allowlisted and the Wix
-framework now boots — header and nav render — but the body still shows Wix's "Widget
-Didn't Load", because `pages.parastorage.com` and `siteassets.parastorage.com` are still
-denied. Allowlist **`*.parastorage.com`**
-([docs](https://code.claude.com/docs/en/claude-code-on-the-web)) and re-run
-`capture:render`, or supply their copy by hand. Full host-by-host breakdown in
+**Two pages are empty on the live site**, which took three attempts to establish rather
+than assume. `/blog` and `/maternity-insurance` are rendered client-side by Wix, and were
+captured on 2026-08-12 from an unrestricted sandbox with every parastorage host
+reachable: both render header and footer and **nothing else** — identical 588-character
+output. They have no body content. The pages built here carry more than the originals do,
+and no egress allowlist is needed.
+
+That render also surfaced the site's **footer**, which the server-HTML capture never saw
+and which carried three things the rebuild was missing — the GIA/MAS regulatory
+disclosure, the about block, and the sitewide phone number. All three are now in
+`lib/site.ts`. Details in
 [`_capture-status.md`](content/_inventory/_capture-status.md).
 
 `static.wixstatic.com` is **not** blocked, despite earlier notes: its bare-root `403` is
