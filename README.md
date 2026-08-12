@@ -159,7 +159,7 @@ break the homepage. Scoping a redirect to one hostname means giving that hostnam
 own service, which is what `tic-help-redirect` in `render.yaml` is.
 
 **`help.asktic.com` does not exist (verified 2026-08-11).** It returns NXDOMAIN, and the
-Vodien zone load sheet has no `help` record — the KB subdomain that exists is
+zone inventory has no `help` record — the KB subdomain that exists is
 `support.asktic.com`. The live Wix nav links "Knowledge Base" to `http://help.asktic.com`,
 so that link is **dead on the current site**.
 
@@ -167,10 +167,42 @@ So `tic-help-redirect` is not waiting on DNS — there is no record to move. It 
 useful only if someone decides to *create* that hostname. Nothing in the rebuild depends
 on it: this site's nav links to `/knowledge` directly.
 
-**Separately, the cutover is blocked: a DNS migration from Wix to Vodien is pending.** No
-asktic.com hostname can be repointed at Render until nameservers move. `asktic.com` still
-resolves to Wix, so `tic-web` cannot serve live traffic either. Everything in this repo is
-build-and-verify work until the migration completes.
+### Cutover: DNS stays on Wix
+
+**Decision 2026-08-11: the domain is NOT being transferred to Vodien.** Registration
+moved, DNS hosting does not — nameservers stay `ns4/ns5.wixdns.net` and Wix remains
+authoritative for the zone. The prepared Vodien load sheet is therefore parked. It is
+still worth keeping as the inventory of what the zone contains.
+
+Verified live: apex `asktic.com` → `185.230.63.107 / .171 / .186` (Wix), and
+`www.asktic.com` → CNAME `cdn1.wixdns.net`.
+
+So cutover no longer waits on anything — it is record surgery inside Wix's DNS, done
+whenever you choose:
+
+1. Add `www.asktic.com` (and the apex, if it should serve too) as custom domains on the
+   `tic-web` Render service. Render then issues the target values.
+2. Point `www` at Render's CNAME target and the apex at Render's A records, in Wix's DNS.
+3. Leave every other record alone (see the warning below).
+
+**Two things to know before doing it.**
+
+**It is a hard switch, not a gradual one.** While the domain is connected to a Wix
+*site*, Wix owns the apex A records and the `www` CNAME. Freeing them generally means
+disconnecting the domain from the Wix site — which is the cutover itself. There is no
+overlap window where both serve, so validate on `tic-web.onrender.com` first.
+
+**⚠ The zone carries email. Do not let it be reset.** The same zone holds five Google
+Workspace MX records, plus `support` → `asktic.freshdesk.com`, the `fdkey.support`
+verification TXT, `docs` → Bitly and `rainmaker` → Render. Disconnecting a domain from a
+Wix site is exactly the kind of operation that can rewrite zone records wholesale, and
+losing the MX records takes the firm's email down with the website. Capture the full
+record list before touching anything, and check mail flow both directions afterwards —
+`content/_inventory/` is not the place for it, but the Vodien load sheet already has it.
+
+Render's apex handling could not be verified from this repo (`render.com` is blocked by
+this environment's egress policy). Confirm how it wants the apex configured before the
+switch rather than during it.
 
 Two assumptions in that service could **not** be verified — `render.com` is blocked by
 this environment's egress policy: that `destination` accepts an absolute off-site URL,
