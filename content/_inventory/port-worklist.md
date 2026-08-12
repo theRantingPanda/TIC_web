@@ -45,7 +45,7 @@ somewhere else; that would strand an indexed URL.
 
 ### G6 is worse than a wrong host
 
-`help.asktic.com` returns NXDOMAIN and has no record in the Vodien zone load sheet. The
+`help.asktic.com` returns NXDOMAIN and has no record in the zone inventory. The
 live nav's Knowledge Base link is therefore **dead today**, not merely pointed at the
 wrong place. The real help centre is `support.asktic.com` (CNAME to
 `asktic.freshdesk.com`), which stays as it is — Freshdesk Solutions is parked, not

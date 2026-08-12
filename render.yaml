@@ -82,8 +82,8 @@ services:
   # then point its DNS at Render.
   #
   # READ THIS BEFORE SPENDING ANY TIME ON THIS SERVICE (2026-08-11):
-  # `help.asktic.com` DOES NOT EXIST. It resolves NXDOMAIN today, and the Vodien
-  # zone load sheet has no `help` record — the KB subdomain that exists is
+  # `help.asktic.com` DOES NOT EXIST. It resolves NXDOMAIN today, and the zone
+  # inventory has no `help` record — the KB subdomain that exists is
   # `support.asktic.com`, a CNAME to asktic.freshdesk.com. The live Wix nav's
   # "Knowledge Base" item points at http://help.asktic.com, so that link is dead on
   # the current site.
@@ -93,8 +93,10 @@ services:
   # Nothing in the rebuild depends on that: this site's own nav links to /knowledge
   # directly. Left in place because it costs nothing and the decision is not ours.
   #
-  # Separately, the Wix -> Vodien DNS migration is still pending and gates the whole
-  # cutover: asktic.com resolves to Wix, so tic-web cannot serve live traffic yet.
+  # Separately (decision 2026-08-11): the domain is NOT moving to Vodien. Wix stays
+  # authoritative for the zone, so cutover is record surgery in Wix's DNS rather than a
+  # nameserver move — see the cutover section in README.md, including the warning about
+  # the Google Workspace MX records that live in the same zone.
   #
   # TWO UNVERIFIED ASSUMPTIONS — check before relying on this. render.com is
   # blocked by this environment's egress policy, so neither could be confirmed:
