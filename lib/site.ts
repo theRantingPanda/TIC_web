@@ -105,9 +105,35 @@ export const footerNav: readonly { heading: string; items: readonly NavItem[] }[
  * The live footer's brand link points at `/home-1`, which is a redirect source here, so
  * it is not reproduced — the header already links home.
  */
+/**
+ * The footer's about block, verbatim from the live Wix footer — captured 2026-08-12 by
+ * rendering the site in a browser, which is the only way it is visible: the footer is
+ * client-rendered and absent from the server HTML the earlier capture archived.
+ *
+ * One change: the original reads "since 2003". Corrected to 2014, the UEN registration
+ * year, on Steven's instruction — the same correction applied to /income-preservation-1,
+ * which said 2023. The live site carries both numbers for the same claim.
+ */
+export const about =
+  'People often find insurance complex and finding the right one arduous. We agree it ' +
+  'should be easier and have taken up the challenge to simplify it for our client. We ' +
+  'have been at it since 2014; Listening, Understanding, ensuring their Peace of Mind.'
+
+/**
+ * Regulatory disclosure, verbatim from the live footer.
+ *
+ * This is a licensing statement for a MAS-regulated firm and appears on every page of
+ * the current site. It was missing from the rebuild entirely until 2026-08-12 — not a
+ * styling choice but an omission, since the earlier capture never saw the footer.
+ */
+export const regulatory =
+  'We are a general insurance agency incorporated in Singapore complying with the ' +
+  'regulations and guidelines set out by the General Insurance Association (GIA), and ' +
+  'the Monetary Authority of Singapore (MAS).'
+
 export const contact = {
   email: 'hello@asktic.com',
-  /** From the /employee-benefits capture, the only page that publishes a number. */
+  /** Published in the live footer sitewide, and on /employee-benefits. */
   phone: '+65 6681 6455',
   social: [
     { href: 'https://www.facebook.com/InsuranceConcierge', label: 'Facebook' },

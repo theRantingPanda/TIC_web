@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Container } from '@/components/container'
-import { contact, footerNav, siteConfig } from '@/lib/site'
+import { about, contact, footerNav, regulatory, siteConfig } from '@/lib/site'
 
 export function SiteFooter() {
   return (
@@ -11,15 +11,20 @@ export function SiteFooter() {
             <p className="text-lg font-semibold tracking-tight text-ink">
               {siteConfig.name}
             </p>
-            <p className="mt-2 max-w-xs text-sm text-ink-muted">
-              {siteConfig.description}
-            </p>
+            <p className="mt-2 max-w-xs text-sm text-ink-muted">{about}</p>
             <p className="mt-4 text-sm">
               <a
                 href={`mailto:${contact.email}`}
                 className="text-ink no-underline hover:text-brand-blue"
               >
                 {contact.email}
+              </a>
+              <br />
+              <a
+                href={`tel:${contact.phone.replace(/\s/g, '')}`}
+                className="text-ink no-underline hover:text-brand-blue"
+              >
+                {contact.phone}
               </a>
             </p>
             <ul className="mt-3 flex gap-4">
@@ -59,7 +64,9 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-10 border-t border-border pt-6 text-sm text-ink-muted">
-          <p>
+          {/* Licensing disclosure — on every page of the live site, and required to be. */}
+          <p className="max-w-3xl">{regulatory}</p>
+          <p className="mt-4">
             © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
           </p>
         </div>

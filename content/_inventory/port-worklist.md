@@ -249,13 +249,36 @@ Two structural fixes, neither of which touches the words:
 
 Still no card for Income Preservation, matching the original.
 
-## `/blog` and `/maternity-insurance` — BUILT, NOT PORTED
+## The footer was never captured, and carried three things — fixed 2026-08-12
 
-Wix renders both client-side and their content could never be captured, so there is no
-original copy in this repo and none was invented. Both now render pages assembled from
-material the site already publishes — see the README table. **These are placeholders
-standing in for pages that genuinely exist on the live site**; replace them once
-`*.parastorage.com` is allowlisted and `capture:render` can reach the real content.
+The capture archives server HTML. The Wix footer is client-rendered, so none of it was
+ever in the archive, and three pieces of sitewide copy were missing from the rebuild
+without anyone noticing:
+
+| | |
+| --- | --- |
+| **The regulatory disclosure** | "We are a general insurance agency incorporated in Singapore complying with the regulations and guidelines set out by the General Insurance Association (GIA), and the Monetary Authority of Singapore (MAS)." On every page of the live site. Its absence was an omission, not a design choice — it is a licensing statement for a MAS-regulated firm. Now in the footer. |
+| **The about block** | "People often find insurance complex and finding the right one arduous… We have been at it since 2014…" Now in the footer, with 2003 corrected to 2014. |
+| **The phone number** | `+65 6681 6455`, published sitewide in the live footer, not only on `/employee-benefits`. Now in the footer. |
+
+### Correction: the "since 2003" note was right after all
+
+On 2026-08-11 this file recorded that the 2026-08-10 discovery review was "wrong on two
+counts" about a "since 2003" claim, on the grounds that the live copy said 2023 and sat
+on `/income-preservation-1`. That was half wrong. **Both numbers exist**: the footer
+about block says "since 2003" and `/income-preservation-1` says "since 2023" — the same
+claim, two different years, on the same site. The 2023 instance was simply the only one
+the server-HTML capture could see. Both now read 2014.
+
+## `/blog` and `/maternity-insurance` — BUILT, and the originals are empty
+
+Captured 2026-08-12 from an unrestricted sandbox, with every parastorage host reachable:
+**both pages render header and footer and nothing else.** Identical 588-character
+output. They are empty pages on the live site.
+
+So these are not placeholders standing in for richer originals — the built pages carry
+more than the originals do. Nothing further is owed here, and the parastorage allowlist
+is moot.
 
 ---
 

@@ -22,7 +22,27 @@ The deduplicated total is **49**: `/blog` is listed in both `pages-sitemap.xml` 
 `/knowledge` and `/forms`, which are new and not on Wix. No unclassified path appeared,
 so the contract still covers the live sitemap exactly.
 
-### `/blog` and `/maternity-insurance` still cannot be captured (2026-08-11, retried)
+### RESOLVED 2026-08-12: those two pages are genuinely empty
+
+Captured at last, by running headless Chromium from an unrestricted sandbox — no
+allowlist required, and none is needed now. With every parastorage host reachable and
+the Wix framework loading cleanly (no "Widget Didn't Load"), **both pages render header
+and footer and nothing else**. Identical 588-character output, byte for byte, on both:
+nav, the about block, the GIA/MAS disclosure, contact details, "© 2019", Privacy.
+
+So the earlier conclusion below was wrong in its consequence. The pages were never
+"blocked from capture" in any way that mattered — they have no body content to capture.
+The `/blog` and `/maternity-insurance` pages built for this site are not placeholders
+standing in for richer originals; they are more than the originals contain.
+
+**Do not spend more time on the parastorage allowlist.** It was a real block, and
+lifting it changed nothing about these pages.
+
+The render did surface three pieces of sitewide copy that the server-HTML capture never
+saw, because the footer is client-rendered — the about block, the regulatory disclosure,
+and the phone number. Those are now in `lib/site.ts`. See the port worklist.
+
+### Superseded: the 2026-08-11 investigation
 
 Both return an **empty `<main>`** from the server: Wix renders them client-side.
 
