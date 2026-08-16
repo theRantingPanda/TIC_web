@@ -12,6 +12,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "verify:urls": "tsx scripts/verify-urls.ts",
+    "verify:copy": "tsx scripts/verify-copy.ts",
+    "verify": "npm run verify:urls && npm run verify:copy",
     "capture:site": "tsx scripts/crawl-site.ts",
     "capture:render": "tsx scripts/render-pages.ts",
     "port:blog": "tsx scripts/port-blog.ts",

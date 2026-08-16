@@ -6,7 +6,13 @@
 #
 #   branch          main          autoDeploy    yes, on commit
 #   buildCommand    npm run build publishPath   out
-#   env vars        none          routes        the three redirects below
+#   env vars        none          routes        the six redirects below
+#
+# ⚠ ACTION REQUIRED (2026-08-16): the /blog, /speciality-insurance and
+# /income-preservation-1 redirects added
+# below are NOT yet on the service. Add them in the dashboard, or those three indexed
+# paths 404 in production the moment this branch deploys — their page files have been
+# deleted. Nothing in the build can catch this; see the paragraph below.
 #
 # The redirects were MISSING from the service until 2026-08-12 — they existed only in
 # this file, so /home-1, /file-access and /file returned 404 on the live site instead of
@@ -107,6 +113,44 @@ services:
         source: /file
         destination: /forms
 
+      # ---- Copy-deck path changes, 2026-08-16 ----
+      # These two are a deliberate, signed-off exception to URL preservation: both were
+      # `preserved` and indexed until the homepage copy deck moved them. Each 301s to a
+      # topically equivalent page, which is why a redirect is right here and was wrong
+      # for the dropped Wix store URLs (see content/_inventory/url-decisions.md — a 301
+      # to unrelated content is a soft-404 pattern).
+      #
+      # /blog served the Services landing page, not a blog index. Its 12 posts live at
+      # /single-post/... and are untouched.
+      - type: redirect
+        source: /blog
+        destination: /services
+
+      # NOT to /services. The marine and oil and gas specialty product was dropped but
+      # its audience was not, so the search equity follows the audience.
+      - type: redirect
+        source: /speciality-insurance
+        destination: /offshore-and-energy
+
+      # Retired on the owner's instruction, 2026-08-16. A functioning service page rather
+      # than template junk, so it 301s to the service index rather than 404ing.
+      - type: redirect
+        source: /income-preservation-1
+        destination: /services
+
+      # ⚠ BEFORE RUNNING `npm run gen:redirects`, READ THIS.
+      #
+      # content/_inventory/freshdesk/redirects.json carries destination slugs with an
+      # insurer's name in them, e.g. /knowledge/allianz-family-policy-number-access-rules.
+      # Generating from it as-is would publish insurer names in this file, in the live
+      # redirect config, and in the destination URLs themselves — and the site names no
+      # insurer in public copy. `npm run verify:copy` cannot catch it, because a redirect
+      # rule is service configuration and never appears in out/.
+      #
+      # Those four articles are an archive that must not be ported at all (see
+      # content/_inventory/_capture-status.md), so their destinations do not exist either.
+      # Rename the slugs, or drop those entries, before generating.
+      #
       # BEGIN GENERATED freshdesk-article-map
       # (empty until `npm run ingest:freshdesk` has run)
       # END GENERATED freshdesk-article-map

@@ -12,7 +12,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "title", "file", "carrier", "category"],
+        "required": ["id", "title", "file", "category"],
         "additionalProperties": false,
         "properties": {
           "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
@@ -20,7 +20,7 @@
           "description": { "type": "string" },
           "file": {
             "type": "string",
-            "description": "Path relative to /public, e.g. /forms/files/bupa-claim-form.pdf"
+            "description": "Path relative to /public, e.g. /forms/files/claim-form.pdf"
           },
           "carrier": { "type": "string" },
           "productLine": { "type": "string" },

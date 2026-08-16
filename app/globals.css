@@ -52,11 +52,60 @@
     Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
   --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
 
+  /* ---- Type: display sizes for section furniture ----
+   *
+   * Named by ROLE, not by heading level. A token called `heading-2` forces every caller
+   * to decide which heading a thing *looks* like, which is how an <h3> ends up classed
+   * text-heading-1. `display-sm` on an <h2> inside a small band reads as a size choice,
+   * which is what it is.
+   *
+   * Body copy is not here — it stays on stock Tailwind utilities, and Prose sets its own.
+   *
+   * The top step is 56px rather than the 68px the reference design uses. That figure was
+   * sized for a hero filling a full-bleed gradient panel; this page is text on a calm
+   * ground in a 1152px container, where 68px shouts and leaves `text-wrap: balance`
+   * nothing to work with. Negative tracking because a system stack reads loose at 44px+.
+   */
+  --text-display-xl: 3.5rem;
+  --text-display-xl--line-height: 1.05;
+  --text-display-xl--letter-spacing: -0.02em;
+  --text-display-lg: 2.75rem;
+  --text-display-lg--line-height: 1.1;
+  --text-display-lg--letter-spacing: -0.015em;
+  --text-display-md: 2.125rem;
+  --text-display-md--line-height: 1.15;
+  --text-display-md--letter-spacing: -0.01em;
+  --text-display-sm: 1.625rem;
+  --text-display-sm--line-height: 1.25;
+  --text-display-xs: 1.25rem;
+  --text-display-xs--line-height: 1.35;
+
+  /* Section labels, stat captions and footnotes. Small and tracked out, never bold. */
+  --text-eyebrow: 0.8125rem;
+  --text-eyebrow--line-height: 1.4;
+  --text-eyebrow--letter-spacing: 0.06em;
+
   /* ---- Layout ---- */
   --spacing-gutter: 1.25rem;
   --spacing-section: 4rem;
+  /* The top step of the section padding ramp. --spacing-section is the base step. */
+  --spacing-section-lg: 6.25rem;
   --container-content: 72rem;
+  /* Wider measure, for full-bleed bands only. Do not widen --container-content: every
+   * existing page is built to 72rem and would reflow. */
+  --container-wide: 80.625rem;
   --radius-card: 0.75rem;
+  /* Three more radii, for the homepage's band-and-card idiom: a tinted tray at
+   * --radius-band wrapping white cards at --radius-inset. --radius-panel is the
+   * standalone card. --radius-card stays what every existing page already uses. */
+  --radius-panel: 1.25rem;
+  --radius-inset: 1.75rem;
+  --radius-band: 2rem;
+
+  /* ---- Elevation. Two, deliberately. ---- */
+  --shadow-card: 0 1px 2px 0 rgb(16 35 26 / 0.05);
+  --shadow-raised:
+    0 10px 20px -5px rgb(16 35 26 / 0.05), 0 20px 65px -5px rgb(16 35 26 / 0.05);
 }
 
 @layer base {
@@ -80,6 +129,78 @@
     line-height: 1.2;
     text-wrap: balance;
     font-weight: 600;
+  }
+
+  /*
+   * Default heading sizes, so a heading with no size class is not 2rem-by-accident.
+   *
+   * These are bare element rules, so any utility class beats them — every heading in the
+   * repo today carries an explicit size and is unaffected. `components/prose.tsx` sets
+   * [&_h2]:text-2xl and [&_h3]:text-xl, and an arbitrary variant outranks an element
+   * rule, so MDX headings keep the prose sizes rather than inheriting this ramp. That is
+   * correct and deliberate: a knowledge base article should not open at 44px. Do not
+   * "fix" it.
+   */
+  h1 {
+    font-size: var(--text-display-md);
+    letter-spacing: var(--text-display-md--letter-spacing);
+  }
+
+  h2 {
+    font-size: var(--text-display-sm);
+  }
+
+  h3 {
+    font-size: var(--text-display-xs);
+  }
+
+  @media (width >= 40rem) {
+    h1 {
+      font-size: var(--text-display-lg);
+      letter-spacing: var(--text-display-lg--letter-spacing);
+    }
+
+    h2 {
+      font-size: var(--text-display-md);
+    }
+
+    h3 {
+      font-size: var(--text-display-sm);
+    }
+  }
+
+  @media (width >= 64rem) {
+    h1 {
+      font-size: var(--text-display-xl);
+      letter-spacing: var(--text-display-xl--letter-spacing);
+    }
+
+    h2 {
+      font-size: var(--text-display-lg);
+    }
+  }
+
+  /*
+   * The one quiet reveal. See components/reveal.tsx.
+   *
+   * Deliberately inverted relative to the usual scroll-reveal pattern. The element is
+   * NOT hidden by default: it is fully visible in the server-rendered HTML and only
+   * becomes animatable once [data-reveal] is set by JavaScript, which happens after the
+   * observer is attached. This site is a static export served from a CDN; a page that
+   * fails to hydrate must still be readable. The common `opacity: 0` default means a
+   * blocked or broken script renders a blank page.
+   */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity 500ms ease-out var(--reveal-delay, 0ms),
+      transform 500ms ease-out var(--reveal-delay, 0ms);
+  }
+
+  [data-reveal][data-revealed] {
+    opacity: 1;
+    transform: none;
   }
 
   a {
@@ -108,6 +229,17 @@
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+    }
+
+    /*
+     * Belt and braces. Reveal.tsx returns early under reduced motion and never sets
+     * [data-reveal] at all, so this should be unreachable. If it ever is reached, the
+     * rule above would snap the element 0 -> 1 in 0.01ms, which is a visible flash
+     * rather than no animation. This makes it rest visible instead.
+     */
+    [data-reveal] {
+      opacity: 1;
+      transform: none;
     }
   }
 }

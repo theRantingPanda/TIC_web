@@ -6,7 +6,7 @@ export const siteConfig = {
   /** Kept in sync with the live domain — used for canonical URLs and metadataBase. */
   url: 'https://www.asktic.com',
   description:
-    'Independent insurance advisory in Singapore — international health, employee benefits, maternity and speciality cover.',
+    'Insurance advisory in Singapore: international health, employee benefits, maternity and newborn, and cover for offshore and deployed teams.',
 } as const
 
 export type NavItem = {
@@ -22,49 +22,58 @@ export type NavGroup = {
 }
 
 /**
- * Navigation — reconciled against the live Wix nav captured on 2026-08-11
- * (`content/_inventory/pages/index.html`, `<nav aria-label="Site">`).
+ * Navigation — restructured 2026-08-16 to the homepage copy deck's four entries.
  *
- * The live structure is: Home · Services · Members · Projects · More, where Services
- * and Members are dropdowns. Two labels are worth not "tidying":
+ * It previously mirrored the live Wix nav (Home · Services · Members · Projects). The
+ * deck replaces that with Cover · For companies · About · Answers, plus a "Talk to us"
+ * button. Three of those needed reconciling against what actually exists:
  *
- * - **Services links to `/blog`.** That path serves the services landing page, not a
- *   blog index — hence the live `<title>` "Resource | The Insurance Concierge". The
- *   slug is indexed, so it stays; the label follows the live site rather than the slug.
- * - **Members** has no page of its own on Wix; it is a dropdown label only.
+ * - **Cover** points at `/services`, which is `/blog`'s 301 destination. The old
+ *   "Services → /blog" pairing is gone with the redirect.
+ * - **For companies** points at `/employee-benefits`. The deck wants `/business`, which
+ *   does not exist yet. Repointing this is the whole change when it does. It duplicates
+ *   an item in the Cover dropdown, which is honest rather than a defect: the hero's
+ *   second CTA needs a corporate door and this is the only real one.
+ * - **About** is omitted entirely. `/about` does not exist, and pointing it at
+ *   `/projects` would be worse than leaving it out.
  *
- * Two destinations are remapped because their Wix targets do not exist on this site:
- * "File Access" pointed at `/file-access` (redirect-only here → `/forms`) and
- * "Knowledge Base" pointed at `help.asktic.com` (→ `/knowledge`).
+ * "Home" is dropped because the header's logo already links `/`. The "Members" dropdown
+ * is killed per the deck; its two destinations move to Answers and to the footer.
+ * "Projects" moves to the footer's Company column so `/projects` is not orphaned.
  *
- * Wix's "More" entry is not reproduced: it is Wix's own responsive overflow control and
- * was empty in the capture.
+ * `/income-preservation-1` is retired. It was unlinked first, then withdrawn entirely
+ * on 2026-08-16 and now 301s to /services. Do not add it back to either nav array:
+ * `verify:urls` requires every nav href to be a preserved path, and it is no longer one.
  *
- * Every href here must exist in content/url-contract.json → `preserved`. That
- * invariant is asserted at build time by `npm run verify:urls`.
+ * Every href here must exist in content/url-contract.json → `preserved`. That invariant
+ * is asserted at build time by `npm run verify:urls`, which reads this file's source
+ * text with a regex — so a single-quoted `href:` inside a *comment* is checked too.
+ * Do not write one for a page that does not exist yet.
  */
 export const primaryNav: readonly NavGroup[] = [
-  { label: 'Home', href: '/' },
   {
-    label: 'Services',
-    href: '/blog',
+    label: 'Cover',
+    href: '/services',
     items: [
-      { href: '/international-health-insurance', label: 'International Health Insurance' },
-      { href: '/maternity-insurance', label: 'Maternity Insurance' },
-      { href: '/employee-benefits', label: 'Employee Benefits' },
-      { href: '/speciality-insurance', label: 'Speciality Insurance' },
-      { href: '/income-preservation-1', label: 'Income Preservation' },
+      { href: '/international-health-insurance', label: 'International health insurance' },
+      { href: '/maternity-insurance', label: 'Maternity and newborn' },
+      { href: '/employee-benefits', label: 'Employee benefits' },
+      { href: '/offshore-and-energy', label: 'Offshore and deployed teams' },
     ],
   },
-  {
-    label: 'Members',
-    items: [
-      { href: '/forms', label: 'File Access' },
-      { href: '/knowledge', label: 'Knowledge Base' },
-    ],
-  },
-  { label: 'Projects', href: '/projects' },
+  { label: 'For companies', href: '/employee-benefits' },
+  { label: 'Answers', href: '/knowledge' },
 ] as const
+
+/**
+ * The header's primary call to action.
+ *
+ * Deliberately NOT a member of `primaryNav`. It is a button rather than a nav entry, and
+ * it targets an in-page anchor: the enquiry form is section 10 of the homepage, since
+ * `/contact` does not exist yet. `verify:urls` strips the fragment before checking, so
+ * this validates against `/`.
+ */
+export const ctaLink = { href: '/#talk-to-us', label: 'Talk to us' } as const
 
 /** Flattened primary nav, for the small-screen disclosure. */
 export const flatNav: readonly NavItem[] = primaryNav.flatMap((group) => [
@@ -72,22 +81,30 @@ export const flatNav: readonly NavItem[] = primaryNav.flatMap((group) => [
   ...(group.items ?? []),
 ])
 
+/**
+ * Footer columns, per the copy deck: Cover · Answers · Company · Contact.
+ *
+ * Only three are here — the fourth, Contact, is the footer's brand block, which already
+ * carries the email address and the social links.
+ *
+ * "About" and "Contact" are absent from Company because those pages do not exist yet.
+ * Add them here when they do; the layout already has the room.
+ */
 export const footerNav: readonly { heading: string; items: readonly NavItem[] }[] = [
   {
-    heading: 'Services',
+    heading: 'Cover',
     items: [
-      { href: '/international-health-insurance', label: 'International Health Insurance' },
-      { href: '/maternity-insurance', label: 'Maternity Insurance' },
-      { href: '/employee-benefits', label: 'Employee Benefits' },
-      { href: '/speciality-insurance', label: 'Speciality Insurance' },
-      { href: '/income-preservation-1', label: 'Income Preservation' },
+      { href: '/international-health-insurance', label: 'International health insurance' },
+      { href: '/maternity-insurance', label: 'Maternity and newborn' },
+      { href: '/employee-benefits', label: 'Employee benefits' },
+      { href: '/offshore-and-energy', label: 'Offshore and deployed teams' },
     ],
   },
   {
-    heading: 'Members',
+    heading: 'Answers',
     items: [
-      { href: '/forms', label: 'File Access' },
-      { href: '/knowledge', label: 'Knowledge Base' },
+      { href: '/knowledge', label: 'Knowledge base' },
+      { href: '/forms', label: 'Forms and documents' },
     ],
   },
   {
@@ -131,17 +148,27 @@ export const regulatory =
   'regulations and guidelines set out by the General Insurance Association (GIA), and ' +
   'the Monetary Authority of Singapore (MAS).'
 
+/**
+ * Contact and social links.
+ *
+ * **There is deliberately no phone number here.** `+65 6681 6455` was published in the
+ * live footer sitewide and on /employee-benefits, and it is out of service. Removing the
+ * field rather than blanking it is intentional: it breaks every call site at compile
+ * time, which is the sweep. Do not reintroduce one without checking it answers.
+ *
+ * The sweep does not end at this repo. The dead number is also on the Google Business
+ * listing, in the Freshdesk help centre, in PDFs in the file library and in email
+ * signatures. A dead number in a Google listing is worse than none, because it is often
+ * the first thing someone finds and they never reach the site at all.
+ *
+ * YouTube was removed at the same time — the channel is being dropped, so the link goes
+ * rather than being repointed.
+ */
 export const contact = {
   email: 'hello@asktic.com',
-  /** Published in the live footer sitewide, and on /employee-benefits. */
-  phone: '+65 6681 6455',
   social: [
     { href: 'https://www.facebook.com/InsuranceConcierge', label: 'Facebook' },
     { href: 'https://sg.linkedin.com/in/dstevenneo', label: 'LinkedIn' },
-    {
-      href: 'https://www.youtube.com/channel/UC37r-aLP8nNnRn-StYGQrwQ',
-      label: 'YouTube',
-    },
   ],
 } as const
 

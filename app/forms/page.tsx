@@ -24,7 +24,10 @@ type Form = {
   title: string
   description?: string
   file: string
-  carrier: string
+  /** Internal only. Never rendered — see the note at the render site below. */
+  carrier?: string
+  /** The safe public label: a product line rather than an insurer. */
+  productLine?: string
   category: string
   sizeBytes?: number
   updatedAt?: string
@@ -59,10 +62,6 @@ export default function Page() {
         not here,{' '}
         <a href={`mailto:${contact.email}`} className="text-brand-blue">
           email us
-        </a>{' '}
-        or call{' '}
-        <a href={`tel:${contact.phone.replace(/\s/g, '')}`} className="text-brand-blue">
-          {contact.phone}
         </a>
         .
       </p>
@@ -100,8 +99,22 @@ export default function Page() {
                         {form.description}
                       </p>
                     ) : null}
+                    {/*
+                      `carrier` is deliberately NOT rendered.
+
+                      It used to be, and the manifest being empty was the only reason
+                      nothing leaked: the first form anyone added would have printed an
+                      insurer's name on a public page, and the site names no insurer in
+                      public copy. `carrier` stays in the schema as optional internal
+                      metadata for organising the library — it is no longer required, and
+                      it must not reach the page. `productLine` is the safe public label.
+
+                      The same rule applies to form titles and to filenames, since both
+                      are public. `npm run verify:copy` fails the build if an insurer
+                      name reaches the built output by any route.
+                    */}
                     <p className="mt-1 text-xs uppercase tracking-wider text-ink-muted">
-                      {[form.carrier, formatSize(form.sizeBytes), form.updatedAt]
+                      {[form.productLine, formatSize(form.sizeBytes), form.updatedAt]
                         .filter(Boolean)
                         .join(' · ')}
                     </p>

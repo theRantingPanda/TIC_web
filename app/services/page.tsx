@@ -2,18 +2,19 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Container } from '@/components/container'
 import { getPublishedPosts } from '@/lib/content'
-import { primaryNav } from '@/lib/site'
 
 /**
  * The services landing page.
  *
- * `/blog` is the path the live nav labels "Services" — its Wix title is "Resource | The
- * Insurance Concierge" and it is not a blog index. The slug is indexed so it stays.
+ * Moved here from `/blog` on 2026-08-16. That path was what the live Wix nav labelled
+ * "Services" — its Wix title was "Resource | The Insurance Concierge" and it was never a
+ * blog index. The homepage copy deck puts Services at `/services`, so `/blog` is now a
+ * 301 to this page and the search equity follows. See content/url-contract.json.
  *
- * NOT a port: Wix renders this page client-side and its content could never be
+ * NOT a port: Wix rendered the original client-side and its content could never be
  * captured, so there is no original copy to reproduce. It is built from what the site
- * already knows — the five service pages from `primaryNav`, and the posts from
- * content/blog. Replace it with the real copy when it can be captured or written.
+ * already knows — the cover pages, and the posts from content/blog. Replace it with real
+ * copy when it can be written.
  *
  * Listing the posts here also gives them somewhere to be linked from: the 8 Wix
  * blog-category pages were deliberately dropped, and this is the closest thing the site
@@ -22,10 +23,29 @@ import { primaryNav } from '@/lib/site'
 export const metadata: Metadata = {
   title: 'Services',
   description:
-    'What The Insurance Concierge arranges — international health, maternity, employee benefits, speciality cover and income preservation — plus answers to common questions.',
+    'What The Insurance Concierge arranges — international health, maternity and newborn, employee benefits, and cover for offshore and deployed teams — plus answers to common questions.',
 }
 
-const services = primaryNav.find((group) => group.label === 'Services')?.items ?? []
+/**
+ * Explicit, deliberately NOT derived from `primaryNav`.
+ *
+ * The previous version at `/blog` looked this up with
+ * `primaryNav.find((g) => g.label === 'Services')`, which returns `[]` the moment that
+ * nav group is relabelled — no type error, no build error, an empty grid. The nav group
+ * is now called "Cover", so that lookup would already be broken.
+ *
+ * `/income-preservation-1` is absent because it is retired: it now 301s here. Adding a
+ * link to it would point at a redirect source, which is never what you want internally.
+ */
+const services = [
+  {
+    href: '/international-health-insurance',
+    label: 'International health insurance',
+  },
+  { href: '/maternity-insurance', label: 'Maternity and newborn' },
+  { href: '/employee-benefits', label: 'Employee benefits' },
+  { href: '/offshore-and-energy', label: 'Offshore and deployed teams' },
+] as const
 
 export default function Page() {
   const posts = getPublishedPosts()

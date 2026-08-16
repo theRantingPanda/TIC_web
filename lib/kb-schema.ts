@@ -21,7 +21,15 @@ export const kbFrontmatterSchema = z.object({
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug must be kebab-case'),
   title: z.string().min(1),
   summary: z.string().min(1),
-  /** e.g. 'allianz', 'bupa', 'aig'. Null for carrier-agnostic articles. */
+  /**
+   * Internal filing only. Null for carrier-agnostic articles.
+   *
+   * Deliberately NOT documented with real carrier slugs: this comment is the field's
+   * only documentation, and naming one here teaches the next author to type it into
+   * frontmatter. The site names no insurer in public copy, so this value must never
+   * reach a rendered page — nothing renders it today, and `npm run verify:copy` fails
+   * the build if anything starts to.
+   */
   carrier: z.string().nullable(),
   /** e.g. 'international-health', 'employee-benefits', 'maternity'. */
   productLine: z.string().nullable(),
