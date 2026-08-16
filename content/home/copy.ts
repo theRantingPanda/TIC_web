@@ -294,9 +294,12 @@ export const s08TwoWaysIn = {
  * The deck's first question is "What happens to my cover when I leave the company?",
  * which has no article anywhere — content/kb/ is empty and it is not among the 12 ported
  * posts. Linking a question to nothing is exactly the defect the deck complains about on
- * the current homepage, so it is substituted here with an existing article. "How does
- * The Insurance Concierge get paid?" echoes section 05's second point, that buying
- * through the firm costs nothing extra.
+ * the current homepage, so it is substituted here with an existing article. "Why has my
+ * renewal premium increased?" echoes section 05's first point, the renewal comparison,
+ * and stays in register with the other two: all three are worries.
+ *
+ * It was passed over once for naming the panel, which has since been fixed, and the
+ * article originally used here was retired on 2026-08-16.
  *
  * Write the leaving-a-company-scheme article and swap it back. The deck names it as one
  * of three knowledge base pieces section 04 feeds directly.
@@ -313,7 +316,7 @@ export const s08TwoWaysIn = {
 export const s09Questions = {
   heading: 'What people ask us',
   slugs: [
-    'how-does-the-insurance-concierge-get-paid',
+    'why-has-my-renewal-premium-increased',
     'will-my-pre-existing-conditions-be-covered',
     'what-happens-if-my-claim-is-rejected',
   ],

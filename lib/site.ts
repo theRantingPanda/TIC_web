@@ -39,7 +39,8 @@ export type NavGroup = {
  *
  * "Home" is dropped because the header's logo already links `/`. The "Members" dropdown
  * is killed per the deck; its two destinations move to Answers and to the footer.
- * "Projects" moves to the footer's Company column so `/projects` is not orphaned.
+ * "Projects" is gone entirely: the page was retired on 2026-08-16 and now 301s to
+ * /services, so linking it would point at a redirect source.
  *
  * `/income-preservation-1` is retired. It was unlinked first, then withdrawn entirely
  * on 2026-08-16 and now 301s to /services. Do not add it back to either nav array:
@@ -109,10 +110,7 @@ export const footerNav: readonly { heading: string; items: readonly NavItem[] }[
   },
   {
     heading: 'Company',
-    items: [
-      { href: '/projects', label: 'Projects' },
-      { href: '/privacy', label: 'Privacy' },
-    ],
+    items: [{ href: '/privacy', label: 'Privacy' }],
   },
 ] as const
 

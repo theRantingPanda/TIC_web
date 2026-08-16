@@ -55,10 +55,6 @@ const mechanics = [
   {
     title: 'It costs you nothing extra',
     body: 'We are paid by commission built into the premium. The price is the same whether you come to us or go direct to the insurer, and what differs is who does the work afterwards.',
-    link: {
-      label: 'How we are paid',
-      href: '/single-post/how-does-the-insurance-concierge-get-paid',
-    },
   },
 ] as const
 
@@ -210,11 +206,9 @@ export default function Page() {
           <CardGrid columns={2}>
             {mechanics.map((card) => (
               <li key={card.title}>
-                <FeatureCard
-                  title={card.title}
-                  body={card.body}
-                  link={'link' in card ? card.link : undefined}
-                />
+                {/* None of these carry a link since the "How we are paid" article was
+                    retired; FeatureCard's link prop is optional. */}
+                <FeatureCard title={card.title} body={card.body} />
               </li>
             ))}
           </CardGrid>

@@ -6,13 +6,17 @@
 #
 #   branch          main          autoDeploy    yes, on commit
 #   buildCommand    npm run build publishPath   out
-#   env vars        none          routes        the six redirects below
+#   env vars        none          routes        the nine redirects below
 #
-# ⚠ ACTION REQUIRED (2026-08-16): the /blog, /speciality-insurance and
-# /income-preservation-1 redirects added
-# below are NOT yet on the service. Add them in the dashboard, or those three indexed
-# paths 404 in production the moment this branch deploys — their page files have been
-# deleted. Nothing in the build can catch this; see the paragraph below.
+# ⚠ ACTION REQUIRED (2026-08-16): /blog, /speciality-insurance and
+# /income-preservation-1 are configured and verified live. The THREE BELOW THEM are NOT
+# yet on the service — /projects and the two /single-post paths. Add them in the
+# dashboard, or those three indexed paths 404 the moment this deploys, because their
+# files have been deleted. Nothing in the build can catch this; see below.
+#
+# Verified 2026-08-16: Render matches redirect ROUTES BEFORE static files. /blog returned
+# 301 while its page file was still deployed. The assumption in verify-urls.ts that a real
+# page "would silently shadow the redirect" is wrong, so ordering is not a hazard here.
 #
 # The redirects were MISSING from the service until 2026-08-12 — they existed only in
 # this file, so /home-1, /file-access and /file returned 404 on the live site instead of
@@ -137,6 +141,21 @@ services:
       - type: redirect
         source: /income-preservation-1
         destination: /services
+
+      # Also retired on the owner's instruction, 2026-08-16. /projects was a Wix template
+      # page whose rebuilt content was a list of the cover pages, which is what /services
+      # is. The two posts go to the article index rather than 404ing.
+      - type: redirect
+        source: /projects
+        destination: /services
+
+      - type: redirect
+        source: /single-post/how-does-the-insurance-concierge-get-paid
+        destination: /knowledge
+
+      - type: redirect
+        source: /single-post/2018/04/30/travel-insurance-tips-i-wished-i-knew
+        destination: /knowledge
 
       # ⚠ BEFORE RUNNING `npm run gen:redirects`, READ THIS.
       #

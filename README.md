@@ -164,10 +164,13 @@ Change one and you must change both. This is not pedantry: the redirects existed
 | `/blog` | `/services` | `tic-web` routes |
 | `/speciality-insurance` | `/offshore-and-energy` | `tic-web` routes |
 | `/income-preservation-1` | `/services` | `tic-web` routes |
+| `/projects` | `/services` | `tic-web` routes |
+| `/single-post/how-does-the-insurance-concierge-get-paid` | `/knowledge` | `tic-web` routes |
+| `/single-post/2018/04/30/travel-insurance-tips-i-wished-i-knew` | `/knowledge` | `tic-web` routes |
 | `help.asktic.com/*` | `https://www.asktic.com/knowledge` | `tic-help-redirect` service |
 | `support.asktic.com/...` | — | not handled; Freshdesk keeps serving these |
 
-The last three were added on 2026-08-16 and are a deliberate exception to URL
+The last six were added on 2026-08-16 and are a deliberate exception to URL
 preservation: both paths were `preserved` and indexed until the homepage copy deck moved
 them. Each 301s to a topically equivalent page, which is what makes a redirect right here
 and wrong for the dropped Wix store URLs — see

@@ -1,5 +1,5 @@
 {
-  "$comment": "HARD CONSTRAINT. These paths are indexed and carry the site's only search equity. Every path in `preserved` must emit an artifact in out/ at build time; every path in `redirectOnly` must NOT. Enforced by `npm run verify:urls`. Do not rename, normalise or 'tidy' a slug here — /income-preservation-1 keeps its exact odd form on purpose.",
+  "$comment": "HARD CONSTRAINT. These paths are indexed and carry the site's only search equity. Every path in `preserved` must emit an artifact in out/ at build time; every path in `redirectOnly` must NOT. Enforced by `npm run verify:urls`. Do not rename, normalise or 'tidy' a slug here \u2014 /income-preservation-1 keeps its exact odd form on purpose.",
   "preserved": [
     {
       "path": "/",
@@ -16,10 +16,6 @@
     },
     {
       "path": "/employee-benefits",
-      "source": "wix"
-    },
-    {
-      "path": "/projects",
       "source": "wix"
     },
     {
@@ -82,11 +78,6 @@
       "note": "blog post"
     },
     {
-      "path": "/single-post/how-does-the-insurance-concierge-get-paid",
-      "source": "wix",
-      "note": "blog post"
-    },
-    {
       "path": "/single-post/when-should-i-start-my-policy-renewal-process",
       "source": "wix",
       "note": "blog post"
@@ -95,11 +86,6 @@
       "path": "/single-post/am-i-covered-for-dental-and-optical-treatment",
       "source": "wix",
       "note": "blog post"
-    },
-    {
-      "path": "/single-post/2018/04/30/travel-insurance-tips-i-wished-i-knew",
-      "source": "wix",
-      "note": "Wix date-segment path - preserved verbatim"
     },
     {
       "path": "/single-post/2018/05/06/with-health-insurance-is-major-illness-insurance-necessary",
@@ -141,10 +127,28 @@
       "destination": "/offshore-and-energy",
       "status": 301,
       "note": "Preserved until 2026-08-16. NOT redirected to /services. The marine and oil and gas specialty product was dropped but its audience was not, so the search equity follows the audience. /offshore-and-energy is a new page and deliberately not the old copy renamed - it must never imply a separate marine policy."
+    },
+    {
+      "path": "/projects",
+      "destination": "/services",
+      "status": 301,
+      "note": "Preserved until 2026-08-16, then retired on the owner's instruction. It was a Wix template page that never had original content; the rebuild filled it with a list of the cover pages, which is what /services now is. 301 rather than 404 because it was indexed and its destination says the same thing."
+    },
+    {
+      "path": "/single-post/how-does-the-insurance-concierge-get-paid",
+      "destination": "/knowledge",
+      "status": 301,
+      "note": "Preserved until 2026-08-16, then retired on the owner's instruction. 301 to the article index rather than 404: it was a real published article, so a reader arriving from search reaches the other answers instead of a dead end."
+    },
+    {
+      "path": "/single-post/2018/04/30/travel-insurance-tips-i-wished-i-knew",
+      "destination": "/knowledge",
+      "status": 301,
+      "note": "Preserved until 2026-08-16, then retired on the owner's instruction. The Wix /YYYY/MM/DD/ path form is kept verbatim because that is the indexed form. 301 to the article index, as above."
     }
   ],
   "pendingSitemapConfirmation": false,
-  "$pendingNote": "COMPLETE (2026-08-11), amended 2026-08-16. Every path in https://www.asktic.com/sitemap.xml is classified: 22 preserved, 25 dropped, 6 redirect-only = 53 entries covering the 50 sitemap URLs plus /knowledge, /forms, /services and /offshore-and-energy (new paths that are not in the Wix sitemap). The 2026-08-16 amendments moved /blog and /speciality-insurance from preserved to redirect-only and added their two destinations, then retired /income-preservation-1 the same way without a new destination, which is why preserved fell by one. This file is now authoritative. Rationale for each decision is in content/_inventory/STOP-REPORT.md.",
+  "$pendingNote": "COMPLETE (2026-08-11), amended 2026-08-16. Every path in https://www.asktic.com/sitemap.xml is classified: 19 preserved, 25 dropped, 9 redirect-only = 53 entries covering the 50 sitemap URLs plus /knowledge, /forms, /services and /offshore-and-energy (new paths that are not in the Wix sitemap). The 2026-08-16 amendments moved /blog and /speciality-insurance from preserved to redirect-only and added their two destinations, then retired /income-preservation-1 the same way without a new destination, which is why preserved fell by one. This file is now authoritative. Rationale for each decision is in content/_inventory/STOP-REPORT.md.",
   "dropped": {
     "$comment": "Indexed on the Wix site but DELIBERATELY NOT preserved (decision 2026-08-11). These are an explicit, signed-off exception to the URL-preservation constraint - not an oversight. They must emit no artifact; `npm run verify:urls` enforces that. Do not re-add them because they appear in the old sitemap.",
     "status": "404 (see note in STOP-REPORT.md on 410)",
