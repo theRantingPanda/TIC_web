@@ -7,8 +7,8 @@ section.
 **Current state: live.** The rebuild serves [www.asktic.com](https://www.asktic.com) from
 Render as of 2026-08-12. All three phases are complete; what remains is an editorial pass
 over the ported copy ([`port-worklist.md`](content/_inventory/port-worklist.md)) and the
-open DNS items ([`dns-cutover.md`](content/_inventory/dns-cutover.md)) — one of which,
-a damaged nameserver delegation, is live and worth reading now.
+open DNS items ([`dns-cutover.md`](content/_inventory/dns-cutover.md)) — chiefly a staged
+but not-yet-executed move of the zone from Wix to Vodien.
 
 ---
 
@@ -214,15 +214,16 @@ The full record — final zone state, what was removed and why, the rollback, an
 outstanding SPF/DMARC gap — is in
 [`content/_inventory/dns-cutover.md`](content/_inventory/dns-cutover.md).
 
-**Three things to know before editing this zone.** The Freshworks `_domainkey` and `fwdkim`
-records authenticate the mail Freshdesk sends on the firm's behalf — deleting them
-silently pushes ticket replies toward spam. SPF, DMARC and Google DKIM are now
-published after years without them, with only **2 of SPF's 10 DNS lookups spare** —
-cost any future "add our SPF include" request before adding it, because exceeding the
-limit fails SPF permanently rather than degrading. And **the zone is not edited at
-Vodien**, despite registration living there: Vodien's DNS panel holds an incomplete
-staged copy that is saved but not served, and its nameserver tab currently carries a
-broken delegation. Read the Vodien section of `dns-cutover.md` before opening either.
+**Three things to know before editing this zone.** Some Freshworks `_domainkey` records
+authenticate the mail Freshdesk sends on the firm's behalf and some belong to the dropped
+Freshworks suite — the names are indistinguishable and only the CNAME target tells them
+apart, so resolve before deleting; removing a live one silently pushes ticket replies
+toward spam. SPF, DMARC and Google DKIM are now published after years without them, with
+only **2 of SPF's 10 DNS lookups spare** — cost any future "add our SPF include" request
+before adding it, because exceeding the limit fails SPF permanently rather than degrading.
+And **the zone is still edited at Wix, not Vodien**: a complete copy is staged in Vodien's
+DNS panel but the delegation has not moved, so records saved there are not served. Read the
+Vodien section of `dns-cutover.md` before opening either.
 
 
 Two assumptions in that service could **not** be verified — `render.com` is blocked by
