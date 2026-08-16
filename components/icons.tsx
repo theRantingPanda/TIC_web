@@ -48,14 +48,21 @@ export function GlobeIcon(props: SVGProps<SVGSVGElement>) {
   )
 }
 
-/** Maternity and newborn. */
-export function BabyIcon(props: SVGProps<SVGSVGElement>) {
+/**
+ * Maternity and newborn.
+ *
+ * An hourglass rather than a baby, and that is the better icon for what this card
+ * actually argues: "waiting periods mean timing decides this one". The clock is the
+ * point, and a pram or a baby would say only "this card is about babies", which the
+ * heading already says.
+ */
+export function HourglassIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <Icon {...props}>
-      <path d="M9 12h.01" />
-      <path d="M15 12h.01" />
-      <path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5" />
-      <path d="M12 3a9 9 0 0 0-9 9 9 9 0 0 0 18 0 9 9 0 0 0-9-9Z" />
+      <path d="M5 2h14" />
+      <path d="M5 22h14" />
+      <path d="M7 2v4.2a2 2 0 0 0 .6 1.4L12 12l4.4-4.4a2 2 0 0 0 .6-1.4V2" />
+      <path d="M17 22v-4.2a2 2 0 0 0-.6-1.4L12 12l-4.4 4.4a2 2 0 0 0-.6 1.4V22" />
     </Icon>
   )
 }

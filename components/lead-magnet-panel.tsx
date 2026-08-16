@@ -41,14 +41,31 @@ export function LeadMagnetPanel({
 
         <div className="mt-6">
           {captureEnabled ? (
-            <CaptureForm
-              source={source}
-              list={list}
-              submitLabel={buttonLabel}
-              successMessage="On its way. Check your inbox in the next few minutes."
-            >
-              <EmailField id={`${source}-email`} label="Your email" />
-            </CaptureForm>
+            <>
+              <CaptureForm
+                source={source}
+                list={list}
+                submitLabel={buttonLabel}
+                successMessage="On its way. Check your inbox in the next few minutes."
+              >
+                <EmailField id={`${source}-email`} label="Your email" />
+              </CaptureForm>
+              {/*
+                The form posts from the browser, so with scripting off the button does
+                nothing. Section 10 already prints the address beside its form; this
+                gives these panels the same escape hatch rather than leaving a visitor
+                pressing a dead button.
+              */}
+              <noscript>
+                <p className="mt-3 text-base/7 text-ink-muted">
+                  Or email us at{' '}
+                  <a href={`mailto:${contactEmail}`} className="text-brand-blue">
+                    {contactEmail}
+                  </a>
+                  .
+                </p>
+              </noscript>
+            </>
           ) : (
             <p className="text-base/7 text-ink-muted">
               Email us at{' '}

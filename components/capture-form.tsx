@@ -32,17 +32,26 @@ export function CaptureForm({
   children,
   submitLabel,
   successMessage,
-  deriveList,
+  listRule,
   className = '',
 }: {
   source: CaptureSource
-  /** Fixed list for this form. Ignored when `deriveList` is given. */
+  /** The list this form writes to, unless `listRule` overrides it per submission. */
   list: CaptureList
   children: ReactNode
   submitLabel: string
   successMessage: string
-  /** For forms where the answer decides the list, such as "who needs cover". */
-  deriveList?: (data: FormData) => CaptureList
+  /**
+   * For a form where an answer decides the list, such as "who needs cover".
+   *
+   * A serializable descriptor rather than a callback, deliberately: this is a client
+   * component and its callers are server components, so a function prop crosses the
+   * boundary and React rejects it at render time. That failure only surfaces when the
+   * form actually renders, which is only when the webhook is configured — so a callback
+   * here would have passed every check on a machine with no env var set and broken in
+   * production.
+   */
+  listRule?: { field: string; corporateWhen: readonly string[] }
   className?: string
 }) {
   const [status, setStatus] = useState<CaptureStatus>('idle')
@@ -78,11 +87,13 @@ export function CaptureForm({
     setError(null)
 
     try {
-      await postCapture({
-        source,
-        list: deriveList ? deriveList(data) : list,
-        fields,
-      })
+      const resolvedList: CaptureList = listRule
+        ? listRule.corporateWhen.includes(String(data.get(listRule.field) ?? ''))
+          ? 'corporate'
+          : 'individual'
+        : list
+
+      await postCapture({ source, list: resolvedList, fields })
       // Carry the address to any later capture point on this page.
       if (capture && typeof fields.email === 'string') capture.setEmail(fields.email)
       setStatus('success')

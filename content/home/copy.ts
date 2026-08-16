@@ -301,12 +301,19 @@ export const s08TwoWaysIn = {
  * Write the leaving-a-company-scheme article and swap it back. The deck names it as one
  * of three knowledge base pieces section 04 feeds directly.
  *
+ * ⚠ The substitute must be one of the articles that names NO insurer. The deck's rule is
+ * "no insurer names in any public page copy or meta", and 4 of the 10 ported posts break
+ * it in their body copy — including the more natural substitute here, "Why has my
+ * renewal premium increased?", which lists the panel by name. Featuring it on the
+ * homepage would propagate that. The four are recorded in the build notes; cleaning them
+ * up is an editorial decision, not a homepage one.
+ *
  * Answers are each article's own `summary` frontmatter, never a rewrite.
  */
 export const s09Questions = {
   heading: 'What people ask us',
   slugs: [
-    'why-has-my-renewal-premium-increased',
+    'how-does-the-insurance-concierge-get-paid',
     'will-my-pre-existing-conditions-be-covered',
     'what-happens-if-my-claim-is-rejected',
   ],

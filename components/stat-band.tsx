@@ -26,9 +26,21 @@ export function StatBand({
   stats,
   intro,
   footnote,
+  figureSize = 'default',
 }: {
   stats: readonly Stat[]
   intro?: string
+  /**
+   * `compact` for figures that are a phrase rather than a number.
+   *
+   * The copy deck asks for the cost band to carry "same visual treatment as section 02",
+   * and it does — same rules, same layout, same component. But section 02's figures are
+   * `1,700+` and `39`, while the cost band's are `from USD 95 a month`. At the display
+   * size that suits a four-character number, a twenty-character phrase wraps to two
+   * lines and shouts. Same treatment means the same pattern, not the same type size for
+   * strings five times the length.
+   */
+  figureSize?: 'default' | 'compact'
   /**
    * Rendered under the band. On the cost band this carries the underwriting and
    * configuration disclosure, which is load-bearing: the figures are low precisely
@@ -47,18 +59,25 @@ export function StatBand({
       <Reveal>
         <dl className="flex flex-col rounded-(--radius-band) border border-border bg-surface-subtle md:flex-row">
           {stats.map((stat) => (
+            /*
+             * flex-col-reverse so the figure reads above its label while the DOM keeps
+             * <dt> before <dd>, which is what a description list requires. An earlier
+             * version had a visually-hidden <dt> duplicating a visible label span, so
+             * every figure was announced twice.
+             */
             <div
               key={stat.label}
-              className="flex-1 px-6 py-8 not-last:border-b not-last:border-border md:not-last:border-r md:not-last:border-b-0"
+              className="flex flex-1 flex-col-reverse gap-2 px-6 py-8 not-last:border-b not-last:border-border md:not-last:border-r md:not-last:border-b-0"
             >
-              <dt className="sr-only">{stat.label}</dt>
-              <dd>
-                <span className="text-display-md lg:text-display-lg block font-semibold text-ink">
-                  {stat.figure}
-                </span>
-                <span className="text-eyebrow mt-2 block uppercase text-ink-muted">
-                  {stat.label}
-                </span>
+              <dt className="text-eyebrow uppercase text-ink-muted">{stat.label}</dt>
+              <dd
+                className={`font-semibold text-ink ${
+                  figureSize === 'compact'
+                    ? 'text-display-xs sm:text-display-sm'
+                    : 'text-display-md lg:text-display-lg'
+                }`}
+              >
+                {stat.figure}
               </dd>
             </div>
           ))}

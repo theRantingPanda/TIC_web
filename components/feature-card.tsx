@@ -32,6 +32,14 @@ export function FeatureCard({
             className="text-sm font-medium text-brand-blue no-underline hover:text-brand-blue-700"
           >
             {link.label}
+            {/*
+              Two cards use the label "How this works" and go to different pages. Anyone
+              listing a page's links hears the accessible name alone, so without this
+              they are indistinguishable. Appended rather than replaced via aria-label,
+              so the accessible name still starts with the visible text and voice control
+              ("click How this works") keeps working.
+            */}
+            <span className="sr-only"> about {title.toLowerCase()}</span>
             <span aria-hidden="true"> &rarr;</span>
           </Link>
         </p>
