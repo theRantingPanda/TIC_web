@@ -113,11 +113,30 @@ All three verified live against two independent resolvers:
   single TXT string, and a panel that truncates it produces a record that looks saved and
   fails every check. Wix assembled it correctly.
 
+### Confirmed working on a real message, 2026-08-16
+
+DNS proves a key is published; only a delivered message proves it is being used. A test
+from `steven@asktic.com` to an external Gmail account returned:
+
+```
+dkim=pass    header.i=@asktic.com   header.s=google
+spf=pass     smtp.mailfrom=steven@asktic.com
+dmarc=pass   header.from=asktic.com
+```
+
+with `DKIM-Signature: d=asktic.com; s=google` — Gmail signing with the published key
+rather than a Google-owned fallback domain.
+
+**SPF and DKIM align independently**, which matters more than the three passes suggest:
+SPF breaks when a message is forwarded and DKIM survives it. Client mail forwarded inside
+a corporate system previously had nothing to validate against; now the signature travels
+with the message. That was likely a real part of the intermittent spam filing.
+
 ### Two things that are easy to get wrong here
 
 **Publishing the DKIM record does not enable signing.** Google Workspace requires
-*Start authentication* in the admin console afterwards. The key otherwise sits in DNS
-unused.
+*Start authentication* in the admin console afterwards — done 2026-08-16 and confirmed
+above. The key otherwise sits in DNS unused.
 
 **Only 2 SPF lookups of headroom remain.** `_spf.google.com` costs 1;
 `email.freshdesk.com` costs 7, because it nests `sendgrid.net`, `ab.sendgrid.net` and
