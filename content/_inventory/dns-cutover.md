@@ -197,19 +197,45 @@ Not to be confused with the earlier
 [confirmation on a real message](#confirmed-working-on-a-real-message-2026-08-16) — same
 date, but that one predates the nameserver move and was validated against Wix.
 
+### The Freshdesk path passes — but not the way this file assumed
+
+A Freshdesk-originated message from `hello@asktic.com` (ticket 49294, `X-FD-Type:
+forward_thread_message`) also returned `dkim=pass`, `spf=pass`, `dmarc=pass`. Both mail
+paths are therefore authenticated after the move.
+
+The route is the surprise:
+
+```
+Received: from mail-us1.freshemail.io (34.198.193.174) by smtp.gmail.com with ESMTPSA
+DKIM-Signature: d=asktic.com; s=google
+```
+
+**Freshdesk relayed the message through Google Workspace by authenticated submission, and
+it was signed with the `google` selector — not a `freshemail.io` one.** On this path the
+four Freshdesk `_domainkey` CNAMEs are never consulted, and neither is
+`include:email.freshdesk.com`, which costs 6 of the record's 7 SPF lookups.
+
+That raises a real question — whether the Freshdesk include and its DKIM CNAMEs are load
+bearing at all — but **one forwarded message is not enough to answer it.** Freshdesk may
+route replies, notifications and forwards differently, and dropping the include while some
+message type still sends direct would break SPF for exactly the mail nobody tests. Leave
+the zone alone until the DMARC reports settle it.
+
 ### Still open after the move
 
-1. **The Freshdesk sending path is not yet proven.** The test above exercises Google
-   Workspace only. Ticket replies are signed with the `freshemail.io` keys, a different
-   chain with its own four CNAMEs, and nothing has verified one since the move. Trigger a
-   reply to an external address and check its headers before treating mail as fully
-   covered.
-2. **Do not cancel the Wix subscription** until that is done. The Wix zone is the rollback,
-   and it is the only remaining copy of the records that were dropped.
+1. **Read a week of DMARC aggregate reports** before changing anything. They enumerate every
+   sending source and which checks it passed, which is the only way to establish whether
+   anything still sends direct from Freshdesk. If nothing does, `include:email.freshdesk.com`
+   and the four `freshemail.io` CNAMEs can go, taking SPF from 7 lookups to 1.
+2. **Do not cancel the Wix subscription** until that is settled. The Wix zone is the
+   rollback, and the only remaining copy of the records that were dropped.
 3. **Raise the TTL** from `300` once the zone has been stable for a day or two.
+4. **Route `dmarc@asktic.com` out of the support queue.** The reports are arriving as
+   Freshdesk tickets — 49294 is one. Every reporting provider sends daily, so this fills the
+   queue with mail no agent should be triaging.
 
-Done: the Google Workspace test message, and removal of the `asktic.com` → `216.24.57.1`
-Host Record.
+Done: test messages on both sending paths, and removal of the `asktic.com` →
+`216.24.57.1` Host Record.
 
 ---
 
@@ -272,8 +298,9 @@ google._domainkey.asktic.com  TXT   v=DKIM1; k=rsa; p=…   (2048-bit)
 All three verified live against two independent resolvers:
 
 - **SPF** — exactly one record (two would be a permerror), every nested include resolves,
-  and **8 of the permitted 10 DNS lookups** consumed. Counted by walking the chain, not
-  estimated.
+  and **7 of the permitted 10 DNS lookups** consumed. Counted by walking the chain, not
+  estimated. (Recounted 2026-08-16 after the Vodien move; an earlier pass here recorded 8,
+  which was one too many.)
 - **DMARC** — `p=none`, so it enforces nothing and only collects reports. Deliberate:
   the sender list was an assumption, and tightening before the reports confirm it is how
   legitimate mail starts getting rejected.
@@ -307,11 +334,22 @@ with the message. That was likely a real part of the intermittent spam filing.
 *Start authentication* in the admin console afterwards — done 2026-08-16 and confirmed
 above. The key otherwise sits in DNS unused.
 
-**Only 2 SPF lookups of headroom remain.** `_spf.google.com` costs 1;
-`email.freshdesk.com` costs 7, because it nests `sendgrid.net`, `ab.sendgrid.net` and
-four regional Freshdesk ranges. Any future "just add our SPF include" request must be
-costed first — the Freshworks chain alone would need 7 and take the record over the
-limit. Exceeding 10 does not degrade gracefully; SPF fails permanently for every message.
+**Only 3 SPF lookups of headroom remain.** Walked and counted 2026-08-16:
+
+```
+asktic.com                        7 / 10
+├── include:_spf.google.com       1   (no nested includes)
+└── include:email.freshdesk.com   6
+    ├── include:sendgrid.net
+    ├── include:fdspfus.freshemail.io
+    ├── include:fdspfeuc.freshemail.io
+    ├── include:fdspfind.freshemail.io
+    └── include:fdspfaus.freshemail.io
+```
+
+Almost the whole budget is the Freshdesk include and its four regional ranges. Any future
+"just add our SPF include" request must be costed against the chain first. Exceeding 10
+does not degrade gracefully; SPF fails permanently for every message.
 
 ### What to expect
 
@@ -357,10 +395,13 @@ naming makes that easy to do by accident.
 
 ### Post-cutover follow-ups
 
-The DNS move to Vodien is done, verified against three resolvers, and confirmed on a
-delivered message. What remains: proving the **Freshdesk** sending path, which the Google
-Workspace test does not cover; holding the Wix subscription until it is proven; and raising
-the TTL off `300`. See [Still open after the move](#still-open-after-the-move).
+The DNS move to Vodien is done, verified against three resolvers, and confirmed on delivered
+messages over both sending paths. What remains is a question the move surfaced rather than
+caused: Freshdesk relays through Google Workspace and signs with the `google` selector, so
+`include:email.freshdesk.com` — 6 of the record's 7 SPF lookups — may authorise nothing. A
+week of DMARC reports settles it. Also outstanding: holding the Wix rollback until then,
+raising the TTL off `300`, and getting `dmarc@asktic.com` out of the support queue. See
+[Still open after the move](#still-open-after-the-move).
 
 ### The apex does not redirect to www
 

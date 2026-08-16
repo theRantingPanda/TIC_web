@@ -219,7 +219,7 @@ authenticate the mail Freshdesk sends on the firm's behalf and some belong to th
 Freshworks suite — the names are indistinguishable and only the CNAME target tells them
 apart, so resolve before deleting; removing a live one silently pushes ticket replies
 toward spam. SPF, DMARC and Google DKIM are now published after years without them, with
-only **2 of SPF's 10 DNS lookups spare** — cost any future "add our SPF include" request
+only **3 of SPF's 10 DNS lookups spare** — cost any future "add our SPF include" request
 before adding it, because exceeding the limit fails SPF permanently rather than degrading.
 And **the zone now lives at Vodien**, moved 2026-08-16 and verified against three
 resolvers — Wix no longer serves it, though the old zone is kept as the rollback until a
