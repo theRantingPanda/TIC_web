@@ -59,10 +59,6 @@ export default function Page() {
         not here,{' '}
         <a href={`mailto:${contact.email}`} className="text-brand-blue">
           email us
-        </a>{' '}
-        or call{' '}
-        <a href={`tel:${contact.phone.replace(/\s/g, '')}`} className="text-brand-blue">
-          {contact.phone}
         </a>
         .
       </p>

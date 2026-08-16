@@ -6,7 +6,12 @@
 #
 #   branch          main          autoDeploy    yes, on commit
 #   buildCommand    npm run build publishPath   out
-#   env vars        none          routes        the three redirects below
+#   env vars        none          routes        the five redirects below
+#
+# ⚠ ACTION REQUIRED (2026-08-16): the /blog and /speciality-insurance redirects added
+# below are NOT yet on the service. Add them in the dashboard, or those two indexed
+# paths 404 in production the moment this branch deploys — their page files have been
+# deleted. Nothing in the build can catch this; see the paragraph below.
 #
 # The redirects were MISSING from the service until 2026-08-12 — they existed only in
 # this file, so /home-1, /file-access and /file returned 404 on the live site instead of
@@ -106,6 +111,25 @@ services:
       - type: redirect
         source: /file
         destination: /forms
+
+      # ---- Copy-deck path changes, 2026-08-16 ----
+      # These two are a deliberate, signed-off exception to URL preservation: both were
+      # `preserved` and indexed until the homepage copy deck moved them. Each 301s to a
+      # topically equivalent page, which is why a redirect is right here and was wrong
+      # for the dropped Wix store URLs (see content/_inventory/url-decisions.md — a 301
+      # to unrelated content is a soft-404 pattern).
+      #
+      # /blog served the Services landing page, not a blog index. Its 12 posts live at
+      # /single-post/... and are untouched.
+      - type: redirect
+        source: /blog
+        destination: /services
+
+      # NOT to /services. The marine and oil and gas specialty product was dropped but
+      # its audience was not, so the search equity follows the audience.
+      - type: redirect
+        source: /speciality-insurance
+        destination: /offshore-and-energy
 
       # BEGIN GENERATED freshdesk-article-map
       # (empty until `npm run ingest:freshdesk` has run)

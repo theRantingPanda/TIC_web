@@ -161,8 +161,18 @@ Change one and you must change both. This is not pedantry: the redirects existed
 | `/home-1` | `/` | `tic-web` routes |
 | `/file-access` | `/forms` | `tic-web` routes |
 | `/file` | `/forms` | `tic-web` routes |
+| `/blog` | `/services` | `tic-web` routes |
+| `/speciality-insurance` | `/offshore-and-energy` | `tic-web` routes |
 | `help.asktic.com/*` | `https://www.asktic.com/knowledge` | `tic-help-redirect` service |
 | `support.asktic.com/...` | — | not handled; Freshdesk keeps serving these |
+
+The last two were added on 2026-08-16 and are a deliberate exception to URL
+preservation: both paths were `preserved` and indexed until the homepage copy deck moved
+them. Each 301s to a topically equivalent page, which is what makes a redirect right here
+and wrong for the dropped Wix store URLs — see
+[`url-decisions.md`](content/_inventory/url-decisions.md) on the soft-404 pattern.
+`/speciality-insurance` deliberately does **not** go to `/services`: the specialty
+product was dropped, its audience was not, so the equity follows the audience.
 
 #### Why `help.asktic.com` gets its own service
 
@@ -305,7 +315,7 @@ each is assembled from material the site already publishes:
 
 | Page | Why | What it shows |
 | --- | --- | --- |
-| `/blog` | Client-rendered on Wix; never captured. It is the **Services** landing page, not a blog index. | The five service pages, plus the 12 posts — which also gives the posts an index, since the Wix category pages were dropped. |
+| `/services` | Client-rendered on Wix at `/blog`; never captured. That path was the **Services** landing page, not a blog index, and it now 301s here. | The cover pages, plus the 12 posts — which also gives the posts an index, since the Wix category pages were dropped. |
 | `/maternity-insurance` | Client-rendered on Wix; never captured. | The firm's own maternity and newborn cards from the homepage, plus the maternity-related posts. |
 | `/knowledge` | New path. `content/kb/` is empty and stays empty — KB copy is being written by hand, not ported from Freshdesk. | The posts, and a link to the live help centre at `support.asktic.com`, which Freshdesk still serves. |
 | `/forms` | New path. The Wix `/file-access` original was an unconfigured template. | `public/forms/manifest.json`, which is empty — so an empty state that invites contact rather than a blank list. |
@@ -320,7 +330,7 @@ Two shapes, chosen by what the page is rather than by preference:
 | Page is… | Lives in | Example |
 | --- | --- | --- |
 | a document — prose, headings, lists | `content/pages/*.mdx`, rendered by its route | `/privacy` |
-| a layout — cards, grids, image groups | the route component itself | `/speciality-insurance` |
+| a layout — cards, grids, image groups | the route component itself | `/international-health-insurance` |
 
 `npm run port:page -- /privacy` converts a capture to the first form. The rule of thumb:
 if the structure is in the words, use MDX; if it is in the markup, use the component.

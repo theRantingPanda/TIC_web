@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { flatNav, primaryNav } from '@/lib/site'
+import { ctaLink, flatNav, primaryNav } from '@/lib/site'
 
 /**
  * Primary navigation, mirroring the live Wix nav: top-level entries, two of which
@@ -36,6 +36,18 @@ export function SiteNav() {
               </Link>
             </li>
           ))}
+          {/*
+            The header's CTA button is hidden below md, so it lives here instead. It is
+            not part of flatNav because it is not a nav destination.
+          */}
+          <li className="mt-1 border-t border-border pt-1">
+            <Link
+              href={ctaLink.href}
+              className="block px-4 py-2 text-sm font-medium text-brand-green-700 no-underline hover:bg-brand-green-50"
+            >
+              {ctaLink.label}
+            </Link>
+          </li>
         </ul>
       </details>
 

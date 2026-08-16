@@ -6,14 +6,19 @@ import { Container } from '@/components/container'
  * Ported from the Wix capture
  * (content/_inventory/pages/international-health-insurance.json).
  *
- * Copy is verbatim, including the things the port worklist flags: the stray "COVID-19"
- * label, the heading case of "pRE-EXISTING CONDITIONS", the grammar in "Continuous
- * cover even you relocate", and the "INDICATIVE COST FOR A 30 YEAR OLD" heading that
- * has nothing beneath it. Those are Steven's to revise; reproducing them keeps the port
- * predictable and the diff honest.
+ * Copy is verbatim, including the things the port worklist flags: the heading case of
+ * "pRE-EXISTING CONDITIONS", the grammar in "Continuous cover even you relocate", and
+ * the "INDICATIVE COST FOR A 30 YEAR OLD" heading that has nothing beneath it. Those are
+ * Steven's to revise; reproducing them keeps the port predictable and the diff honest.
+ *
+ * One exception, 2026-08-16: the stray "COVID-19" eyebrow between the h1 and the lede
+ * has been removed. It labelled nothing — there was no COVID section beneath it — and
+ * the homepage copy deck's build checklist requires COVID-19 references gone sitewide.
+ * An orphan label is a defect rather than copy, so removing it is not a revision.
  *
  * The hero is the original's COVID mouth-swab stock photo, and it is small (999x667) —
- * it is the one image on the site Wix never served at a larger size.
+ * it is the one image on the site Wix never served at a larger size. Worth replacing
+ * when photography is sourced; it dates the page.
  */
 export const metadata: Metadata = {
   title: 'International Private Health Insurance',
@@ -72,9 +77,6 @@ export default function Page() {
       <h1 className="mt-10 max-w-3xl text-4xl font-semibold tracking-tight text-ink sm:text-5xl">
         International Private Health Insurance
       </h1>
-      <p className="mt-3 text-sm font-medium uppercase tracking-wider text-ink-muted">
-        COVID-19
-      </p>
       <p className="mt-4 max-w-2xl text-lg text-ink-muted">
         Hedge the risk of hefty treatment bills wherever you go.
       </p>

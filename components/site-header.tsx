@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Container } from '@/components/container'
 import { SiteNav } from '@/components/site-nav'
-import { siteConfig } from '@/lib/site'
+import { ctaLink, siteConfig } from '@/lib/site'
 
 export function SiteHeader() {
   return (
@@ -24,7 +24,19 @@ export function SiteHeader() {
             {siteConfig.shortName}
           </span>
         </Link>
-        <SiteNav />
+        <div className="flex items-center gap-2">
+          <SiteNav />
+          {/*
+            Hidden below md because the small-screen disclosure in SiteNav carries it as
+            its last entry — two CTAs on a 375px header is one too many.
+          */}
+          <Link
+            href={ctaLink.href}
+            className="hidden rounded-md bg-brand-green px-4 py-2 text-sm font-medium text-white no-underline hover:bg-brand-green-700 md:inline-block"
+          >
+            {ctaLink.label}
+          </Link>
+        </div>
       </Container>
     </header>
   )

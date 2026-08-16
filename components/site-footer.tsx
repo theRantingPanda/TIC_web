@@ -19,14 +19,12 @@ export function SiteFooter() {
               >
                 {contact.email}
               </a>
-              <br />
-              <a
-                href={`tel:${contact.phone.replace(/\s/g, '')}`}
-                className="text-ink no-underline hover:text-brand-blue"
-              >
-                {contact.phone}
-              </a>
             </p>
+            {/*
+              Moved out of the hero on 2026-08-16 per the copy deck. It belongs here or
+              in social bios, not above the fold where it competes with the subhead.
+            */}
+            <p className="mt-2 text-sm text-ink-muted">#askTheInsuranceConcierge</p>
             <ul className="mt-3 flex gap-4">
               {contact.social.map((item) => (
                 <li key={item.href}>

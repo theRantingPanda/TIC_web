@@ -19,18 +19,9 @@
       "source": "wix"
     },
     {
-      "path": "/speciality-insurance",
-      "source": "wix",
-      "note": "spelling matches live site"
-    },
-    {
       "path": "/income-preservation-1",
       "source": "wix",
-      "note": "trailing -1 is intentional and indexed"
-    },
-    {
-      "path": "/blog",
-      "source": "wix"
+      "note": "trailing -1 is intentional and indexed. Live but unlinked from 2026-08-16: the copy deck takes it off the homepage grid and out of the footer, leaving it reachable by search only. Preserved paths must emit, never be linked, so this is a legitimate state."
     },
     {
       "path": "/projects",
@@ -137,10 +128,22 @@
       "destination": "/forms",
       "status": 301,
       "note": "Old file-access page (confirmed 2026-08-11) - same destination as /file-access"
+    },
+    {
+      "path": "/blog",
+      "destination": "/services",
+      "status": 301,
+      "note": "Preserved until 2026-08-16. The Wix path served the Services landing page rather than a blog index, which is why its live title was 'Resource | The Insurance Concierge'. The homepage copy deck moves Services to /services, so the equity 301s across to a topically identical page. The 12 posts it linked live at /single-post/... and are unaffected."
+    },
+    {
+      "path": "/speciality-insurance",
+      "destination": "/offshore-and-energy",
+      "status": 301,
+      "note": "Preserved until 2026-08-16. NOT redirected to /services. The marine and oil and gas specialty product was dropped but its audience was not, so the search equity follows the audience. /offshore-and-energy is a new page and deliberately not the old copy renamed - it must never imply a separate marine policy."
     }
   ],
   "pendingSitemapConfirmation": false,
-  "$pendingNote": "COMPLETE (2026-08-11). Every path in https://www.asktic.com/sitemap.xml is classified: 23 preserved, 25 dropped, 3 redirect-only = 51 entries covering the 50 sitemap URLs plus /knowledge and /forms (new paths that are not in the Wix sitemap). This file is now authoritative. Rationale for each decision is in content/_inventory/STOP-REPORT.md.",
+  "$pendingNote": "COMPLETE (2026-08-11), amended 2026-08-16. Every path in https://www.asktic.com/sitemap.xml is classified: 23 preserved, 25 dropped, 5 redirect-only = 53 entries covering the 50 sitemap URLs plus /knowledge, /forms, /services and /offshore-and-energy (new paths that are not in the Wix sitemap). The 2026-08-16 amendment moved /blog and /speciality-insurance from preserved to redirect-only and added their two destinations, so the preserved count is unchanged. This file is now authoritative. Rationale for each decision is in content/_inventory/STOP-REPORT.md.",
   "dropped": {
     "$comment": "Indexed on the Wix site but DELIBERATELY NOT preserved (decision 2026-08-11). These are an explicit, signed-off exception to the URL-preservation constraint - not an oversight. They must emit no artifact; `npm run verify:urls` enforces that. Do not re-add them because they appear in the old sitemap.",
     "status": "404 (see note in STOP-REPORT.md on 410)",
@@ -171,7 +174,7 @@
         ]
       },
       {
-        "reason": "Wix-generated blog category index pages. Thin taxonomy pages with no original content; the posts they list are preserved individually and /blog itself is preserved. Note /blog appeared in the same child sitemap but is NOT dropped.",
+        "reason": "Wix-generated blog category index pages. Thin taxonomy pages with no original content; the posts they list are preserved individually. Note /blog appeared in the same child sitemap but is NOT dropped - since 2026-08-16 it is redirect-only, 301ing to /services.",
         "paths": [
           "/blog/categories/renewals",
           "/blog/categories/travel-insurance",

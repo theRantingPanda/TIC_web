@@ -146,6 +146,12 @@ const navHrefs = [...siteSource.matchAll(/href:\s*'([^']+)'/g)]
   // profiles, mailto:) have no entry and never will — checking them would force every
   // external link to be added to the contract as a fiction.
   .filter((href) => href.startsWith('/'))
+  // An in-page anchor resolves to the page it hangs off, and it is that page the
+  // contract governs. `/#talk-to-us` is the header's CTA, which scrolls to the enquiry
+  // form on the homepage; it must check as `/`. Without this the guard would reject
+  // every anchor link and the only way to ship one would be to move it out of this
+  // file, which is exactly where it should not go.
+  .map((href) => href.split('#')[0] || '/')
 for (const href of new Set(navHrefs)) {
   if (preservedSet.has(href)) {
     console.log(`  ✓ ${href}`)

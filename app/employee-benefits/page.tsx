@@ -83,13 +83,6 @@ export default function Page() {
           <a href={`mailto:${contact.email}`} className="text-brand-blue no-underline">
             {contact.email}
           </a>
-          {' · '}
-          <a
-            href={`tel:${contact.phone.replace(/\s/g, '')}`}
-            className="text-brand-blue no-underline"
-          >
-            {contact.phone}
-          </a>
         </p>
 
       </section>
