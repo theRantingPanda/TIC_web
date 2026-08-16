@@ -230,8 +230,9 @@ the zone alone until the DMARC reports settle it.
 2. **Do not cancel the Wix subscription** until that is settled. The Wix zone is the
    rollback, and the only remaining copy of the records that were dropped.
 3. **Raise the TTL** from `300` once the zone has been stable for a day or two.
-4. **Confirm the `dmarc@` filter held.** Contained 2026-08-16 with a Gmail filter; the next
-   daily report is the test, and the existing tickets still need closing. See below.
+4. ~~Route `dmarc@` out of the support queue.~~ Settled 2026-08-16: Gmail filter in place,
+   anything that leaks gets marked spam in Freshdesk. Reports remain readable under the
+   `DMARC` label.
 
 Done: test messages on both sending paths, and removal of the `asktic.com` →
 `216.24.57.1` Host Record.
@@ -263,12 +264,18 @@ set to skip the inbox and apply a `DMARC` label. Freshdesk ingests from the inbo
 takes the reports out of its reach while leaving them readable and searchable in Gmail. It
 is one click to undo, which the alternatives below are not.
 
-**It is unverified** — the next report is the test, and if a ticket still opens, Freshdesk
-is reading more than the inbox and the filter cannot help.
+**Settled 2026-08-16: the filter stays as written, and anything that leaks through is
+marked as spam in Freshdesk.** That is enough — spam-marking clears the ticket and its SLA
+clock, and it does not touch Gmail, so the reports stay readable under the `DMARC` label
+either way. The rest of this section is reference, not work outstanding.
 
-**Widening it needs care, because Gmail ANDs the filter fields.** `to:` matches the header
-only, so a reporter addressing `dmarc@` by envelope or Bcc slips past. But adding a second
-condition in *Has the words* while *To* is still populated ANDs the two and matches
+The filter is unverified in the sense that the next report is its first real test. If a
+ticket opens anyway, Freshdesk is reading beyond the inbox; spam-marking covers that case
+without further change.
+
+**If it ever needs widening, note that Gmail ANDs the filter fields.** `to:` matches the
+header only, so a reporter addressing `dmarc@` by envelope or Bcc slips past. But adding a
+second condition in *Has the words* while *To* is still populated ANDs the two and matches
 strictly fewer messages — the opposite of the intent. Put the whole condition in *Has the
 words* as an explicit OR and leave every other field empty:
 
