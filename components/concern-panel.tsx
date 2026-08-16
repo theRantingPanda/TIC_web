@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { CtaButton } from '@/components/cta-button'
+import { ImageIcon } from '@/components/icons'
 import type { Concern } from '@/content/concerns'
 
 /**
@@ -64,15 +65,31 @@ export function ConcernPanel({
         />
       ) : (
         /*
-          Deliberately NOT the 16:7 the real photograph gets. Reserving a photo's height
-          for a note leaves half a screen of empty tint above copy that is finished and
-          ready to read, which makes the panel look broken rather than unfinished. A
-          brief is a line of production instruction, so it takes a line's worth of room.
-          The real image takes the full ratio when it arrives.
+          A holding frame at the real image's 16:7, so the panel is laid out now exactly
+          as it will be once the photograph lands and nothing shifts when it does.
+
+          It has to read as DELIBERATELY EMPTY rather than broken, which is the whole
+          design problem here: an untreated tinted block at this height just looks like a
+          failed image. So it carries the hatch, the label and the brief itself. Anyone
+          looking at the page can see both that a photograph is coming and what it is
+          meant to be, which is also the fastest way to get the right one commissioned.
+
+          The hatch is a CSS gradient rather than an asset: a placeholder that costs a
+          network request is a placeholder that outstays its welcome.
         */
-        <p className={`border-b border-border px-6 py-3 text-eyebrow text-ink-muted ${tint}`}>
-          {concern.image.brief}
-        </p>
+        <div
+          className={`relative flex aspect-16/7 items-center justify-center border-b border-border px-6 ${tint}`}
+        >
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 opacity-40 [background-image:repeating-linear-gradient(135deg,transparent,transparent_7px,var(--color-border)_7px,var(--color-border)_8px)]"
+          />
+          <div className="relative max-w-md text-center">
+            <ImageIcon className="mx-auto h-7 w-7 text-ink-muted" />
+            <p className="mt-3 text-eyebrow uppercase text-ink-muted">Photograph to come</p>
+            <p className="mt-2 text-sm text-ink-muted">{concern.image.brief}</p>
+          </div>
+        </div>
       )}
 
       <div className="p-6 sm:p-10 lg:p-12">

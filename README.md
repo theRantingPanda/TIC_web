@@ -22,7 +22,7 @@ editorial pass over the ported copy
 | **1 — Capture** | Wix: **done** — 21 pages and 18 images archived; 2 pages could not be captured (below). Freshdesk: **stopped by decision** — content is stale and will be supplied by hand; folder inventory kept. See [`content/_inventory/_capture-status.md`](content/_inventory/_capture-status.md). |
 | **2 — Scaffold** | Complete. Builds, exports, and passes the URL-contract check. |
 | **3 — Port content** | **Complete.** Every preserved path renders real content; no stubs remain. |
-| **4 — Concern flow** | **Complete, pending content.** Homepage rebuilt as five moves; eight concerns, each a real indexable page from one shared source; palette and type re-derived from the logo. Seven case studies and five lead images are still placeholders. |
+| **4 — Concern flow** | **Complete, pending content.** Homepage rebuilt as five moves; nine concerns, each a real indexable page from one shared source; palette and type re-derived from the logo. Eight case studies and five lead images are still placeholders. |
 
 ### Phase 1: what came back
 
@@ -31,6 +31,21 @@ npm run capture:site        # sitemap -> content/_inventory/pages/
 npm run capture:assets      # wixstatic images -> public/images/
 npm run capture:render      # client-rendered pages, via headless Chromium
 ```
+
+⚠ **An image added by hand bypasses all of this.** `capture:assets` asks wixstatic for a
+2000px rendition and never sees the original, but a file dropped straight into
+`public/images` is served exactly as committed — `images.unoptimized` is mandatory under
+static export, so the committed file *is* the download. A 7030x3787 / 11.3 MB photograph
+reached the repository that way on 2026-08-16. Run it through the resize first:
+
+```bash
+npm run resize:image -- public/images/Whatever.jpg     # -> 2000px wide, ~0.2 MB
+npm run resize:image -- public/images/Whatever.png     # -> writes .jpg beside it
+```
+
+It uses the Chromium that Playwright already ships for the capture scripts, since there is
+no ImageMagick or sharp here. A `.jpg` source is overwritten in place; anything else
+leaves the original for you to `git rm`.
 
 `capture:site` is scoped to `url-contract.json` → `preserved` with `source: 'wix'`, and
 halts if the live sitemap contains a path the contract does not classify.
@@ -113,6 +128,11 @@ npm run verify:urls    # assert the URL contract against out/
 npm start              # serve out/ locally
 npm run typecheck
 npm run lint
+npm run verify        # verify:urls + verify:copy, both against out/
+```
+
+```bash
+npm run resize:image -- public/images/Whatever.jpg   # before committing any photograph
 ```
 
 ---
@@ -355,11 +375,17 @@ The port is mechanical: it reproduces the Wix copy, defects and all. See
 ### The homepage is a flow, not a page of sections
 
 Rebuilt 2026-08-16. Five moves, each earned by the visitor's previous action: sparse hero
-→ four trust stats → **one binary choice** (myself/family, or my company) → four concern
+→ four trust stats → **one binary choice** (myself/family, or my company) → the concern
 cards for that path → the drill-down panel. Nothing else. The deletions are the point —
 no About section, no logo wall, no testimonial carousel, no second CTA.
 
-Each of the eight concerns is a **real indexable page**, and `content/concerns/index.ts`
+There are **nine concerns**: five on the individual path, four on the company path. An
+odd-numbered grid leaves one card alone on its last row, so the last card spans both
+columns and reads as a deliberate closer. That rule is `spansFullWidth` in the content
+module rather than a class on one card, so the next odd grid is not solved a different
+way.
+
+Each concern is a **real indexable page**, and `content/concerns/index.ts`
 is the single source both surfaces read: the homepage reveals a concern's panel inline,
 and the concern's own route renders the identical panel with its own metadata. Neither
 can drift from the other.
@@ -402,17 +428,18 @@ each is assembled from material the site already publishes:
 
 Nothing below is invented, but nothing below is finished either:
 
-- **Seven of the eight case studies.** Each renders bracketed and visibly unfinished, with
+- **Eight of the nine case studies.** Each renders bracketed and visibly unfinished, with
   a brief describing what a real one needs. A case does **not** have to end in a win —
   "we recommended staying put" is often the more credible story. The one real case is
   anonymised and permission-cleared (both the family's and the employer's) and sits on
   `/beyond-employer-cover`, because that panel's argument is a company scheme's ceiling
   and the case is that ceiling being exceeded by S$53,000. Do not restate it elsewhere.
-- **Five of the eight lead images.** Real photography is in place for maternity, the
-  newborn section and offshore. The rest render their photography brief instead of
-  reserving a photo's height. A licensed image has been chosen for
-  `/pre-existing-conditions` and needs saving to `public/images/`; see the note on that
-  concern.
+- **Five of the nine lead images.** Real photography is in place for maternity (plus the
+  newborn section), relocating, pre-existing conditions and offshore. The other five
+  render a holding frame at the real image's 16:7 with the photography brief in it, so the
+  layout is already what it will be when the photograph lands and nothing shifts when it
+  does. Do not fill these with stock — the generic "Team Meeting" shot was flagged as a
+  weakness on the page this replaces.
 - **Figures on every concern except relocating.** See below.
 - **The trust stats**, which are published on the live site but were queried against
   `tic_crm_dev` rather than production. The outstanding checks are listed in

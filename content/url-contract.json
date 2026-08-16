@@ -135,6 +135,11 @@
       "path": "/first-company-scheme",
       "source": "new",
       "note": "Added 2026-08-16 with the homepage concern flow. Each concern the homepage offers is a real indexable page rather than in-page state, matching how /maternity-insurance and /offshore-and-energy already work — those two are concern pages as well and keep their existing paths rather than being duplicated. Concern page: \"Setting up benefits for the first time\" on the company path."
+    },
+    {
+      "path": "/leaving-singapore",
+      "source": "new",
+      "note": "Added 2026-08-16 by addendum 1 to the homepage flow handoff. Concern page: \"Leaving Singapore\", the fifth card on the individual path. Deliberately separate from /relocating-to-singapore: arriving and leaving are different questions with different answers, and bundling them would make the visitor read further just to find out which half applies."
     }
   ],
   "redirectOnly": [

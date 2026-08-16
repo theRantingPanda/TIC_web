@@ -113,6 +113,23 @@ export function PersonIcon(props: SVGProps<SVGSVGElement>) {
   )
 }
 
+/**
+ * The mark on a drill-down's photography placeholder.
+ *
+ * Only ever appears where a real photograph has not been shot yet. When the last brief is
+ * replaced this icon has no call sites left, and that is the signal to delete it rather
+ * than to find it a new job.
+ */
+export function ImageIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <circle cx="9" cy="9" r="1.5" />
+      <path d="m21 15-4.5-4.5L7 21" />
+    </Icon>
+  )
+}
+
 /** Disclosure affordance for the FAQ. Rotated by CSS on [open]. */
 export function ChevronDownIcon(props: SVGProps<SVGSVGElement>) {
   return (

@@ -3,7 +3,7 @@ import { ConcernPanel } from '@/components/concern-panel'
 import { Container } from '@/components/container'
 import { HomeFlow } from '@/components/home-flow'
 import { BuildingIcon, PersonIcon } from '@/components/icons'
-import { concerns, concernsFor, paths } from '@/content/concerns'
+import { concerns, concernsFor, paths, spansFullWidth } from '@/content/concerns'
 import { homeCopy } from '@/content/home/copy'
 import { contact, siteConfig } from '@/lib/site'
 
@@ -226,8 +226,20 @@ export default function Page() {
                   </p>
 
                   <ul className="mt-6 grid gap-4 sm:grid-cols-2">
-                    {concernsFor(path.audience).map((concern) => (
-                      <li key={concern.key}>
+                    {concernsFor(path.audience).map((concern, index, all) => (
+                      <li
+                        key={concern.key}
+                        /*
+                          An odd-numbered grid leaves one card alone on the last row
+                          whatever the order, so the last one spans both columns and reads
+                          as a deliberate closer rather than a leftover. The rule lives in
+                          the content module so the next odd grid is not solved a
+                          different way. See spansFullWidth.
+                        */
+                        className={
+                          spansFullWidth(index, all.length) ? 'sm:col-span-2' : undefined
+                        }
+                      >
                         {/*
                           A real link to a real page, enhanced into an inline reveal by
                           components/home-flow.tsx. With scripting off it simply

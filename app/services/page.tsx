@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Container } from '@/components/container'
 import { LeadMagnetPanel } from '@/components/lead-magnet-panel'
-import { concerns } from '@/content/concerns'
+import { concerns, spansFullWidth } from '@/content/concerns'
 import { getPublishedPosts } from '@/lib/content'
 import { contact } from '@/lib/site'
 
@@ -83,8 +83,13 @@ export default function Page() {
           all are.
         </p>
         <ul className="mt-8 grid gap-4 sm:grid-cols-2">
-          {concerns.map((concern) => (
-            <li key={concern.key}>
+          {concerns.map((concern, index) => (
+            <li
+              key={concern.key}
+              className={
+                spansFullWidth(index, concerns.length) ? 'sm:col-span-2' : undefined
+              }
+            >
               <Link
                 href={concern.path}
                 className="block h-full rounded-(--radius-panel) border border-border bg-surface p-5 no-underline hover:border-ink-muted"

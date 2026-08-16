@@ -9,7 +9,7 @@ import { FeatureCard } from '@/components/feature-card'
 import { LeadMagnetPanel } from '@/components/lead-magnet-panel'
 import { Section } from '@/components/section'
 import { SectionHeading } from '@/components/section-heading'
-import { concernsFor } from '@/content/concerns'
+import { concernsFor, spansFullWidth } from '@/content/concerns'
 import { readPost } from '@/lib/content'
 import { contact } from '@/lib/site'
 
@@ -280,8 +280,13 @@ export default function Page() {
           lede="The right conversation depends on which one of these you are actually in."
         />
         <ul className="mt-10 grid gap-4 sm:grid-cols-2">
-          {concernsFor('company').map((concern) => (
-            <li key={concern.key}>
+          {concernsFor('company').map((concern, index, all) => (
+            <li
+              key={concern.key}
+              className={
+                spansFullWidth(index, all.length) ? 'sm:col-span-2' : undefined
+              }
+            >
               <Link
                 href={concern.path}
                 className="block h-full rounded-(--radius-panel) border border-border bg-surface p-6 no-underline hover:border-ink-muted"

@@ -202,9 +202,11 @@ export const concerns: readonly Concern[] = [
     hook: 'Cover that is active from the day you land.',
     panelTitle: 'Moving to Singapore',
     image: {
-      kind: 'brief',
-      brief:
-        'Photography brief: arrival. A family unpacking in a new home, or looking out over the city. Real rather than staged, and not a stock skyline.',
+      kind: 'photo',
+      src: '/images/relocating-to-singapore.jpg',
+      alt: '',
+      width: 2000,
+      height: 1077,
     },
     situation: [
       'Cover through a previous employer usually ends when the job does. Moving countries can mean fresh underwriting on the new plan, and anything diagnosed since you last applied may be excluded or loaded.',
@@ -376,28 +378,23 @@ export const concerns: readonly Concern[] = [
     // introduced, once, having reflected their own back at them first.
     panelTitle: 'Pre-existing conditions',
     /**
-     * A licensed photograph has been chosen for this panel — the prescription pad and
-     * loose medication still life. It is not in the repository yet: save it to
-     * `public/images/pre-existing-conditions.jpg` and swap this whole block for
+     * A licensed photograph, supplied 2026-08-16: a prescription pad and loose
+     * medication. Converted from a 1.7 MB PNG to a 0.14 MB JPEG by
+     * `npm run resize:image`, because a photograph committed as a PNG is served as a PNG.
      *
-     *   { kind: 'photo', src: '/images/pre-existing-conditions.jpg',
-     *     alt: '', width: <intrinsic>, height: <intrinsic> }
-     *
-     * reading the real intrinsic dimensions off the file, because images are served
-     * unoptimised and those numbers are the only thing preventing layout shift.
-     *
-     * Worth knowing when it goes in: it cuts against the brief that was written for this
-     * panel, which asked for a person going about an ordinary day and explicitly not a
-     * clinical setting. The still life is defensible on the copy's own terms, since the
-     * panel is about something you already manage day to day rather than about being
-     * ill, and it is at least real rather than stock-cheerful. But it is a medication
-     * image on a page that otherwise avoids them, so if it ever reads as cold next to
-     * the other seven panels, that is why.
+     * It cuts against the brief originally written for this panel, which asked for a
+     * person going about an ordinary day and explicitly not a clinical setting. It is
+     * defensible on the copy's own terms — the panel is about something you already
+     * manage day to day rather than about being ill — and it is a real licensed image
+     * rather than stock-cheerful. But it is the only medication image on the site, so if
+     * it ever reads as cold next to the other panels, that is why.
      */
     image: {
-      kind: 'brief',
-      brief:
-        'Licensed photograph chosen and pending upload: prescription pad with loose medication. Save it to public/images/pre-existing-conditions.jpg and switch this panel to a photo.',
+      kind: 'photo',
+      src: '/images/pre-existing-conditions.jpg',
+      alt: '',
+      width: 1548,
+      height: 1016,
     },
     situation: [
       'You already manage something. In insurance terms that is usually called a pre-existing condition, and how it is treated differs a great deal by insurer and by how it is disclosed.',
@@ -441,6 +438,87 @@ export const concerns: readonly Concern[] = [
       title: 'Pre-existing conditions and international health cover',
       description:
         'How a condition you already manage is treated differs by insurer and by how it is disclosed. The three underwriting routes, and what each one means.',
+    },
+  },
+
+  {
+    /**
+     * Added by addendum 1 to the handoff, after the other four were built.
+     *
+     * DELIBERATELY NOT FOLDED INTO `relocating`. Arriving and leaving are different
+     * anxieties with different answers: "will my cover be active in time" against "does
+     * my cover survive the move". Bundling them into one card would make the visitor read
+     * further just to find out which half applies, which is the exact scanning problem
+     * this flow exists to remove.
+     *
+     * It is also a genuine differentiator worth surfacing on its own. Because these are
+     * worldwide plans rather than Singapore-tied ones, cover surviving a departure is a
+     * real and specific answer rather than reassurance copy.
+     *
+     * It sits LAST in the individual grid, which makes that grid odd-numbered. See the
+     * note on `spansFullWidth` below for how the layout handles the orphan.
+     */
+    key: 'leaving-singapore',
+    path: '/leaving-singapore',
+    audience: 'individual',
+    cardTitle: 'Leaving Singapore',
+    // The addendum writes this with a contraction. Expanded to match the other eight,
+    // which are contraction-free throughout. That is a house consistency choice, not a
+    // rewrite of the line.
+    hook: 'Worldwide cover does not have to end when your posting does.',
+    panelTitle: 'Leaving Singapore',
+    image: {
+      kind: 'brief',
+      brief:
+        'Packing up, or a departure moment. Warm rather than stressful, and not an empty apartment framed as loss.',
+    },
+    situation: [
+      'A posting ends, or a contract does, and the question is whether the cover goes with you or starts again in the next country. It is worth asking early, because the answer changes what you should do before you leave rather than after.',
+      // Hedged on purpose. Portability is a property of the plan, not a promise the firm
+      // can make on behalf of every plan a reader might be holding.
+      'Cover arranged as a worldwide plan is usually built to travel, which is the whole reason it is worth having one rather than a policy tied to living here. What is worth checking is whether yours actually is, and what changes when your country of residence does.',
+    ],
+    case: {
+      kind: 'placeholder',
+      brief:
+        '[Real case needed, anonymised. Be concrete: the destination country, whether the plan carried over or had to be rewritten, what we did, the real outcome.]',
+    },
+    /**
+     * DELIBERATELY NO FIGURE, and not for want of looking. What cover costs after a move
+     * depends on the destination country, so a number here would answer a question the
+     * reader did not ask — the same mismatch that was caught on the maternity panel and
+     * fixed by moving the figures to relocating, where "what does this cost" is the
+     * actual question.
+     */
+    considerations: [
+      {
+        term: 'Portability',
+        body: 'Whether the plan is genuinely worldwide or built around living in Singapore. That is the difference between a change of address and a new application.',
+      },
+      {
+        term: 'Continuity',
+        body: 'The same underwriting question as arriving, in reverse. A plan that carries over carries your history with it; one that has to be replaced usually underwrites you again.',
+      },
+      {
+        term: 'Timing',
+        body: 'No gap between the old cover ending and the new cover starting. A few uncovered weeks in the middle of a move is the version of this that goes wrong.',
+      },
+    ],
+    whatWeDo: [
+      'Read your existing plan and tell you whether it travels, before you cancel anything.',
+      'Change the country of residence properly where the plan allows it, rather than letting it lapse and starting again.',
+      'Line the dates up so there is no uncovered gap in the middle of the move.',
+    ],
+    ctaLabel: 'Check what happens to your cover',
+    questionSlugs: [
+      'what-is-the-difference-between-international-and-local-health-insurance-in-singapore',
+      'will-my-pre-existing-conditions-be-covered',
+      'how-do-i-make-a-claim-with-my-international-health-insurance',
+    ],
+    meta: {
+      title: 'Leaving Singapore: what happens to your health cover',
+      description:
+        'A posting ending does not have to mean the cover does. What travels, what gets underwritten again, and how to avoid a gap in the middle of a move.',
     },
   },
 
@@ -684,6 +762,21 @@ export const paths = [
 
 export function concernsFor(audience: ConcernAudience): readonly Concern[] {
   return concerns.filter((concern) => concern.audience === audience)
+}
+
+/**
+ * Whether a card is the odd one out at the end of a two-column grid.
+ *
+ * An odd-numbered set in two columns always leaves one card alone on the last row,
+ * whatever the order. Rather than reordering to hide it, the last card spans both
+ * columns so it reads as a deliberate full-width closer instead of a leftover.
+ *
+ * The individual path went odd when "Leaving Singapore" was added. This is written as a
+ * rule rather than a flag on that one concern precisely so the next odd-numbered grid is
+ * not solved a different way: pass the set's length and the index, and the layout follows.
+ */
+export function spansFullWidth(index: number, total: number): boolean {
+  return total % 2 === 1 && index === total - 1
 }
 
 export function concernByPath(path: string): Concern {
