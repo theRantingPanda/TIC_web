@@ -12,6 +12,22 @@ export const metadata: Metadata = {
     template: `%s | ${siteConfig.shortName}`,
   },
   description: siteConfig.description,
+  /**
+   * Sitewide canonical URLs.
+   *
+   * `'./'` resolves per route against metadataBase, so every page declares itself
+   * canonical at https://www.asktic.com/<its own path>. Routes that set their own
+   * `alternates.canonical` — the blog posts, /privacy — override this, which is the
+   * intended precedence.
+   *
+   * This matters more than usual here. The site answers on both asktic.com and
+   * www.asktic.com, so every page is reachable at two hostnames; without a canonical,
+   * search engines split the signal between them. That is a direct tax on the one
+   * asset this whole migration exists to protect. Ideally the apex 301s to www as
+   * well — see the note in render.yaml — but the canonical is what makes the
+   * duplication harmless in the meantime.
+   */
+  alternates: { canonical: './' },
   openGraph: {
     type: 'website',
     siteName: siteConfig.name,

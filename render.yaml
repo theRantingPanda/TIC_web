@@ -19,6 +19,22 @@
 # path emits no artifact in out/, which is necessary but says nothing about whether
 # Render serves the redirect. Check the service's routes when changing this file.
 #
+# OUTSTANDING: the apex does not redirect to www. Both asktic.com and www.asktic.com
+# serve the site, so every page answers on two hostnames. Canonical tags in
+# app/layout.tsx point at www and make that harmless, but a 301 is better.
+#
+# It cannot be fixed with a route below: Render matches `source` on path only, so a
+# `/* -> https://www.asktic.com/:splat` rule would match www's own requests and loop.
+# Render's own mechanism is per-domain, and per its docs the direction is decided by
+# which hostname you add FIRST — adding `www` auto-adds the apex as a redirect to it,
+# and vice versa. Both were added explicitly here on 2026-08-12, so neither became a
+# redirect.
+#
+# To fix: remove both custom domains and re-add ONLY www.asktic.com, letting Render
+# create the apex as its redirect. Do it in the dashboard and expect a brief window
+# where the custom domain is unconfigured — the site is live, and re-issuing the TLS
+# certificate took about ten minutes at cutover. Not worth doing casually mid-day.
+#
 # All redirects live here rather than in next.config.ts. With `output: 'export'` Next's
 # `redirects()` is inert — it emits a build warning and does nothing — so the platform
 # has to serve them. `type: redirect` is a 301.
