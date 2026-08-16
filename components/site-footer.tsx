@@ -7,8 +7,13 @@ export function SiteFooter() {
   return (
     <footer className="mt-(--spacing-section) border-t border-border bg-surface-subtle">
       <Container className="py-12">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
+        {/*
+          Tight vertical rhythm below sm, where the columns are stacked accordion rows and
+          a 40px gap between four collapsed headings reads as four orphaned labels rather
+          than as a list. From sm up the grid gap is what it always was.
+        */}
+        <div className="grid gap-x-10 gap-y-1 sm:grid-cols-2 sm:gap-10 lg:grid-cols-4">
+          <div className="mb-6 sm:mb-0">
             <p className="text-lg font-semibold tracking-tight text-ink">
               {siteConfig.name}
             </p>

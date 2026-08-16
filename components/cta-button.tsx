@@ -51,8 +51,12 @@ export function ctaClassName(
   variant: Variant = 'primary',
   size: 'default' | 'compact' = 'default',
 ) {
+  // whitespace-nowrap and shrink-0 because the header packs the logo, the menu toggle
+  // and this button onto a 390px row. Without them flex shrinks the button and "Talk to
+  // us" breaks across two lines, which makes the header 16px taller on exactly the
+  // viewport that can least afford it.
   const base =
-    'inline-block rounded-(--radius-card) text-sm font-medium no-underline transition-colors'
+    'inline-block shrink-0 whitespace-nowrap rounded-(--radius-card) text-sm font-medium no-underline transition-colors'
 
   if (variant === 'quiet') {
     return `${base} text-brand-blue hover:text-brand-blue-700`
