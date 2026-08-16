@@ -169,7 +169,14 @@ export default function Page() {
                   {paths.map((path) => {
                     const Icon = forkIcons[path.audience]
                     return (
-                      <div key={path.audience}>
+                      /*
+                        The id makes each fork option a real anchor target. Concern pages
+                        link back here as `/#individual` or `/#company`, so with no
+                        JavaScript the browser scrolls to the fork and the visitor picks
+                        again by hand; components/home-flow.tsx enhances that into having
+                        the choice already made. The link is not dependent on the script.
+                      */
+                      <div key={path.audience} id={path.audience} className="scroll-mt-24">
                         {/*
                           A real radio, visually hidden. The fork is a genuine choice
                           between two options, so a radio group is what it is — and it

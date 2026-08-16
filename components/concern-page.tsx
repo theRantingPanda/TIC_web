@@ -80,13 +80,21 @@ export function ConcernPage({ path }: { path: string }) {
       <section className="bg-surface-subtle">
         <Container className="pt-10 pb-14 md:pt-14 md:pb-20">
           {/*
-            A breadcrumb back to the fork, pointed at this concern's own hash so the
-            homepage reopens on the panel the visitor just left rather than resetting
-            them to "How can we help you today?".
+            The way back to the DECISION, not to the leaf.
+
+            This pointed at `/#${concern.key}` until 2026-08-16, which reopened the panel
+            the visitor was trying to leave while the label promised them all the
+            situations. A visitor who has landed on the wrong concern needs one step back
+            up the tree, not the same answer again and not a flat list of alternatives to
+            re-scan.
+
+            `/#individual` and `/#company` are ids on the fork options themselves, so this
+            works with no JavaScript; home-flow.tsx additionally ticks the radio so their
+            half of the choice is already answered.
           */}
           <p className="mb-6 text-sm">
             <Link
-              href={`/#${concern.key}`}
+              href={`/#${concern.audience}`}
               className="text-ink-muted no-underline hover:text-brand-blue"
             >
               <span aria-hidden="true">&larr; </span>

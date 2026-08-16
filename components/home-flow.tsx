@@ -131,15 +131,44 @@ export function HomeFlow({ children }: { children: ReactNode }) {
     }
 
     /**
-     * Open whatever the hash names. Ticks the right fork radio first, so the grid the
-     * card sits in is actually open behind the panel rather than the panel floating
-     * under an unanswered question.
+     * Act on the hash. It names either a PATH or a CONCERN, and the two mean different
+     * things.
+     *
+     * A PATH hash (`#individual`, `#company`) is the way back to the decision. Every
+     * concern page's breadcrumb points here, so a visitor who has landed on the wrong
+     * situation returns to the fork with their half of it already answered and nothing
+     * opened. That is one step back up the tree rather than a flat list of alternatives
+     * to re-scan, which is the whole reason there is a tree.
+     *
+     * Those hashes are also REAL ANCHORS: app/page.tsx puts the id on each fork option,
+     * so with no JavaScript the browser still scrolls to the fork and the visitor picks
+     * again by hand. The enhancement saves them the click; it is not what makes the link
+     * work.
+     *
+     * A CONCERN hash opens that panel, ticking its fork radio first so the grid the card
+     * sits in is actually open behind it rather than the panel floating under an
+     * unanswered question.
      */
     function openFromHash() {
-      const key = window.location.hash.slice(1)
-      if (!key || !panelFor(key)) return
+      const hash = window.location.hash.slice(1)
+      // Visitor-controlled, and it goes into a selector below. Anything that is not a
+      // plain slug is ignored rather than risking a thrown querySelector.
+      if (!hash || !/^[a-z-]+$/.test(hash)) return
 
-      const card = el!.querySelector<HTMLElement>(`[data-concern-card="${key}"]`)
+      const forkRadio = el!.querySelector<HTMLInputElement>(
+        `input[name="tic-path"][value="${hash}"]`,
+      )
+      if (forkRadio) {
+        forkRadio.checked = true
+        close()
+        const group = el!.querySelector<HTMLElement>(`[data-concern-group="${hash}"]`)
+        if (group) window.setTimeout(() => scrollIfNeeded(group), 50)
+        return
+      }
+
+      if (!panelFor(hash)) return
+
+      const card = el!.querySelector<HTMLElement>(`[data-concern-card="${hash}"]`)
       const audience = card?.closest<HTMLElement>('[data-concern-group]')?.dataset
         .concernGroup
       if (audience) {
@@ -149,7 +178,7 @@ export function HomeFlow({ children }: { children: ReactNode }) {
         if (radio) radio.checked = true
       }
 
-      open(key, { scroll: true })
+      open(hash, { scroll: true })
     }
 
     el.addEventListener('click', handleClick)
