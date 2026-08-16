@@ -103,10 +103,25 @@ A nameserver form and an A record are different layers. *Which server hosts the 
 host record, set in the DNS zone. *Who answers DNS for this domain* is the delegation, set
 here. Pasting the first into the second is the error to watch for.
 
-The IP column is for glue records, which apply only to nameservers **inside** the domain
-being delegated — `ns1.asktic.com`, say. For anything under `wixdns.net` the registry
-resolves the address itself, and most will reject a supplied IP. That is the likely reason
-the save failed, and the rejection was a guardrail.
+**The panel requires an IP for every nameserver row, and expects the true resolved address
+of that host.** The `216.239.38.101` against `ns5.wixdns.net` is correct — that really is
+its address. So the IP column is not the fault here; the only bad row is Name Server 2,
+and `asktic.com` is rejected because a domain cannot be its own nameserver without proper
+glue. Correct addresses, resolved 2026-08-16:
+
+| Nameserver | IPv4 |
+| --- | --- |
+| `ns4.wixdns.net` | `216.239.36.101` |
+| `ns5.wixdns.net` | `216.239.38.101` |
+| `ns1.vodien.com` | `162.159.24.10` |
+| `ns2.vodien.com` | `162.159.25.66` |
+
+`ns3`/`ns4.vodien.com` are aliases — they share the addresses of `ns1`/`ns2`. Pick one from
+each pair, or two names resolve to a single server and the delegation has no redundancy.
+
+These are anycast addresses and the registry resolves out-of-bailiwick nameservers itself
+rather than publishing a supplied IP, so a stale entry here is low-risk. Re-check it anyway
+if resolution ever behaves oddly after a provider renumbering.
 
 **Do not re-enter the pair from this document.** Wix assigns nameservers per account. Read
 the values off a resolver or Wix's own domain panel.
