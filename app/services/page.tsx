@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { ConcernCard } from '@/components/concern-card'
 import { Container } from '@/components/container'
 import { LeadMagnetPanel } from '@/components/lead-magnet-panel'
 import { concerns, spansFullWidth } from '@/content/concerns'
@@ -90,15 +91,7 @@ export default function Page() {
                 spansFullWidth(index, concerns.length) ? 'sm:col-span-2' : undefined
               }
             >
-              <Link
-                href={concern.path}
-                className="block h-full rounded-(--radius-panel) border border-border bg-surface p-5 no-underline hover:border-ink-muted"
-              >
-                <span className="block font-serif text-lg text-ink">
-                  {concern.cardTitle}
-                </span>
-                <span className="mt-1 block text-sm text-ink-muted">{concern.hook}</span>
-              </Link>
+              <ConcernCard concern={concern} />
             </li>
           ))}
         </ul>

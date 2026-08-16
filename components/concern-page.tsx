@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { CaptureForm } from '@/components/capture-form'
+import { ConcernCard } from '@/components/concern-card'
 import { ConcernPanel } from '@/components/concern-panel'
 import { Container } from '@/components/container'
 import { EmailField } from '@/components/email-field'
@@ -57,7 +58,7 @@ export function ConcernPage({
    *
    * This is not an extension point for new concerns. A concern that needs a section the
    * others do not have needs an optional field in the content module instead, so all
-   * eight pages keep the shape the flow promises.
+   * nine pages keep the shape the flow promises.
    */
   children?: ReactNode
 }) {
@@ -234,13 +235,7 @@ export function ConcernPage({
         <ul className="mt-8 grid gap-4 sm:grid-cols-3">
           {siblings(concern).map((item) => (
             <li key={item.key}>
-              <Link
-                href={item.path}
-                className="block h-full rounded-(--radius-panel) border border-border bg-surface p-5 no-underline hover:border-ink-muted"
-              >
-                <span className="block font-serif text-lg text-ink">{item.cardTitle}</span>
-                <span className="mt-1 block text-sm text-ink-muted">{item.hook}</span>
-              </Link>
+              <ConcernCard concern={item} />
             </li>
           ))}
         </ul>

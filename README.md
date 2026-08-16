@@ -412,6 +412,32 @@ the header CTA and two other pages, so it was kept pointing at the site's actual
 "individual, planning for a family". One source rather than eight — the source says which
 *kind* of capture point this is, and the situation is data about the lead.
 
+### Visual rhythm, and what it costs
+
+A design review found the homepage read as "an elegant form": above the drill-down,
+headline, numbers, fork and cards all carried the same weight. Three fixes landed on
+2026-08-16, and the shape of each was constrained by rules the flow already had.
+
+- **Concern cards carry a mark.** `components/concern-card.tsx` is one component used by
+  all four places that render a concern card (homepage, `/services`, the company hub, and
+  the sibling list on every concern page) — they were four copies of the same markup
+  before. The icon is a wayfinding mark, never a photograph: selection steps stay lean and
+  imagery is earned at the drill-down.
+- **The footer collapses on mobile.** It had grown to four columns of five, so the page
+  ended in a second sitemap. Each column is now a `<details>` accordion below `sm`, forced
+  open above it, which makes the footer **39% shorter** on a 390px viewport. It needs
+  **two** CSS rules to force open — `::details-content { content-visibility: visible }`
+  for current Chromium and `display: block` for engines without it. The first version
+  shipped only the second and the desktop footer rendered with no links at all.
+- **The premium promise left fine print.** "The premium is the same whether you come to us
+  or go direct" is the strongest objection-handler the firm has and was set at 11px muted.
+  It reads at body size now; the regulatory half stays quiet, and stays cautious for the
+  reasons in `content/home/copy.ts`. It did **not** become a sixth section — the homepage
+  is five moves, and adding to it is how the ten-section homepage happened the first time.
+
+Still open from that review: a real photograph of the adviser or team. No asset exists,
+and stock is not acceptable for it.
+
 ### Pages that are built, not ported
 
 There was no Wix copy to reproduce for these. Nothing was invented for them either —
@@ -444,6 +470,27 @@ Nothing below is invented, but nothing below is finished either:
 - **The trust stats**, which are published on the live site but were queried against
   `tic_crm_dev` rather than production. The outstanding checks are listed in
   `content/home/copy.ts`.
+
+#### Figures never go inside a photograph
+
+A supplied graphic put an employer cover ceiling of S$40,000 against a S$125,000 bill
+directly onto the `/beyond-employer-cover` panel. It was rejected and the rule is
+general:
+
+- **Numbers in pixels cannot be footnoted.** Every figure on this site carries a
+  configuration disclosure, because the figure is meaningless without it. An image
+  cannot carry one.
+- **They cannot be corrected.** A rate changes and the copy changes with it; an image
+  has to be re-rendered by whoever made it.
+- **`verify:copy` cannot read them.** The guard that has caught every other copy problem
+  here scans text. An image walks straight past it.
+- **That one contradicted the page it sat on.** The permission-cleared case printed three
+  inches below says the scheme covered to S$207,000 against a S$260,000 bill.
+
+`CaseChart` in `components/concern-panel.tsx` is the sanctioned alternative: the same
+comprehension, built as markup, from the concern's `case.chart`. Its constraint is that
+**every number in the chart must already appear in the case prose**, so the chart cannot
+say something the story does not and one correction fixes both.
 
 #### One deliberate removal: the "from USD 95 a month" band
 

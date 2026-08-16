@@ -26,6 +26,84 @@ import type { Concern } from '@/content/concerns'
  * `headingLevel` exists because the same panel is an <h2> under the homepage's flow and
  * an <h1> on its own page. Everything below it steps down accordingly.
  */
+/**
+ * The case's figures as a bar: what the scheme covered, and the gap above it.
+ *
+ * MARKUP, NOT AN IMAGE, and that is the whole point. A supplied graphic put an employer
+ * ceiling of S$40,000 against a S$125,000 bill straight onto the panel, which contradicted
+ * the real case printed directly beneath it. Because the numbers were pixels they could
+ * not carry the configuration disclosure every other figure on this site carries, could
+ * not be corrected without re-rendering, and could not be read by `npm run verify:copy` —
+ * the guard that has caught every other copy problem here. Never put a figure in a
+ * photograph.
+ *
+ * The gap is drawn, not implied. A chart that stopped at the covered portion would be the
+ * advertising version of a story whose entire credibility rests on what was NOT covered.
+ *
+ * The bar is `aria-hidden` and the figures are a real description list underneath, so a
+ * screen reader gets the numbers rather than a decorative div, and the whole thing still
+ * says something useful with CSS off.
+ */
+function CaseChart({
+  chart,
+}: {
+  chart: NonNullable<Extract<Concern['case'], { kind: 'real' }>['chart']>
+}) {
+  const coveredPercent = Math.round((chart.covered.amount / chart.total.amount) * 100)
+
+  return (
+    <figure className="mt-6 border-t border-border pt-5">
+      <figcaption className="text-eyebrow uppercase text-ink-muted">
+        {chart.heading}
+      </figcaption>
+
+      <div
+        aria-hidden="true"
+        className="mt-3 flex h-9 w-full overflow-hidden rounded-(--radius-card) border border-border"
+      >
+        {/*
+          green-800, not the brand green-600, and not at reduced opacity. White on
+          green-600 is 2.80:1 and fails at every size; green-800 carries it at 6.35:1.
+          This is the rule recorded in app/globals.css, and a chart label is text like any
+          other. Darkening the fill is the fix; lightening the label is not.
+        */}
+        <div
+          className="flex items-center bg-brand-green-800 px-3"
+          style={{ width: `${coveredPercent}%` }}
+        >
+          <span className="truncate text-xs font-medium text-white">
+            {chart.covered.display}
+          </span>
+        </div>
+        {/*
+          The uncovered remainder, hatched rather than filled. A solid red block next to
+          the brand green reads as an alert state; the hatch reads as "nothing here",
+          which is what it is.
+        */}
+        <div className="flex flex-1 items-center justify-end px-3 [background-image:repeating-linear-gradient(135deg,transparent,transparent_5px,var(--color-border)_5px,var(--color-border)_6px)]">
+          <span className="truncate text-xs font-medium text-ink">{chart.gap.display}</span>
+        </div>
+      </div>
+
+      <dl className="mt-4 grid gap-x-6 gap-y-2 sm:grid-cols-3">
+        {[chart.total, chart.covered, chart.gap].map((item) => (
+          <div key={item.label} className="flex flex-col-reverse">
+            <dt className="text-xs text-ink-muted">{item.label}</dt>
+            <dd className="font-medium text-ink">{item.display}</dd>
+          </div>
+        ))}
+      </dl>
+
+      {/*
+        Load-bearing. The limit is one scheme's, not a market figure, and a reader who
+        takes S$207,000 away as "what company plans cover" has been misled by a chart that
+        was trying to tell them the opposite. Never trim this to balance the layout.
+      */}
+      <p className="mt-4 text-eyebrow text-ink-muted">{chart.footnote}</p>
+    </figure>
+  )
+}
+
 export function ConcernPanel({
   concern,
   headingLevel = 'h2',
@@ -121,6 +199,7 @@ export function ConcernPanel({
               ))}
               {/* The verdict, set apart because it is not more narrative. */}
               <p className="mt-4 font-medium text-ink">{concern.case.footer}</p>
+              {concern.case.chart ? <CaseChart chart={concern.case.chart} /> : null}
             </>
           ) : (
             /*

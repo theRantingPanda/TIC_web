@@ -1,5 +1,5 @@
 /**
- * The eight concerns.
+ * The nine concerns.
  *
  * ONE SOURCE, TWO SURFACES. The homepage reveals a concern's panel inline once the
  * visitor selects it; the concern's own route renders exactly the same panel with its
@@ -50,7 +50,7 @@
  *
  * ---- Content integrity: the hard constraint ----
  *
- * SEVEN OF THE EIGHT CASE STUDIES ARE PLACEHOLDERS and each says so in its own text.
+ * EIGHT OF THE NINE CASE STUDIES ARE PLACEHOLDERS and each says so in its own text.
  * Each carries a brief describing what a real one needs: concrete ages, a timeline, what
  * the existing cover was missing, what was actually done, the real outcome. A case does
  * NOT need to end in a win. "We recommended staying with the current plan" is a
@@ -73,6 +73,24 @@
 
 export type ConcernAudience = 'individual' | 'company'
 
+/**
+ * Which mark a concern's card carries.
+ *
+ * A KEY, NOT A COMPONENT, because this module is `.ts` and cannot hold JSX. The mapping
+ * to real components lives in components/concern-card.tsx, which is the same shape as
+ * `forkIcons` in app/page.tsx.
+ */
+export type ConcernIconKey =
+  | 'hourglass'
+  | 'arrive'
+  | 'ceiling'
+  | 'pulse'
+  | 'depart'
+  | 'trend-up'
+  | 'briefcase'
+  | 'hard-hat'
+  | 'sprout'
+
 /** A lead image. Either a real photograph, or the brief for the one still to be shot. */
 export type ConcernImage =
   | { kind: 'photo'; src: string; alt: string; width: number; height: number }
@@ -92,7 +110,32 @@ export type ConcernImage =
  */
 export type ConcernCase =
   | { kind: 'placeholder'; brief: string }
-  | { kind: 'real'; paragraphs: readonly string[]; footer: string }
+  | {
+      kind: 'real'
+      paragraphs: readonly string[]
+      footer: string
+      /**
+       * An optional chart of the case's own figures: what the scheme covered, what the
+       * bill came to, and the gap between them.
+       *
+       * EVERY NUMBER HERE MUST ALREADY APPEAR IN `paragraphs`. This visualises the case,
+       * it does not add to it — so the chart cannot say something the prose does not, and
+       * a correction to one is a correction to both. Both are checked by `verify:copy`
+       * because both are text.
+       *
+       * That constraint is the reason this is markup rather than an image. A supplied
+       * graphic carried an employer ceiling of S$40,000 against a S$125,000 bill, which
+       * contradicted the case sitting directly beneath it and could not be footnoted,
+       * corrected or scanned, because it was pixels. Do not put figures in a photograph.
+       */
+      chart?: {
+        heading: string
+        total: { label: string; display: string; amount: number }
+        covered: { label: string; display: string; amount: number }
+        gap: { label: string; display: string }
+        footnote: string
+      }
+    }
 
 export type Concern = {
   key: string
@@ -103,6 +146,8 @@ export type Concern = {
   cardTitle: string
   /** One line. Never two. */
   hook: string
+  /** The card's mark. See ConcernIconKey. */
+  icon: ConcernIconKey
   /** Technical language is allowed from here on. */
   panelTitle: string
   image: ConcernImage
@@ -144,6 +189,7 @@ export const concerns: readonly Concern[] = [
     audience: 'individual',
     cardTitle: 'Planning for a family',
     hook: 'Waiting periods mean timing decides this one.',
+    icon: 'hourglass',
     panelTitle: 'Maternity cover runs on a clock',
     image: {
       kind: 'photo',
@@ -200,6 +246,7 @@ export const concerns: readonly Concern[] = [
     audience: 'individual',
     cardTitle: 'Relocating to Singapore',
     hook: 'Cover that is active from the day you land.',
+    icon: 'arrive',
     panelTitle: 'Moving to Singapore',
     image: {
       kind: 'photo',
@@ -283,6 +330,7 @@ export const concerns: readonly Concern[] = [
     audience: 'individual',
     cardTitle: 'Looking beyond my employer’s cover',
     hook: 'Most group plans have a ceiling, worth knowing where yours sits.',
+    icon: 'ceiling',
     panelTitle: 'Looking beyond your employer’s cover',
     image: {
       kind: 'brief',
@@ -319,6 +367,26 @@ export const concerns: readonly Concern[] = [
       ],
       footer:
         'Nobody would call that a perfect outcome. It was a very different one from the alternative.',
+      /**
+       * Every figure below is lifted from the paragraph above, not calculated for effect.
+       * S$260,000 less S$207,000 is the S$53,000 the family paid, which is the single
+       * most credible line on the site and the reason this concern gets a chart at all.
+       *
+       * The gap is shown, not implied. A chart of this that stopped at "covered" would be
+       * the advertising version of the same story.
+       */
+      chart: {
+        heading: 'What the scheme reached, and what it did not',
+        total: { label: 'Final bill', display: 'S$260,000', amount: 260_000 },
+        covered: {
+          label: 'Covered by the company scheme',
+          display: 'S$207,000',
+          amount: 207_000,
+        },
+        gap: { label: 'The family paid', display: 'S$53,000' },
+        footnote:
+          'One real case, anonymised and permission-cleared. A newborn limit of S$207,000 is that scheme’s, not a market figure, and yours will differ. It is here to show that a ceiling is a real number with a real edge, not to predict where yours sits.',
+      },
     },
     numbers: {
       heading: 'What a top-up costs',
@@ -374,6 +442,7 @@ export const concerns: readonly Concern[] = [
     audience: 'individual',
     cardTitle: 'I already have a medical condition',
     hook: 'The answer usually depends on the specific condition.',
+    icon: 'pulse',
     // The card uses the visitor's words. The panel is where the industry term is
     // introduced, once, having reflected their own back at them first.
     panelTitle: 'Pre-existing conditions',
@@ -466,6 +535,7 @@ export const concerns: readonly Concern[] = [
     // which are contraction-free throughout. That is a house consistency choice, not a
     // rewrite of the line.
     hook: 'Worldwide cover does not have to end when your posting does.',
+    icon: 'depart',
     panelTitle: 'Leaving Singapore',
     image: {
       kind: 'brief',
@@ -528,6 +598,7 @@ export const concerns: readonly Concern[] = [
     audience: 'company',
     cardTitle: 'My renewal premium has increased',
     hook: 'Worth understanding what is driving it before deciding what to change.',
+    icon: 'trend-up',
     panelTitle: 'When the renewal comes back higher',
     image: {
       kind: 'brief',
@@ -585,6 +656,7 @@ export const concerns: readonly Concern[] = [
     audience: 'company',
     cardTitle: 'Retaining senior and regional hires',
     hook: 'Benefits matter more when someone is relocating their family.',
+    icon: 'briefcase',
     panelTitle: 'Cover as part of a senior package',
     image: {
       kind: 'brief',
@@ -640,6 +712,7 @@ export const concerns: readonly Concern[] = [
     audience: 'company',
     cardTitle: 'A workforce that does not sit in one country',
     hook: 'Cover that onboards anywhere and travels with them.',
+    icon: 'hard-hat',
     panelTitle: 'Offshore and deployed teams',
     image: {
       kind: 'photo',
@@ -698,6 +771,7 @@ export const concerns: readonly Concern[] = [
     audience: 'company',
     cardTitle: 'Setting up benefits for the first time',
     hook: 'No existing scheme to compare against, just a decision to make.',
+    icon: 'sprout',
     panelTitle: 'Setting up a scheme from nothing',
     image: {
       kind: 'brief',

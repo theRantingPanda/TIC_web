@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { ConcernCard } from '@/components/concern-card'
 import { ConcernPanel } from '@/components/concern-panel'
 import { Container } from '@/components/container'
 import { HomeFlow } from '@/components/home-flow'
@@ -108,19 +109,24 @@ export default function Page() {
             ))}
           </dl>
           {/*
-            Footnote weight, deliberately, not a fifth stat.
+            Two claims at two weights, deliberately not one line of fine print.
 
-            The wording is the safest true claim available and is not to be strengthened
-            without checking the firm's own registration category first. It asserts only
-            that the insurers are regulated. "Agent" and "broker" are distinct
-            registrations in Singapore, and the firm is externally categorised as an
-            insurance agent, so any wording that implies brokerage is a claim nobody has
-            verified. Note the footer separately carries the live site's own regulatory
-            disclosure verbatim; this line does not replace it.
+            The premium promise is the strongest objection-handler the firm has and it sat
+            at 11px muted until 2026-08-16. It reads at body size now. The regulatory line
+            keeps footnote weight, because it is a careful claim and looking careful is
+            appropriate for it — see the notes in content/home/copy.ts before touching
+            either.
+
+            This is still not a fifth stat and not a sixth section. Weight, not real
+            estate: the homepage is five moves.
           */}
-          <p className="mt-8 text-center text-eyebrow text-ink-muted">
-            {homeCopy.trust.line}
-          </p>
+          <div className="mx-auto mt-10 max-w-[34rem] border-t border-border pt-6 text-center">
+            <p className="text-base/7 text-ink">
+              <strong className="font-medium">{homeCopy.trust.promise.lead}</strong>{' '}
+              {homeCopy.trust.promise.body}
+            </p>
+            <p className="mt-3 text-eyebrow text-ink-muted">{homeCopy.trust.regulatory}</p>
+          </div>
         </Container>
       </section>
 
@@ -245,22 +251,7 @@ export default function Page() {
                           components/home-flow.tsx. With scripting off it simply
                           navigates, and the destination renders the identical panel.
                         */}
-                        <a
-                          href={concern.path}
-                          data-concern-card={concern.key}
-                          className={`block h-full rounded-(--radius-panel) border border-border bg-surface p-5 no-underline hover:border-ink-muted sm:p-6 ${
-                            path.audience === 'company'
-                              ? 'aria-[current]:border-brand-blue-600 aria-[current]:bg-brand-blue-50'
-                              : 'aria-[current]:border-brand-green-600 aria-[current]:bg-brand-green-50'
-                          }`}
-                        >
-                          <span className="block font-serif text-lg text-ink">
-                            {concern.cardTitle}
-                          </span>
-                          <span className="mt-1 block text-sm text-ink-muted">
-                            {concern.hook}
-                          </span>
-                        </a>
+                        <ConcernCard concern={concern} interactive />
                       </li>
                     ))}
                   </ul>

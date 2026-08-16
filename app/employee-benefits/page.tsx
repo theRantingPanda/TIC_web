@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { CardGrid } from '@/components/card-grid'
+import { ConcernCard } from '@/components/concern-card'
 import { Container } from '@/components/container'
 import { CtaButton } from '@/components/cta-button'
 import { Faq, type FaqItem } from '@/components/faq'
@@ -287,17 +288,7 @@ export default function Page() {
                 spansFullWidth(index, all.length) ? 'sm:col-span-2' : undefined
               }
             >
-              <Link
-                href={concern.path}
-                className="block h-full rounded-(--radius-panel) border border-border bg-surface p-6 no-underline hover:border-ink-muted"
-              >
-                <span className="block font-serif text-lg text-ink">
-                  {concern.cardTitle}
-                </span>
-                <span className="mt-1 block text-base/7 text-ink-muted">
-                  {concern.hook}
-                </span>
-              </Link>
+              <ConcernCard concern={concern} />
             </li>
           ))}
         </ul>
