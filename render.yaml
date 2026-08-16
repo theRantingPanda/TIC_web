@@ -6,10 +6,11 @@
 #
 #   branch          main          autoDeploy    yes, on commit
 #   buildCommand    npm run build publishPath   out
-#   env vars        none          routes        the five redirects below
+#   env vars        none          routes        the six redirects below
 #
-# ⚠ ACTION REQUIRED (2026-08-16): the /blog and /speciality-insurance redirects added
-# below are NOT yet on the service. Add them in the dashboard, or those two indexed
+# ⚠ ACTION REQUIRED (2026-08-16): the /blog, /speciality-insurance and
+# /income-preservation-1 redirects added
+# below are NOT yet on the service. Add them in the dashboard, or those three indexed
 # paths 404 in production the moment this branch deploys — their page files have been
 # deleted. Nothing in the build can catch this; see the paragraph below.
 #
@@ -130,6 +131,12 @@ services:
       - type: redirect
         source: /speciality-insurance
         destination: /offshore-and-energy
+
+      # Retired on the owner's instruction, 2026-08-16. A functioning service page rather
+      # than template junk, so it 301s to the service index rather than 404ing.
+      - type: redirect
+        source: /income-preservation-1
+        destination: /services
 
       # ⚠ BEFORE RUNNING `npm run gen:redirects`, READ THIS.
       #

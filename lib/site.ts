@@ -41,9 +41,9 @@ export type NavGroup = {
  * is killed per the deck; its two destinations move to Answers and to the footer.
  * "Projects" moves to the footer's Company column so `/projects` is not orphaned.
  *
- * `/income-preservation-1` is deliberately not linked from anywhere. The deck takes it
- * off the homepage grid and out of the footer; the page stays live and reachable by
- * search only. It remains in the contract's `preserved` list and keeps emitting.
+ * `/income-preservation-1` is retired. It was unlinked first, then withdrawn entirely
+ * on 2026-08-16 and now 301s to /services. Do not add it back to either nav array:
+ * `verify:urls` requires every nav href to be a preserved path, and it is no longer one.
  *
  * Every href here must exist in content/url-contract.json → `preserved`. That invariant
  * is asserted at build time by `npm run verify:urls`, which reads this file's source

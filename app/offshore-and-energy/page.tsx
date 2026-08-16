@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { Container } from '@/components/container'
 
@@ -52,7 +53,26 @@ const points = [
 export default function Page() {
   return (
     <Container className="py-(--spacing-section)">
-      <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-ink sm:text-5xl">
+      {/*
+        An offshore worksite, which is where this audience actually is. Deliberately the
+        rig rather than the container ship: the marine product line was dropped, and a
+        vessel reads as shipping cover in a way a platform does not. The image is about
+        who the reader is, never about a product that no longer exists.
+
+        Sized explicitly because images are served unoptimised, so the intrinsic
+        dimensions are what prevent layout shift.
+      */}
+      <Image
+        src="/images/1a2db263adbd45d4b3df37a3fd15c5a8-c2cabe1d.jpg"
+        alt=""
+        width={2000}
+        height={1123}
+        sizes="(min-width: 1024px) 64rem, 100vw"
+        priority
+        className="h-64 w-full rounded-(--radius-panel) object-cover sm:h-80"
+      />
+
+      <h1 className="mt-10 max-w-3xl text-4xl font-semibold tracking-tight text-ink sm:text-5xl">
         Offshore and deployed teams
       </h1>
 

@@ -34,9 +34,8 @@ export const metadata: Metadata = {
  * nav group is relabelled — no type error, no build error, an empty grid. The nav group
  * is now called "Cover", so that lookup would already be broken.
  *
- * `/income-preservation-1` is intentionally absent. The copy deck takes it off the
- * homepage grid and out of the footer, leaving the page live and reachable by search
- * only; it stays in url-contract.json -> preserved and keeps emitting.
+ * `/income-preservation-1` is absent because it is retired: it now 301s here. Adding a
+ * link to it would point at a redirect source, which is never what you want internally.
  */
 const services = [
   {
