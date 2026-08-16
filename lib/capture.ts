@@ -41,6 +41,14 @@ export type CaptureSource =
   /** Reserved for phase 2 of the indicative price component, which has no email step. */
   | 'homepage-05-indicative'
   | 'employee-benefits-contact'
+  /**
+   * The same two documents as the homepage magnets, requested from the product pages.
+   * Tagged separately rather than reusing the homepage tags: a reader who asks from
+   * /maternity-insurance has read a page about waiting periods and is further along than
+   * one who clicked a panel on the homepage, and the follow-up should be able to tell.
+   */
+  | 'maternity-timeline'
+  | 'employee-benefits-renewal-checklist'
 
 /**
  * Which list the lead belongs on.
