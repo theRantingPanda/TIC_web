@@ -175,16 +175,41 @@ against `I`, which the panel font renders identically. Compared by paste it matc
 v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjX2MmjFzF8Z5VEponBQY8+boQ3/2IDcKwaGK+POlClIEY0SR3gV23/L99ip2lSdJGCJ3Fyhd69PA5XZbBqnbQauy4W+UPZ/Kb0xoEaiP7fVg1efkkLfWDk8DQSLJEy091cvGPTj2va0sGLAa+quor3PVIT48o/xlUATFvUaArcmmrV0AQAQ3ahDT+k/OUgzNp8UZ8bRqzqVdL9HCxbI06EWy75wto2DIJxym/IgdcQ6j4L9xvd2gMqoIbKcJ7esWoyw8LTboJQmhgm+gQbq7jS0IibU9BG3K2H171rrbpsmsWD2aYYlMIobzr4WIsfAvzcWsMq80nbN1VWf+fj8QOQIDAQAB
 ```
 
+### Mail confirmed on a real message, after the move
+
+A second test from `steven@asktic.com` to an external Gmail account, sent once Vodien was
+authoritative, returned:
+
+```
+dkim=pass    header.i=@asktic.com   header.s=google   header.b="XW4/Xuep"
+spf=pass     smtp.mailfrom=steven@asktic.com   (209.85.220.41)
+dmarc=pass   header.from=asktic.com   (p=NONE)
+```
+
+with `DKIM-Signature: d=asktic.com; s=google`.
+
+This is stronger than the DNS comparison above. Gmail fetched the key **from Vodien's
+nameservers** and the signature verified against it, so the migrated record is not merely
+published but in use. The `spf=pass` likewise proves the `include:_spf.google.com` chain
+still resolves through the new zone rather than just looking right in the panel.
+
+Not to be confused with the earlier
+[confirmation on a real message](#confirmed-working-on-a-real-message-2026-08-16) — same
+date, but that one predates the nameserver move and was validated against Wix.
+
 ### Still open after the move
 
-1. **Send a real test message** and confirm `dkim=pass`, `spf=pass`, `dmarc=pass` from an
-   external mailbox. DNS proves a key is published; only a delivered message proves it is
-   being used.
-2. **Do not cancel the Wix subscription** until that passes. The Wix zone is the rollback.
-3. **Delete the `asktic.com` → `216.24.57.1` Host Record.** It is inert now that the
-   delegation is correct, but it is the object that made `asktic.com` selectable as a
-   nameserver in the first place.
-4. **Raise the TTL** from `300` once the zone has been stable for a day or two.
+1. **The Freshdesk sending path is not yet proven.** The test above exercises Google
+   Workspace only. Ticket replies are signed with the `freshemail.io` keys, a different
+   chain with its own four CNAMEs, and nothing has verified one since the move. Trigger a
+   reply to an external address and check its headers before treating mail as fully
+   covered.
+2. **Do not cancel the Wix subscription** until that is done. The Wix zone is the rollback,
+   and it is the only remaining copy of the records that were dropped.
+3. **Raise the TTL** from `300` once the zone has been stable for a day or two.
+
+Done: the Google Workspace test message, and removal of the `asktic.com` → `216.24.57.1`
+Host Record.
 
 ---
 
@@ -332,10 +357,10 @@ naming makes that easy to do by accident.
 
 ### Post-cutover follow-ups
 
-The DNS move to Vodien is done and verified. Four things remain: a real test message
-confirming `dkim=pass` / `spf=pass` / `dmarc=pass`, keeping the Wix subscription alive until
-it does, deleting the stray `asktic.com` Host Record, and raising the TTL off `300`. See
-[Still open after the move](#still-open-after-the-move).
+The DNS move to Vodien is done, verified against three resolvers, and confirmed on a
+delivered message. What remains: proving the **Freshdesk** sending path, which the Google
+Workspace test does not cover; holding the Wix subscription until it is proven; and raising
+the TTL off `300`. See [Still open after the move](#still-open-after-the-move).
 
 ### The apex does not redirect to www
 
