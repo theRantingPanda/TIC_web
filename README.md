@@ -429,14 +429,16 @@ headline, numbers, fork and cards all carried the same weight. Three fixes lande
   **two** CSS rules to force open — `::details-content { content-visibility: visible }`
   for current Chromium and `display: block` for engines without it. The first version
   shipped only the second and the desktop footer rendered with no links at all.
-- **The premium promise left fine print.** "The premium is the same whether you come to us
-  or go direct" is the strongest objection-handler the firm has and was set at 11px muted.
-  It reads at body size now; the regulatory half stays quiet, and stays cautious for the
-  reasons in `content/home/copy.ts`. It did **not** become a sixth section — the homepage
-  is five moves, and adding to it is how the ten-section homepage happened the first time.
+The review's third point, promoting the "same premium as going direct" line out of
+footnote weight, was **tried and reverted**. At body size the claim dominated the trust
+band and argued with the visitor before they had been asked anything, which is the
+opposite of what a page whose job is to ask one question should do. It stays as one quiet
+line. The claim is not lost: `/employee-benefits` makes it, and the
+`how-does-the-insurance-concierge-get-paid` answer linked from several concern pages makes
+it at length.
 
-Still open from that review: a real photograph of the adviser or team. No asset exists,
-and stock is not acceptable for it.
+Also from that review and **not done**: a photograph of the adviser or team. There is no
+such asset, and stock is not acceptable for it — a generic face is worse than none.
 
 ### Pages that are built, not ported
 

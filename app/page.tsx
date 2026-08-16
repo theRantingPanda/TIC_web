@@ -109,24 +109,27 @@ export default function Page() {
             ))}
           </dl>
           {/*
-            Two claims at two weights, deliberately not one line of fine print.
+            Footnote weight, deliberately, not a fifth stat.
 
-            The premium promise is the strongest objection-handler the firm has and it sat
-            at 11px muted until 2026-08-16. It reads at body size now. The regulatory line
-            keeps footnote weight, because it is a careful claim and looking careful is
-            appropriate for it — see the notes in content/home/copy.ts before touching
-            either.
+            This was promoted to body size on 2026-08-16 on the strength of a design
+            review, then reverted the same day: at that weight the claim dominated the
+            band and started arguing with the visitor before they had been asked anything.
+            The homepage's job is to ask one question, and a paragraph defending the
+            firm's pricing sits in front of it. The claim is not lost — /employee-benefits
+            makes it, and the `how-does-the-insurance-concierge-get-paid` answer linked
+            from several concern pages makes it at length.
 
-            This is still not a fifth stat and not a sixth section. Weight, not real
-            estate: the homepage is five moves.
+            The wording is the safest true claim available and is not to be strengthened
+            without checking the firm's own registration category first. It asserts only
+            that the insurers are regulated. "Agent" and "broker" are distinct
+            registrations in Singapore, and the firm is externally categorised as an
+            insurance agent, so any wording that implies brokerage is a claim nobody has
+            verified. Note the footer separately carries the live site's own regulatory
+            disclosure verbatim; this line does not replace it.
           */}
-          <div className="mx-auto mt-10 max-w-[34rem] border-t border-border pt-6 text-center">
-            <p className="text-base/7 text-ink">
-              <strong className="font-medium">{homeCopy.trust.promise.lead}</strong>{' '}
-              {homeCopy.trust.promise.body}
-            </p>
-            <p className="mt-3 text-eyebrow text-ink-muted">{homeCopy.trust.regulatory}</p>
-          </div>
+          <p className="mt-8 text-center text-eyebrow text-ink-muted">
+            {homeCopy.trust.line}
+          </p>
         </Container>
       </section>
 

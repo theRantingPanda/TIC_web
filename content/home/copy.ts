@@ -61,27 +61,7 @@ export const homeCopy = {
       { figure: '50+', label: 'corporate schemes serviced' },
     ],
     /**
-     * The objection-handler, promoted 2026-08-16.
-     *
-     * This and `regulatory` below were one line at footnote weight until a design review
-     * pointed out that the strongest commercial argument on the page was set as legal
-     * fine print. They are two fields now because they are two different claims doing two
-     * different jobs, and only one of them is safe to say loudly.
-     *
-     * THIS one is safe. The firm is paid by commission built into the premium, so the
-     * price genuinely is the same either way. The site already says so on
-     * /employee-benefits and in the `how-does-the-insurance-concierge-get-paid` answer
-     * that several concerns link to, so promoting it here contradicts nothing.
-     *
-     * It is still not a section. The homepage is five moves and adding a sixth is how the
-     * ten-section homepage happened the first time. Weight, not real estate.
-     */
-    promise: {
-      lead: 'Advice does not mean paying more.',
-      body: 'The premium is the same whether you come to us or go direct to the insurer. What changes is who does the running around afterwards.',
-    },
-    /**
-     * The regulatory half. Stays quiet, and stays exactly this cautious.
+     * One quiet line at footnote weight, never a fifth stat.
      *
      * DO NOT STRENGTHEN THIS WORDING without confirming the firm's own registration
      * category first. It deliberately asserts only that the insurers are regulated, and
@@ -97,7 +77,7 @@ export const homeCopy = {
      * The footer separately carries the live site's own regulatory disclosure verbatim.
      * This line does not replace it and must not contradict it.
      */
-    regulatory: 'Partners with MAS-regulated insurers.',
+    line: 'Partners with MAS-regulated insurers. The same premium as going direct.',
   },
 
   /**
