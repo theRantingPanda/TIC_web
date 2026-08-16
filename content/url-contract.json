@@ -51,6 +51,16 @@
       "note": "redirect target for help.asktic.com"
     },
     {
+      "path": "/services",
+      "source": "new",
+      "note": "301 destination for /blog. The Wix path served the Services landing page, not a blog index; the homepage copy deck moves Services here and the equity follows."
+    },
+    {
+      "path": "/offshore-and-energy",
+      "source": "new",
+      "note": "301 destination for /speciality-insurance. NOT to /services - the specialty product line was dropped and the offshore audience survived it, so the equity follows the audience."
+    },
+    {
       "path": "/single-post/how-do-i-make-a-claim-with-my-international-health-insurance",
       "source": "wix",
       "note": "blog post"
