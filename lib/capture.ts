@@ -57,12 +57,15 @@ export type CaptureSource =
   | 'homepage-05-indicative'
   | 'employee-benefits-contact'
   /**
-   * The same two documents as the magnets above, requested from the product pages.
-   * Tagged separately rather than reusing those tags: a reader who asks from
-   * /maternity-insurance has read a page about waiting periods and is further along than
-   * one who clicked a panel elsewhere, and the follow-up should be able to tell.
+   * The renewal season checklist, requested from /employee-benefits. Tagged separately
+   * from the corporate magnet above because it speaks to a different reader: this one is
+   * for whoever administers the renewal, that one is for whoever signs off the budget.
+   *
+   * There was a `maternity-timeline` source here too, for a second copy of the individual
+   * magnet on /maternity-insurance. That panel was removed on 2026-08-16 when the page was
+   * reduced to the standard concern shape. The document itself is unchanged and still
+   * offered from /services, on the same list.
    */
-  | 'maternity-timeline'
   | 'employee-benefits-renewal-checklist'
 
 /**

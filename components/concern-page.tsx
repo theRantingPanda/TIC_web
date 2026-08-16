@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import type { ReactNode } from 'react'
 import { CaptureForm } from '@/components/capture-form'
 import { ConcernCard } from '@/components/concern-card'
 import { ConcernPanel } from '@/components/concern-panel'
@@ -43,6 +42,17 @@ import { contact } from '@/lib/site'
  * If concern-specific articles ever get written, the answer is still `furtherReading`,
  * not a band.
  *
+ * ---- And there is no slot for per-concern sections ----
+ *
+ * There was one, used by /maternity-insurance to keep four sections it had before it was
+ * absorbed. Those were cut on 2026-08-16 for the same reason as the questions band: they
+ * sat between the panel's call to action and the form. With no callers left the slot went
+ * too, because a dead extension point is an invitation to reopen the fault.
+ *
+ * All nine routes are now four lines and render exactly this. A concern that needs
+ * something the others do not gets an OPTIONAL FIELD in content/concerns/index.ts, so the
+ * addition is visible to all nine and the shape the flow promises holds.
+ *
  * `metadataFor` lives here too, so a route file is four lines and cannot forget the
  * canonical or the description.
  */
@@ -59,27 +69,7 @@ function siblings(concern: Concern): readonly Concern[] {
   return concernsFor(concern.audience).filter((item) => item.key !== concern.key)
 }
 
-export function ConcernPage({
-  path,
-  children,
-}: {
-  path: string
-  /**
-   * Extra sections, rendered between the panel and the questions band.
-   *
-   * Only two concerns use this, and both for the same reason: they absorbed pages that
-   * already existed and already carried material the six-part panel has no slot for.
-   * `/maternity-insurance` in particular was the best-written page on the site before
-   * this rebuild, and absorbing it into the pattern must not cost the parts of it the
-   * panel cannot hold. Everything that DID fit the panel was moved into the content
-   * module rather than left duplicated here.
-   *
-   * This is not an extension point for new concerns. A concern that needs a section the
-   * others do not have needs an optional field in the content module instead, so all
-   * nine pages keep the shape the flow promises.
-   */
-  children?: ReactNode
-}) {
+export function ConcernPage({ path }: { path: string }) {
   const concern = concernByPath(path)
   const company = concern.audience === 'company'
 
@@ -108,8 +98,6 @@ export function ConcernPage({
           <ConcernPanel concern={concern} headingLevel="h1" ctaHref="#talk-to-us" />
         </Container>
       </section>
-
-      {children}
 
 
 

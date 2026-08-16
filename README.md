@@ -408,9 +408,20 @@ clicks alone so cmd-click still opens the page.
 
 Two concerns **absorbed existing indexed paths** rather than competing with them:
 `/maternity-insurance` is "Planning for a family" and `/offshore-and-energy` is "a
-workforce that does not sit in one country". Both keep their equity; the maternity page
-kept the three sections the six-part panel has no slot for, via `ConcernPage`'s children
-slot. That slot is not an extension point for new concerns.
+workforce that does not sit in one country". Both keep their equity.
+
+All nine routes are now **four lines each** and render exactly the same thing. Maternity
+briefly kept four sections it had before absorption, through a children slot on
+`ConcernPage`; those were cut for the same reason as the questions band, and the slot went
+with them. ⚠ That page is indexed and ranking and lost a lot of on-topic copy in the
+process — watch its position, and if it slips, restore the timing segmentation
+("planning / trying / already pregnant") first and put it **below** the form. The full
+record of what went and what it cost is in the comment at the head of
+`app/maternity-insurance/page.tsx`.
+
+A concern that needs something the others do not gets an **optional field in the content
+module**, never a per-page section: that way the addition is visible to all nine and the
+shape the flow promises holds.
 
 `#talk-to-us` now anchors the **fork**, not an enquiry form. The form moved to the concern
 pages, where the question is known and the lead arrives tagged. The anchor is linked from
