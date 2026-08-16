@@ -4,8 +4,10 @@ Rebuild of [asktic.com](https://www.asktic.com) off Wix — a statically-exporte
 site deployed to Render, with the Freshdesk help centre folded into a `/knowledge`
 section.
 
-**Current state: Phase 2 scaffold, Phase 1 capture done. Shell only — no page content
-has been ported.**
+**Current state: live.** The rebuild serves [www.asktic.com](https://www.asktic.com) from
+Render as of 2026-08-12. All three phases are complete; what remains is an editorial pass
+over the ported copy ([`port-worklist.md`](content/_inventory/port-worklist.md)) and two
+DNS items ([`dns-cutover.md`](content/_inventory/dns-cutover.md)).
 
 ---
 
@@ -53,8 +55,9 @@ Google Analytics disclosure, not a client reference.
 The live site's defects — dead "Read More" links, Wix-default social icons, a "© 2019"
 footer, missing meta descriptions, a Knowledge Base link to a hostname that does not
 resolve — are inventoried and verified against the captures in
-[`content/_inventory/port-worklist.md`](content/_inventory/port-worklist.md). That is
-the Phase 3 fix list; none of it is fixed yet.
+[`content/_inventory/port-worklist.md`](content/_inventory/port-worklist.md). The
+structural ones were fixed during the port; that file separates what is done from what
+still needs an editorial decision.
 
 Images are pulled at **2000px on the long edge**, not at Wix's original resolution. With
 `images.unoptimized: true` the committed file is what every visitor downloads, and the
@@ -146,12 +149,18 @@ purpose — do not "tidy" a slug in that file.
 ### Redirects
 
 Redirects are **not** in `next.config.ts`. With `output: 'export'`, Next's `redirects()`
-is inert — it emits a build warning and does nothing. They live in `render.yaml`:
+is inert — it emits a build warning and does nothing, so the platform has to serve them.
+
+They are configured **on the Render service**, not by `render.yaml` — that file does not
+govern this service (see its header). It documents them; the service is where they live.
+Change one and you must change both. This is not pedantry: the redirects existed only in
+`render.yaml` until 2026-08-12, which meant all three of these 404'd in production.
 
 | From | To | Where |
 | --- | --- | --- |
 | `/home-1` | `/` | `tic-web` routes |
 | `/file-access` | `/forms` | `tic-web` routes |
+| `/file` | `/forms` | `tic-web` routes |
 | `help.asktic.com/*` | `https://www.asktic.com/knowledge` | `tic-help-redirect` service |
 | `support.asktic.com/...` | — | not handled; Freshdesk keeps serving these |
 
@@ -171,42 +180,33 @@ So `tic-help-redirect` is not waiting on DNS — there is no record to move. It 
 useful only if someone decides to *create* that hostname. Nothing in the rebuild depends
 on it: this site's nav links to `/knowledge` directly.
 
-### Cutover: DNS stays on Wix
+### Cutover: done 2026-08-12
 
-**Decision 2026-08-11: the domain is NOT being transferred to Vodien.** Registration
-moved, DNS hosting does not — nameservers stay `ns4/ns5.wixdns.net` and Wix remains
-authoritative for the zone. The prepared Vodien load sheet is therefore parked. It is
-still worth keeping as the inventory of what the zone contains.
+**The site is live at [www.asktic.com](https://www.asktic.com), served by Render.**
 
-Verified live: apex `asktic.com` → `185.230.63.107 / .171 / .186` (Wix), and
-`www.asktic.com` → CNAME `cdn1.wixdns.net`.
+DNS hosting stayed on Wix — registration moved to Vodien, the nameservers did not, and
+that plan was dropped. `ns4/ns5.wixdns.net` remain authoritative, so the zone is managed
+in Wix's DNS panel.
 
-So cutover no longer waits on anything — it is record surgery inside Wix's DNS, done
-whenever you choose:
+| Host | Type | Value |
+| --- | --- | --- |
+| `asktic.com` | A | `216.24.57.1` |
+| `www` | CNAME | `tic-web.onrender.com` |
 
-1. Add `www.asktic.com` (and the apex, if it should serve too) as custom domains on the
-   `tic-web` Render service. Render then issues the target values.
-2. Point `www` at Render's CNAME target and the apex at Render's A records, in Wix's DNS.
-3. Leave every other record alone (see the warning below).
+Verified after the switch: **all five Google Workspace MX records intact**, 23 of 23
+preserved paths returning `200`, all three redirects `301`ing, dropped paths `404`ing,
+and TLS valid on both hostnames. Certificates were issued about ten minutes after DNS
+pointed at Render, and HTTPS on the custom domain failed during that window.
 
-**Two things to know before doing it.**
+The full record — final zone state, what was removed and why, the rollback, and the
+outstanding SPF/DMARC gap — is in
+[`content/_inventory/dns-cutover.md`](content/_inventory/dns-cutover.md).
 
-**It is a hard switch, not a gradual one.** While the domain is connected to a Wix
-*site*, Wix owns the apex A records and the `www` CNAME. Freeing them generally means
-disconnecting the domain from the Wix site — which is the cutover itself. There is no
-overlap window where both serve, so validate on `tic-web.onrender.com` first.
+**Two things to know before editing this zone.** The Freshworks `_domainkey` and `fwdkim`
+records authenticate the mail Freshdesk sends on the firm's behalf — deleting them
+silently pushes ticket replies toward spam. And there is still no SPF or DMARC record on
+the apex; a proposed pair, with its DNS-lookup budget already counted, is in that file.
 
-**⚠ The zone carries email. Do not let it be reset.** The same zone holds five Google
-Workspace MX records, plus `support` → `asktic.freshdesk.com`, the `fdkey.support`
-verification TXT, `docs` → Bitly and `rainmaker` → Render. Disconnecting a domain from a
-Wix site is exactly the kind of operation that can rewrite zone records wholesale, and
-losing the MX records takes the firm's email down with the website. Capture the full
-record list before touching anything, and check mail flow both directions afterwards —
-`content/_inventory/` is not the place for it, but the Vodien load sheet already has it.
-
-Render's apex handling could not be verified from this repo (`render.com` is blocked by
-this environment's egress policy). Confirm how it wants the apex configured before the
-switch rather than during it.
 
 Two assumptions in that service could **not** be verified — `render.com` is blocked by
 this environment's egress policy: that `destination` accepts an absolute off-site URL,
