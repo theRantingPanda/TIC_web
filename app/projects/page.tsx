@@ -21,7 +21,15 @@ export const metadata: Metadata = {
     'The cover The Insurance Concierge arranges — international health, maternity, employee benefits, speciality and income preservation.',
 }
 
-const services = primaryNav.find((group) => group.label === 'Services')?.items ?? []
+/**
+ * Derived from the nav's Cover group, by SHAPE rather than by label.
+ *
+ * This read `primaryNav.find((g) => g.label === 'Services')` until 2026-08-16, when the
+ * nav group was renamed to "Cover" and this silently became `[]` — no type error, no
+ * build error, a page rendering a heading above an empty grid. Finding the one group
+ * that has children cannot break that way, and there is only ever one.
+ */
+const services = primaryNav.find((group) => group.items)?.items ?? []
 
 export default function Page() {
   return (
