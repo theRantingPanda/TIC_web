@@ -472,6 +472,27 @@ each is assembled from material the site already publishes:
 | `/knowledge` | New path. `content/kb/` is empty and stays empty — KB copy is being written by hand, not ported from Freshdesk. | The posts, and a link to the live help centre at `support.asktic.com`, which Freshdesk still serves. |
 | `/forms` | New path. The Wix `/file-access` original was an unconfigured template. | `public/forms/manifest.json`, which is empty — so an empty state that invites contact rather than a blank list. |
 
+### Unfinished sections ship hidden, and open themselves
+
+The site is deployed with incomplete parts **gated off rather than filled with placeholder
+text**. A visitor reading "[Real case needed, anonymised…]" on a page selling advice learns
+exactly the wrong thing about the firm, so a production build renders neither the case
+briefs nor the photography holding frames. `npm run dev` shows both, so the gaps stay
+visible to whoever is writing.
+
+**No flag has to be flipped later.** `image` and `case` on each concern are tagged unions,
+so the moment a `kind: 'brief'` becomes a `kind: 'photo'`, or a `kind: 'placeholder'`
+becomes a `kind: 'real'`, that section appears on the live site by itself. Sections open as
+the pieces arrive, one concern at a time, and there is no way to ship a half-finished panel
+by accident. The gate is `SHOW_UNFINISHED` in `components/concern-panel.tsx`.
+
+```bash
+npm run content:status   # what each panel is showing, and what is still missing
+```
+
+A panel without its evidence still reads: situation, three things to consider, what we do,
+and the call to action.
+
 ### What is still placeholder content
 
 Nothing below is invented, but nothing below is finished either:

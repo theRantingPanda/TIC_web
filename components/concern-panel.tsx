@@ -104,6 +104,30 @@ function CaseChart({
   )
 }
 
+/**
+ * Whether to render the parts of a panel that are not finished yet.
+ *
+ * ---- Unfinished content SHIPS HIDDEN, and opens itself when it is ready ----
+ *
+ * Eight of the nine case studies are briefs, and five panels have no photograph. Those
+ * placeholders exist so the team can see what is missing, which is useful in the editor
+ * and unacceptable in front of a customer: a visitor reading "[Real case needed,
+ * anonymised…]" on a page selling advice learns exactly the wrong thing about the firm.
+ *
+ * So the gate is the environment. `next dev` shows every brief and bracketed case, so the
+ * gaps are impossible to forget. A production build renders neither.
+ *
+ * NOTHING IS DELETED AND NO FLAG HAS TO BE FLIPPED LATER. `image` and `case` are tagged
+ * unions, so the moment a `kind: 'brief'` becomes a `kind: 'photo'`, or a
+ * `kind: 'placeholder'` becomes a `kind: 'real'`, that section appears in production by
+ * itself. Sections open as the pieces arrive, one concern at a time, with no code change
+ * and no way to ship a half-finished panel by accident.
+ *
+ * The panel still reads without them: situation, three things to consider, what we do,
+ * and the call to action. That is the argument intact, just without the evidence.
+ */
+const SHOW_UNFINISHED = process.env.NODE_ENV === 'development'
+
 export function ConcernPanel({
   concern,
   headingLevel = 'h2',
@@ -155,10 +179,13 @@ export function ConcernPanel({
           priority={priority}
           className="aspect-16/7 w-full object-cover"
         />
-      ) : (
+      ) : SHOW_UNFINISHED ? (
         /*
           A holding frame at the real image's 16:7, so the panel is laid out now exactly
           as it will be once the photograph lands and nothing shifts when it does.
+
+          DEVELOPMENT ONLY — see SHOW_UNFINISHED above. In production the panel simply
+          starts at its copy until a real photograph is set on the concern.
 
           It has to read as DELIBERATELY EMPTY rather than broken, which is the whole
           design problem here: an untreated tinted block at this height just looks like a
@@ -182,7 +209,7 @@ export function ConcernPanel({
             <p className="mt-2 text-sm text-ink-muted">{concern.image.brief}</p>
           </div>
         </div>
-      )}
+      ) : null}
 
       <div className="p-6 sm:p-10 lg:p-12">
         <p className="text-eyebrow uppercase text-ink-muted">Their situation</p>
@@ -198,7 +225,15 @@ export function ConcernPanel({
           ))}
         </div>
 
-        {/* 2. The case. Always present, even while it is a placeholder. */}
+        {/*
+          2. The case.
+
+          Rendered when it is real, and in development when it is still a brief so the gap
+          stays visible to whoever is writing. A production build with an unwritten case
+          shows no section at all rather than an empty promise. See SHOW_UNFINISHED above.
+        */}
+        {concern.case.kind === 'real' || SHOW_UNFINISHED ? (
+          <>
         <p className="mt-10 text-eyebrow uppercase text-ink-muted">A real case</p>
         <blockquote className={`mt-3 max-w-[42rem] border-l-2 py-1 pl-5 ${rule}`}>
           {concern.case.kind === 'real' ? (
@@ -224,6 +259,8 @@ export function ConcernPanel({
             <p className="text-base/7 italic text-ink-muted">{concern.case.brief}</p>
           )}
         </blockquote>
+          </>
+        ) : null}
 
         {/* 3. Numbers, only where a real on-topic figure exists. */}
         {concern.numbers ? (

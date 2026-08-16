@@ -20,6 +20,7 @@
     "port:page": "tsx scripts/port-page.ts",
     "capture:assets": "tsx scripts/pull-assets.ts",
     "resize:image": "tsx scripts/resize-image.ts",
+    "content:status": "tsx scripts/content-status.ts",
     "capture:freshdesk": "tsx scripts/crawl-freshdesk.ts",
     "ingest:freshdesk": "tsx scripts/ingest-freshdesk.ts",
     "gen:redirects": "tsx scripts/gen-redirects.ts"
