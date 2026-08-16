@@ -6,7 +6,7 @@ export const siteConfig = {
   /** Kept in sync with the live domain — used for canonical URLs and metadataBase. */
   url: 'https://www.asktic.com',
   description:
-    'Independent insurance advisory in Singapore — international health, employee benefits, maternity and speciality cover.',
+    'Insurance advisory in Singapore: international health, employee benefits, maternity and newborn, and cover for offshore and deployed teams.',
 } as const
 
 export type NavItem = {
