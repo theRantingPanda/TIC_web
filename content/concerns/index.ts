@@ -197,10 +197,10 @@ export const concerns: readonly Concern[] = [
     panelTitle: 'Maternity cover runs on a clock',
     image: {
       kind: 'photo',
-      src: '/images/50b90fb3dac547b58b92ffce7e9c2e6a-2e95b71a.jpg',
+      src: '/images/50b90fb3dac547b58b92ffce7e9c2e6a-2e95b71a.webp',
       alt: '',
-      width: 2000,
-      height: 1333,
+      width: 1800,
+      height: 1200,
     },
     situation: [
       'Plans usually make you wait before maternity benefits begin, so the cover has to be in place long before there is anything to claim for. Once a pregnancy has started it is usually excluded from a new plan. That is the whole argument here, and it is why this is worth a conversation early rather than late.',
@@ -253,10 +253,10 @@ export const concerns: readonly Concern[] = [
     panelTitle: 'Moving to Singapore',
     image: {
       kind: 'photo',
-      src: '/images/relocating-to-singapore.jpg',
+      src: '/images/relocating-to-singapore.webp',
       alt: '',
-      width: 2000,
-      height: 1077,
+      width: 1800,
+      height: 969,
     },
     situation: [
       'Cover through a previous employer usually ends when the job does. Moving countries can mean fresh underwriting on the new plan, and anything diagnosed since you last applied may be excluded or loaded.',
@@ -453,7 +453,7 @@ export const concerns: readonly Concern[] = [
      */
     image: {
       kind: 'photo',
-      src: '/images/pre-existing-conditions.jpg',
+      src: '/images/pre-existing-conditions.webp',
       alt: '',
       width: 1548,
       height: 1016,
@@ -689,10 +689,10 @@ export const concerns: readonly Concern[] = [
     panelTitle: 'Offshore and deployed teams',
     image: {
       kind: 'photo',
-      src: '/images/1a2db263adbd45d4b3df37a3fd15c5a8-c2cabe1d.jpg',
+      src: '/images/1a2db263adbd45d4b3df37a3fd15c5a8-c2cabe1d.webp',
       alt: '',
-      width: 2000,
-      height: 1123,
+      width: 1800,
+      height: 1011,
     },
     situation: [
       'Hire in Kuala Lumpur, deploy offshore, treat in Singapore. If your team moves around more than most, the cover needs to as well, including evacuation terms that are worth reading before anyone needs them.',

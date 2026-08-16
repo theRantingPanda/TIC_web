@@ -102,8 +102,19 @@ export function ConcernPage({ path }: { path: string }) {
             </Link>
           </p>
 
-          {/* The panel is an <h1> here and an <h2> on the homepage. Same markup. */}
-          <ConcernPanel concern={concern} headingLevel="h1" ctaHref="#talk-to-us" />
+          {/*
+            The panel is an <h1> here and an <h2> on the homepage. Same markup otherwise.
+
+            `priority` because on this route the lead image is above the fold and is the
+            LCP element. The homepage passes no priority for the same component, because
+            there the panel starts hidden. See the prop's note in concern-panel.tsx.
+          */}
+          <ConcernPanel
+            concern={concern}
+            headingLevel="h1"
+            ctaHref="#talk-to-us"
+            priority
+          />
         </Container>
       </section>
 

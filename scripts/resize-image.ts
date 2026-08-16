@@ -14,15 +14,15 @@
  *   npm run resize:image -- public/images/Big.jpg
  *   npm run resize:image -- public/images/Big.png --width 1600 --quality 0.8
  *
- * It writes a `.jpg` beside the source — photographs are never PNG here, since the same
- * picture was 1.7 MB as a PNG and a fraction of that as a JPEG. A non-JPEG source is left
- * alone, so removing it is a deliberate `git rm` rather than something this script does
- * behind you.
+ * It writes a `.webp` beside the source by default. WebP is roughly 30% smaller than JPEG
+ * at the same visual quality and has had universal browser support since 2020, so there is
+ * no case for a `<picture>` fallback on a site built in 2026. Pass `--format jpeg` if you
+ * need one for something outside the site.
  *
- * ⚠ A `.jpg` SOURCE IS OVERWRITTEN IN PLACE, because the output path is the input path.
- * That is usually what you want for a file already committed at the wrong size, but it
- * means the original is only recoverable from git. Copy it elsewhere first if it is not
- * committed yet.
+ * ⚠ IF THE OUTPUT PATH EQUALS THE INPUT PATH the source is overwritten, because the two
+ * are the same file. That happens when the source already has the target extension. It is
+ * usually what you want for a file committed at the wrong size, but the original is then
+ * only recoverable from git. Copy it elsewhere first if it is not committed yet.
  *
  * HOW. There is no ImageMagick, libvips, sharp or Pillow in this environment, and adding
  * one for occasional use is a poor trade. Playwright is already a devDependency for the
@@ -51,6 +51,12 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
  */
 const DEFAULT_WIDTH = 2000
 const DEFAULT_QUALITY = 0.82
+const DEFAULT_FORMAT = 'webp'
+
+const OUTPUT: Record<string, { mime: string; extension: string }> = {
+  webp: { mime: 'image/webp', extension: '.webp' },
+  jpeg: { mime: 'image/jpeg', extension: '.jpg' },
+}
 
 const MIME: Record<string, string> = {
   '.jpg': 'image/jpeg',
@@ -69,7 +75,15 @@ function parseArgs() {
   }
 
   if (positional.length === 0) {
-    console.error('Usage: npm run resize:image -- <file> [--width 2000] [--quality 0.82]')
+    console.error(
+      'Usage: npm run resize:image -- <file> [--width 2000] [--quality 0.82] [--format webp|jpeg]',
+    )
+    process.exit(1)
+  }
+
+  const format = flag('format') ?? DEFAULT_FORMAT
+  if (!OUTPUT[format]) {
+    console.error(`✗ --format must be one of: ${Object.keys(OUTPUT).join(', ')}`)
     process.exit(1)
   }
 
@@ -77,6 +91,7 @@ function parseArgs() {
     source: path.resolve(ROOT, positional[0]),
     width: Number(flag('width') ?? DEFAULT_WIDTH),
     quality: Number(flag('quality') ?? DEFAULT_QUALITY),
+    format,
   }
 }
 
@@ -101,7 +116,7 @@ async function launch() {
 }
 
 async function main(): Promise<void> {
-  const { source, width: maxWidth, quality } = parseArgs()
+  const { source, width: maxWidth, quality, format } = parseArgs()
 
   if (!fs.existsSync(source)) {
     console.error(`✗ ${path.relative(ROOT, source)} does not exist.`)
@@ -139,12 +154,21 @@ async function main(): Promise<void> {
   await page.goto(origin, { waitUntil: 'load' })
 
   const result = await page.evaluate(
-    async ({ maxWidth, quality }) => {
+    async ({ maxWidth, quality, mime: outputMime }) => {
       const image = new Image()
       image.src = '/image'
       await image.decode()
 
-      const scale = Math.min(1, maxWidth / image.naturalWidth)
+      /*
+        Scale from the LONG EDGE, not from the width.
+        Dividing by naturalWidth alone leaves a portrait image untouched however tall it
+        is — a 1500x6000 file has a width under the cap and sails through at scale 1,
+        which defeats the entire point of a script whose job is to stop oversized files
+        reaching production. The cap this file documents has always been a long-edge cap;
+        until 2026-08-16 the code only enforced it on landscape images.
+      */
+      const longEdge = Math.max(image.naturalWidth, image.naturalHeight)
+      const scale = Math.min(1, maxWidth / longEdge)
       const width = Math.round(image.naturalWidth * scale)
       const height = Math.round(image.naturalHeight * scale)
 
@@ -158,26 +182,26 @@ async function main(): Promise<void> {
       context.imageSmoothingEnabled = true
       context.imageSmoothingQuality = 'high'
       // JPEG has no alpha. Flatten onto white first, or a transparent PNG's transparent
-      // pixels come through as black.
+      // pixels come through as black. Harmless for WebP, which keeps its alpha anyway.
       context.fillStyle = '#ffffff'
       context.fillRect(0, 0, width, height)
       context.drawImage(image, 0, 0, width, height)
 
       return {
-        dataUrl: canvas.toDataURL('image/jpeg', quality),
+        dataUrl: canvas.toDataURL(outputMime, quality),
         sourceWidth: image.naturalWidth,
         sourceHeight: image.naturalHeight,
         width,
         height,
       }
     },
-    { maxWidth, quality },
+    { maxWidth, quality, mime: OUTPUT[format].mime },
   )
 
   await browser.close()
   server.close()
 
-  const target = source.replace(/\.[^.]+$/, '.jpg')
+  const target = source.replace(/\.[^.]+$/, OUTPUT[format].extension)
   const output = Buffer.from(result.dataUrl.split(',')[1], 'base64')
   fs.writeFileSync(target, output)
 
@@ -186,9 +210,13 @@ async function main(): Promise<void> {
   console.log(`      ${result.sourceWidth}x${result.sourceHeight}, ${mb(buffer.length)}`)
   console.log(`  out ${path.relative(ROOT, target)}`)
   console.log(`      ${result.width}x${result.height}, ${mb(output.length)}`)
+  const saved = Math.round((1 - output.length / buffer.length) * 100)
+  console.log(`      ${saved}% smaller`)
   if (target !== source) {
     console.log('\n  The original is untouched. Remove it once you are happy:')
     console.log(`      git rm ${path.relative(ROOT, source)}`)
+  } else {
+    console.log('\n  Overwritten in place. The original is in git history only.')
   }
 }
 

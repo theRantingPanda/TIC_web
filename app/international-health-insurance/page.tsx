@@ -130,10 +130,10 @@ export default function Page() {
               because images are served unoptimised.
             */}
             <Image
-              src="/images/e5c3769b69fb4c25a48a0c0c8cd15aa3-d1874e47.jpg"
+              src="/images/e5c3769b69fb4c25a48a0c0c8cd15aa3-d1874e47.webp"
               alt=""
-              width={2000}
-              height={1575}
+              width={1200}
+              height={945}
               sizes="(min-width: 1024px) 32rem, 100vw"
               priority
               className="h-64 w-full rounded-(--radius-panel) object-cover sm:h-80 lg:h-96"

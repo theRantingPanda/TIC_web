@@ -108,11 +108,24 @@ export function ConcernPanel({
   concern,
   headingLevel = 'h2',
   ctaHref,
+  priority = false,
 }: {
   concern: Concern
   headingLevel?: 'h1' | 'h2'
   /** Where the closing call to action goes. The routes point it at their own form. */
   ctaHref: string
+  /**
+   * Load the lead image eagerly.
+   *
+   * THIS IS ASYMMETRIC ON PURPOSE, so do not "tidy" it into always-on or always-off. On a
+   * concern route the panel is the page hero, the image is above the fold and is the LCP
+   * element, so lazy-loading it delays the largest paint for no benefit. On the homepage
+   * the identical component sits inside a `display:none` panel, where eager loading would
+   * fetch photographs for eight situations the visitor has not asked about.
+   *
+   * components/concern-page.tsx passes it; app/page.tsx deliberately does not.
+   */
+  priority?: boolean
 }) {
   const Heading = headingLevel
   const SubHeading = headingLevel === 'h1' ? 'h2' : 'h3'
@@ -139,6 +152,7 @@ export function ConcernPanel({
           width={concern.image.width}
           height={concern.image.height}
           sizes="(min-width: 1024px) 56rem, 100vw"
+          priority={priority}
           className="aspect-16/7 w-full object-cover"
         />
       ) : (

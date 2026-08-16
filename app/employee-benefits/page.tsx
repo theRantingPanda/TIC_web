@@ -108,10 +108,10 @@ export default function Page() {
               </p>
             </div>
             <Image
-              src="/images/f84f9edff22c4f77a4be1f9898b2f8d6-64ced674.jpg"
+              src="/images/f84f9edff22c4f77a4be1f9898b2f8d6-64ced674.webp"
               alt=""
-              width={1920}
-              height={1280}
+              width={1200}
+              height={800}
               sizes="(min-width: 1024px) 32rem, 100vw"
               priority
               className="h-64 w-full rounded-(--radius-panel) object-cover sm:h-80 lg:h-96"
@@ -274,7 +274,15 @@ export default function Page() {
         The right conversation depends on which one the reader is actually in, which is
         why the four are a choice rather than four more sections of this page.
       */}
-      <Section tone="subtle" labelledBy="where-heading">
+      {/*
+        `id` on the SECTION, not just `labelledBy`, and the CTA below targets the section.
+
+        Pointing the CTA at `#where-heading` targeted the <h2> that SectionHeading renders,
+        and components/section.tsx bakes `scroll-mt-20` into the <section> — so the offset
+        was inert and the heading landed underneath the 64px sticky header. The fragment
+        target has to be the element carrying the offset.
+      */}
+      <Section id="where-you-are" tone="subtle" labelledBy="where-heading">
         <SectionHeading
           id="where-heading"
           title="Where you are with it"
@@ -345,7 +353,7 @@ export default function Page() {
             arrives tagged with the situation, which is a better lead than an untagged
             enquiry and a shorter path for the reader than working out which box to tick.
           */}
-          <CtaButton href="#where-heading">Tell us where you are with it</CtaButton>
+          <CtaButton href="#where-you-are">Tell us where you are with it</CtaButton>
         </p>
       </Section>
     </>
