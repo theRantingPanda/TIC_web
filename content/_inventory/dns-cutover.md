@@ -259,11 +259,19 @@ somewhere readable, not nowhere.
 
 The fix is in Google Workspace, not in DNS and not in this repo:
 
-1. **Preferred — stop `dmarc@` reaching the polled mailbox.** Remove `dmarc@asktic.com`
-   wherever it is currently an alias on, or forwards into, the account Freshdesk polls, and
-   recreate it as a standalone Group with external posting allowed (reporters are external
-   senders — if posting is restricted the reports bounce and the data is lost silently).
-   Leaves DNS untouched, so nothing already cached by reporters changes.
+1. **Preferred — stop `dmarc@` reaching the polled mailbox**, by moving it to a standalone
+   Group. Leaves DNS untouched, so nothing already cached by reporters changes. Three
+   things about this are easy to get wrong:
+
+   - **Build the group under a temporary address first**, verify it, and only then move
+     `dmarc@` onto it as a group alias. The obvious order — free the address, then create
+     the group — opens a window where mail to `dmarc@` bounces, and Google can hold a
+     released address for up to 24 hours before it can be reused. That turns a two-minute
+     change into a lost day of reports.
+   - **External posting must stay open.** Reporters are external senders; a group
+     restricted to the organisation rejects them and the data is lost with no signal.
+   - **Conversation history must be on.** A group with history off and no member subscribed
+     to email accepts the reports and stores nothing.
 2. **Stopgap, two minutes, Freshdesk-side.** A dispatch rule matching requester
    `noreply-dmarc-support@google.com`, or subject starting `Report domain:`, set to close
    and skip SLA. Stops the queue and SLA damage immediately while option 1 is arranged. It
