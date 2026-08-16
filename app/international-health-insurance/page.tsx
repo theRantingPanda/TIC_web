@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { CardGrid } from '@/components/card-grid'
 import { Container } from '@/components/container'
+import { CtaButton } from '@/components/cta-button'
 import { Faq, type FaqItem } from '@/components/faq'
 import { FeatureCard } from '@/components/feature-card'
 import { Section } from '@/components/section'
@@ -314,12 +315,7 @@ export default function Page() {
           </p>
         </div>
         <p className="mt-8">
-          <Link
-            href="/#talk-to-us"
-            className="inline-block rounded-md bg-brand-green px-5 py-3 text-sm font-medium text-white no-underline hover:bg-brand-green-700"
-          >
-            Ask us what would carry across
-          </Link>
+          <CtaButton href="/#talk-to-us">Ask us what would carry across</CtaButton>
         </p>
       </Section>
     </>

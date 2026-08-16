@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { ctaClassName } from '@/components/cta-button'
 import { indicativePrice, type AgeBand } from '@/content/home/price-bands'
 
 /**
@@ -128,7 +129,7 @@ export function IndicativePrice({ enquiryHref }: { enquiryHref: string }) {
 
           <button
             type="submit"
-            className="rounded-md bg-brand-green px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-green-700"
+            className={ctaClassName()}
           >
             Show me
           </button>

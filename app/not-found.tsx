@@ -1,6 +1,7 @@
-import Link from 'next/link'
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { Container } from '@/components/container'
+import { ctaClassName } from '@/components/cta-button'
 
 export const metadata: Metadata = {
   title: 'Page not found',
@@ -21,13 +22,13 @@ export default function NotFound() {
       <div className="mt-8 flex flex-wrap gap-3">
         <Link
           href="/"
-          className="rounded-md bg-brand-green px-5 py-2.5 text-sm font-medium text-white no-underline hover:bg-brand-green-700 hover:text-white"
+          className={ctaClassName()}
         >
           Back to home
         </Link>
         <Link
           href="/knowledge"
-          className="rounded-md border border-border px-5 py-2.5 text-sm font-medium text-ink no-underline hover:border-brand-blue hover:text-brand-blue"
+          className={ctaClassName('secondary')}
         >
           Knowledge base
         </Link>

@@ -94,6 +94,25 @@ export function HardHatIcon(props: SVGProps<SVGSVGElement>) {
   )
 }
 
+/**
+ * The individual door on the homepage fork.
+ *
+ * A single figure, not a family group: the door covers "myself or my family" and drawing
+ * two adults and a child would quietly exclude the visitor buying for one person, who is
+ * a large share of this path.
+ *
+ * This pair replaced the emoji 👤 and 🏢 that were tried on the fork buttons. Emoji
+ * undermine the restrained visual language and render inconsistently across platforms.
+ */
+export function PersonIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7" />
+    </Icon>
+  )
+}
+
 /** Disclosure affordance for the FAQ. Rotated by CSS on [open]. */
 export function ChevronDownIcon(props: SVGProps<SVGSVGElement>) {
   return (

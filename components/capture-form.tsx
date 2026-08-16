@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from 'react'
 import { useCapture } from '@/components/capture-context'
+import { ctaClassName } from '@/components/cta-button'
 import {
   CAPTURE_WEBHOOK_URL,
   HONEYPOT_FIELD,
@@ -140,7 +141,7 @@ export function CaptureForm({
       <button
         type="submit"
         disabled={status === 'submitting'}
-        className="mt-4 rounded-md bg-brand-green px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-green-700 disabled:opacity-60"
+        className={`mt-4 ${ctaClassName()}`}
       >
         {status === 'submitting' ? 'Sending…' : submitLabel}
       </button>

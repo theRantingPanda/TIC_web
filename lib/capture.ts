@@ -35,17 +35,32 @@ export const HONEYPOT_FIELD = 'company_website'
  * `npm run typecheck` failure rather than an unroutable lead sitting in n8n.
  */
 export type CaptureSource =
-  | 'homepage-08-individual-timeline'
-  | 'homepage-08-corporate-numbers'
-  | 'homepage-10-enquiry'
+  /**
+   * Every enquiry from a concern page. ONE source rather than eight, with the concern
+   * carried in `fields.concern` and the path in `fields.path`.
+   *
+   * That split is deliberate. The source says which KIND of capture point this is, and
+   * all eight are the same kind — the same form, asking the same questions, at the foot
+   * of the same panel. What differs is the situation the visitor selected, and that is
+   * data about the lead rather than about the form. Eight near-identical source tags
+   * would have to be kept in step with the concern list by hand, and the first one that
+   * drifted would route a lead nowhere.
+   *
+   * n8n therefore gets `source: 'concern-enquiry'` plus a concern it can branch on, and
+   * an enquiry arrives already knowing "individual, planning for a family" rather than
+   * as a blank form.
+   */
+  | 'concern-enquiry'
+  | 'services-individual-timeline'
+  | 'employee-benefits-corporate-numbers'
   /** Reserved for phase 2 of the indicative price component, which has no email step. */
   | 'homepage-05-indicative'
   | 'employee-benefits-contact'
   /**
-   * The same two documents as the homepage magnets, requested from the product pages.
-   * Tagged separately rather than reusing the homepage tags: a reader who asks from
+   * The same two documents as the magnets above, requested from the product pages.
+   * Tagged separately rather than reusing those tags: a reader who asks from
    * /maternity-insurance has read a page about waiting periods and is further along than
-   * one who clicked a panel on the homepage, and the follow-up should be able to tell.
+   * one who clicked a panel elsewhere, and the follow-up should be able to tell.
    */
   | 'maternity-timeline'
   | 'employee-benefits-renewal-checklist'

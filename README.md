@@ -5,9 +5,13 @@ site deployed to Render, with the Freshdesk help centre folded into a `/knowledg
 section.
 
 **Current state: live.** The rebuild serves [www.asktic.com](https://www.asktic.com) from
-Render as of 2026-08-12. All three phases are complete; what remains is an editorial pass
-over the ported copy ([`port-worklist.md`](content/_inventory/port-worklist.md)) and two
-DNS items ([`dns-cutover.md`](content/_inventory/dns-cutover.md)).
+Render as of 2026-08-12. The migration phases are complete. The site is now on its second
+build: the homepage was rebuilt on 2026-08-16 as a progressive-disclosure **concern flow**
+and the palette was re-derived from the logo. What remains is real content for the
+placeholders that flow surfaced (see [below](#what-is-still-placeholder-content)), an
+editorial pass over the ported copy
+([`port-worklist.md`](content/_inventory/port-worklist.md)) and two DNS items
+([`dns-cutover.md`](content/_inventory/dns-cutover.md)).
 
 ---
 
@@ -16,8 +20,9 @@ DNS items ([`dns-cutover.md`](content/_inventory/dns-cutover.md)).
 | Phase | Status |
 | --- | --- |
 | **1 — Capture** | Wix: **done** — 21 pages and 18 images archived; 2 pages could not be captured (below). Freshdesk: **stopped by decision** — content is stale and will be supplied by hand; folder inventory kept. See [`content/_inventory/_capture-status.md`](content/_inventory/_capture-status.md). |
-| **2 — Scaffold** | Complete. Builds, exports, and passes the URL-contract check. Nav reconciled against the real Wix nav. |
-| **3 — Port content** | **Complete.** Every preserved path renders real content; no stubs remain. Four pages are built from existing site material rather than ported, because there was nothing to port — see below. |
+| **2 — Scaffold** | Complete. Builds, exports, and passes the URL-contract check. |
+| **3 — Port content** | **Complete.** Every preserved path renders real content; no stubs remain. |
+| **4 — Concern flow** | **Complete, pending content.** Homepage rebuilt as five moves; eight concerns, each a real indexable page from one shared source; palette and type re-derived from the logo. Seven case studies and five lead images are still placeholders. |
 
 ### Phase 1: what came back
 
@@ -262,26 +267,64 @@ group: **`NEXT_PUBLIC_N8N_CONTACT_WEBHOOK`**, without which the contact form on
 ### Layout
 
 ```
-app/            route stubs (one per preserved path) + layout, 404, design tokens
-components/     site-header, site-nav, site-footer, container, page-shell, contact-form
-lib/            site.ts (nav + contract), kb-schema.ts (zod), content.ts (MDX reader)
+app/            one route per preserved path + layout, 404, design tokens, fonts
+                six of them are concern pages and are four lines each
+components/
+  home-flow           the homepage's only JavaScript — enhances, never renders
+  concern-panel       the six-part drill-down, shared by homepage and route
+  concern-page        a concern's whole route: panel + questions + tagged form
+  cta-button          the one button. Ink, because green fails contrast
+  capture-form        the form state machine, honeypot included
+lib/            site.ts (nav + contract), capture.ts (lead tagging), kb-schema.ts (zod),
+                content.ts (MDX reader)
 content/
   url-contract.json          canonical preserved paths — the hard constraint
-  kb/                        KB articles (MDX) — empty until Phase 3
+  concerns/index.ts          the eight concerns — one source, two surfaces
+  home/copy.ts               homepage strings only; the flow's copy is in concerns/
+  kb/                        KB articles (MDX) — empty by decision
   _inventory/                capture archive — see its own README
 public/
   forms/manifest.json        file library — scaffolded empty, not populated
-  images/                    Wix asset-pull target
+  images/                    Wix asset-pull target, plus logo-mark and logo-wordmark
 scripts/        capture + verification tooling
 render.yaml     deploy config and all redirects
 ```
 
 ### Design tokens
 
-`app/globals.css` is the only place colour is defined. Brand green `#3a8c3f` and blue
-`#1b5faa` anchor two scales at their `600` step (`brand-green-600` === `brand-green`),
-namespaced so Tailwind's own `green`/`blue` stay available. Components must not hardcode
-hex values.
+`app/globals.css` is the only place colour is defined. Components must not hardcode hex
+values.
+
+**The palette is sampled from the logo, not chosen.** `public/images/logo-mark.png` — the
+roundel — contains exactly two saturated colours, and they anchor the two scales at their
+`600` step (`brand-green-600` === `brand-green`):
+
+| | Was | Is | Why |
+| --- | --- | --- | --- |
+| green | `#3a8c3f` | **`#6aab35`** | The old value was a forest green at hue 123. The logo's is a leaf green at hue 93. They are not the same colour and the old one was never on the mark. |
+| blue | `#1b5faa` | **`#196db6`** | Close, but not the mark's own. Moved for the same reason. |
+
+The wordmark carries a third hue, an indigo `#3f59a8` on the word "Concierge". It is
+deliberately **not** a token: two accents is the system, a third is decoration.
+
+Two rules fall out of the contrast maths and are recorded in the stylesheet:
+
+- **Green cannot carry white text** (2.80:1). Primary calls to action are ink on paper
+  (14.05:1) via `components/cta-button.tsx`. Do not add a green button back — the old
+  one was already failing body-text contrast at 4.20:1.
+- **Green is a graphic accent, blue is a text accent.** Blue clears body text on paper at
+  4.62:1; green does not until its `800` step. So path identity is carried by tint and
+  border, never by colouring body copy green.
+
+Green is the individual path, blue is the company path, links are blue sitewide. The
+ground is warm stone (`surface-subtle`) with cards in a warm near-white (`surface`) — the
+inversion is deliberate, and `body` is set to the stone.
+
+Type is **Fraunces** (display, with its `opsz` axis) and **Public Sans** (body), loaded
+by `next/font` in `app/layout.tsx` and therefore self-hosted: no request leaves the
+visitor's browser for a font. Both are taken as variable fonts, which is not a
+preference — `next/font` rejects `axes` alongside a fixed `weight` list. Headings get the
+display face from the base layer, so a heading has to opt out rather than in.
 
 ### Blog posts
 
@@ -309,20 +352,90 @@ Two details worth knowing before editing:
 The port is mechanical: it reproduces the Wix copy, defects and all. See
 [`content/_inventory/port-worklist.md`](content/_inventory/port-worklist.md).
 
-### Four pages are built, not ported
+### The homepage is a flow, not a page of sections
+
+Rebuilt 2026-08-16. Five moves, each earned by the visitor's previous action: sparse hero
+→ four trust stats → **one binary choice** (myself/family, or my company) → four concern
+cards for that path → the drill-down panel. Nothing else. The deletions are the point —
+no About section, no logo wall, no testimonial carousel, no second CTA.
+
+Each of the eight concerns is a **real indexable page**, and `content/concerns/index.ts`
+is the single source both surfaces read: the homepage reveals a concern's panel inline,
+and the concern's own route renders the identical panel with its own metadata. Neither
+can drift from the other.
+
+**The fork is CSS, not JavaScript.** Two radio inputs and `:has()` decide which grid
+shows, so there is no flash on hydration and the choice works with scripting off. The
+default is *visible* and the hiding happens inside `@supports`, so a browser without
+`:has()` degrades to a plain list of eight situations. The concern cards are real links;
+`components/home-flow.tsx` only enhances them into an inline reveal, and leaves modified
+clicks alone so cmd-click still opens the page.
+
+Two concerns **absorbed existing indexed paths** rather than competing with them:
+`/maternity-insurance` is "Planning for a family" and `/offshore-and-energy` is "a
+workforce that does not sit in one country". Both keep their equity; the maternity page
+kept the three sections the six-part panel has no slot for, via `ConcernPage`'s children
+slot. That slot is not an extension point for new concerns.
+
+`#talk-to-us` now anchors the **fork**, not an enquiry form. The form moved to the concern
+pages, where the question is known and the lead arrives tagged. The anchor is linked from
+the header CTA and two other pages, so it was kept pointing at the site's actual ask.
+
+**Lead tagging** is built: a concern page's form posts `source: 'concern-enquiry'` plus
+`concern`, `path` and `situation` as fields, so an enquiry reaches n8n already knowing
+"individual, planning for a family". One source rather than eight — the source says which
+*kind* of capture point this is, and the situation is data about the lead.
+
+### Pages that are built, not ported
 
 There was no Wix copy to reproduce for these. Nothing was invented for them either —
 each is assembled from material the site already publishes:
 
 | Page | Why | What it shows |
 | --- | --- | --- |
-| `/services` | Client-rendered on Wix at `/blog`; never captured. That path was the **Services** landing page, not a blog index, and it now 301s here. | The cover pages, plus the 12 posts — which also gives the posts an index, since the Wix category pages were dropped. |
-| `/maternity-insurance` | Client-rendered on Wix; never captured. | The firm's own maternity and newborn cards from the homepage, plus the maternity-related posts. |
+| `/services` | Client-rendered on Wix at `/blog`; never captured. That path was the **Services** landing page, not a blog index, and it now 301s here. | The two product pages, all eight concerns in one flat list, the individual lead magnet, and the 12 posts — which also gives the posts an index, since the Wix category pages were dropped. |
+| the six new concern pages | New paths, added with the flow. | The shared panel, a questions band, and a lead-tagged enquiry form. |
 | `/knowledge` | New path. `content/kb/` is empty and stays empty — KB copy is being written by hand, not ported from Freshdesk. | The posts, and a link to the live help centre at `support.asktic.com`, which Freshdesk still serves. |
 | `/forms` | New path. The Wix `/file-access` original was an unconfigured template. | `public/forms/manifest.json`, which is empty — so an empty state that invites contact rather than a blank list. |
 
-Replace any of them the moment real copy exists. The first two in particular are
-placeholders standing in for pages that do exist on the live site.
+### What is still placeholder content
+
+Nothing below is invented, but nothing below is finished either:
+
+- **Seven of the eight case studies.** Each renders bracketed and visibly unfinished, with
+  a brief describing what a real one needs. A case does **not** have to end in a win —
+  "we recommended staying put" is often the more credible story. The one real case is
+  anonymised and permission-cleared (both the family's and the employer's) and sits on
+  `/beyond-employer-cover`, because that panel's argument is a company scheme's ceiling
+  and the case is that ceiling being exceeded by S$53,000. Do not restate it elsewhere.
+- **Five of the eight lead images.** Real photography is in place for maternity, the
+  newborn section and offshore. The rest render their photography brief instead of
+  reserving a photo's height. A licensed image has been chosen for
+  `/pre-existing-conditions` and needs saving to `public/images/`; see the note on that
+  concern.
+- **Figures on every concern except relocating.** See below.
+- **The trust stats**, which are published on the live site but were queried against
+  `tic_crm_dev` rather than production. The outstanding checks are listed in
+  `content/home/copy.ts`.
+
+#### One deliberate removal: the "from USD 95 a month" band
+
+The old homepage published a cost band reading *from USD 95 a month* at age 30 and *USD
+115* at 40, for in-patient cover on a USD 8,500 deductible. The relocating panel's table —
+from a live rate lookup on the same configuration — says **USD 138 at 30 and USD 201 at
+40**.
+
+Both cannot be published. A "from" figure is a floor across options and the table is one
+product's real rate, so they are not strictly contradictory, but side by side on one site
+they read as one of them being wrong. The table is the traceable one, so it stayed and the
+band did not get rehomed. `/beyond-employer-cover` therefore shows the mechanism and **no
+number**, per the standing rule: if a figure cannot be both accurate and on-topic, show no
+figure. Price that configuration properly against the current rate table and the band can
+come back.
+
+Note also that the relocating footnote does **not** name the carrier the rates came from.
+`npm run verify:copy` forbids insurer names in public copy, and that rule wins over the
+handoff's draft wording.
 
 ### Where ported content lives
 
@@ -374,19 +487,27 @@ or rebuilding the service: with `NODE_ENV=production`, `npm ci` skips devDepende
 the build fails on the Tailwind PostCSS plugin. Render's own static-site install includes
 them, which is why the live service builds fine without the flag.
 
-### The contact form is disabled
+### Every form on the site is currently a mailto
 
-`components/contact-form.tsx` works and is not mounted anywhere. It was briefly on
-`/employee-benefits` — the page that carried one on Wix — and was disabled on
-2026-08-11 because `NEXT_PUBLIC_N8N_CONTACT_WEBHOOK` is not configured. Without it the
-form renders, accepts input, and then tells the visitor to email instead, which is worse
-than not offering a form. The email address and phone number on that page are the live
-route meanwhile.
+`NEXT_PUBLIC_N8N_CONTACT_WEBHOOK` is not configured, so `captureEnabled` is `false` and
+**no form is rendered at all** — the decision is made in a server component at build time
+and the page ships a static mailto instead. That is deliberate: a form that accepts what
+someone typed and then tells them to email instead is worse than not offering one.
 
-**So the site currently needs no environment variables at all.** To re-enable the form,
-set `NEXT_PUBLIC_N8N_CONTACT_WEBHOOK` on the Render service **first**, then restore the
-two lines noted in `app/employee-benefits/page.tsx`. That variable would be the only one
-this service may ever hold — see `render.yaml`.
+This now affects more than one page. Every concern page's enquiry form, both lead magnet
+panels, and the indicative price component all branch on the same flag. The mailto
+fallbacks carry the concern in the subject line, so a lead still arrives tagged.
+
+**So the site currently needs no environment variables at all.** Setting
+`NEXT_PUBLIC_N8N_CONTACT_WEBHOOK` on the Render service turns all of them on at once.
+That variable would be the only one this service may ever hold — see `render.yaml`. Note
+that setting it does **not** trigger a deploy: `scripts/lib/build-stamp.ts` hashes source
+files, not environment, so an unchanged repo produces an identical hash and Render's
+auto-deploy will not fire. Trigger a manual redeploy after setting it.
+
+`components/contact-form.tsx` is the older standalone form and is still mounted nowhere.
+Everything now goes through `components/capture-form.tsx`, which owns the honeypot and
+the four states in one place.
 
 ### Knowledge-base frontmatter
 

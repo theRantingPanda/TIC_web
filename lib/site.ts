@@ -22,20 +22,24 @@ export type NavGroup = {
 }
 
 /**
- * Navigation — restructured 2026-08-16 to the homepage copy deck's four entries.
+ * Navigation — restructured 2026-08-16, then again the same day for the concern flow.
  *
- * It previously mirrored the live Wix nav (Home · Services · Members · Projects). The
- * deck replaces that with Cover · For companies · About · Answers, plus a "Talk to us"
- * button. Three of those needed reconciling against what actually exists:
+ * It previously mirrored the live Wix nav (Home · Services · Members · Projects), then
+ * became Cover · For companies · Answers against the homepage copy deck. It now splits
+ * along the same fork the homepage does, because the site's structure is that fork:
  *
- * - **Cover** points at `/services`, which is `/blog`'s 301 destination. The old
- *   "Services → /blog" pairing is gone with the redirect.
- * - **For companies** points at `/employee-benefits`. The deck wants `/business`, which
- *   does not exist yet. Repointing this is the whole change when it does. It duplicates
- *   an item in the Cover dropdown, which is honest rather than a defect: the hero's
- *   second CTA needs a corporate door and this is the only real one.
+ * - **Cover** is the individual path. Its dropdown is the four individual concerns, in
+ *   the order the homepage grid shows them, plus the product page they all sit under.
+ *   The parent still points at `/services`, which is `/blog`'s 301 destination.
+ * - **For companies** is the company path, and its dropdown is the four company
+ *   concerns. The parent points at `/employee-benefits`, which is the company hub.
  * - **About** is omitted entirely. `/about` does not exist, and pointing it at
  *   `/projects` would be worse than leaving it out.
+ *
+ * The dropdown labels are NOT the homepage's card titles. A card says "I already have a
+ * medical condition" because the visitor has just been asked what is on their mind and
+ * the card answers in their words. A nav entry is a signpost read out of that context,
+ * so it names the subject: "Pre-existing conditions". Do not sync the two lists.
  *
  * "Home" is dropped because the header's logo already links `/`. The "Members" dropdown
  * is killed per the deck; its two destinations move to Answers and to the footer.
@@ -56,12 +60,22 @@ export const primaryNav: readonly NavGroup[] = [
     href: '/services',
     items: [
       { href: '/international-health-insurance', label: 'International health insurance' },
-      { href: '/maternity-insurance', label: 'Maternity and newborn' },
-      { href: '/employee-benefits', label: 'Employee benefits' },
-      { href: '/offshore-and-energy', label: 'Offshore and deployed teams' },
+      { href: '/maternity-insurance', label: 'Planning for a family' },
+      { href: '/relocating-to-singapore', label: 'Relocating to Singapore' },
+      { href: '/beyond-employer-cover', label: 'Beyond your employer’s cover' },
+      { href: '/pre-existing-conditions', label: 'Pre-existing conditions' },
     ],
   },
-  { label: 'For companies', href: '/employee-benefits' },
+  {
+    label: 'For companies',
+    href: '/employee-benefits',
+    items: [
+      { href: '/renewal-premium-increase', label: 'A renewal that has increased' },
+      { href: '/cover-for-senior-hires', label: 'Cover for senior hires' },
+      { href: '/offshore-and-energy', label: 'Offshore and deployed teams' },
+      { href: '/first-company-scheme', label: 'Setting up a first scheme' },
+    ],
+  },
   { label: 'Answers', href: '/knowledge' },
 ] as const
 
@@ -92,12 +106,23 @@ export const flatNav: readonly NavItem[] = primaryNav.flatMap((group) => [
  */
 export const footerNav: readonly { heading: string; items: readonly NavItem[] }[] = [
   {
-    heading: 'Cover',
+    heading: 'For you and your family',
     items: [
       { href: '/international-health-insurance', label: 'International health insurance' },
-      { href: '/maternity-insurance', label: 'Maternity and newborn' },
+      { href: '/maternity-insurance', label: 'Planning for a family' },
+      { href: '/relocating-to-singapore', label: 'Relocating to Singapore' },
+      { href: '/beyond-employer-cover', label: 'Beyond your employer’s cover' },
+      { href: '/pre-existing-conditions', label: 'Pre-existing conditions' },
+    ],
+  },
+  {
+    heading: 'For companies',
+    items: [
       { href: '/employee-benefits', label: 'Employee benefits' },
+      { href: '/renewal-premium-increase', label: 'A renewal that has increased' },
+      { href: '/cover-for-senior-hires', label: 'Cover for senior hires' },
       { href: '/offshore-and-energy', label: 'Offshore and deployed teams' },
+      { href: '/first-company-scheme', label: 'Setting up a first scheme' },
     ],
   },
   {
