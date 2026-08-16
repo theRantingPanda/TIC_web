@@ -230,12 +230,48 @@ the zone alone until the DMARC reports settle it.
 2. **Do not cancel the Wix subscription** until that is settled. The Wix zone is the
    rollback, and the only remaining copy of the records that were dropped.
 3. **Raise the TTL** from `300` once the zone has been stable for a day or two.
-4. **Route `dmarc@asktic.com` out of the support queue.** The reports are arriving as
-   Freshdesk tickets — 49294 is one. Every reporting provider sends daily, so this fills the
-   queue with mail no agent should be triaging.
+4. **Route `dmarc@asktic.com` out of the support queue** — see below.
 
 Done: test messages on both sending paths, and removal of the `asktic.com` →
 `216.24.57.1` Host Record.
+
+### DMARC reports are landing in the support queue
+
+Diagnosed on Freshdesk ticket 49294, 2026-08-16:
+
+```
+to_emails      ["dmarc@asktic.com"]
+support_email  askticcomhello@asktic.freshdesk.com     <- the hello@ mailbox
+requester      noreply-dmarc-support@google.com
+source 1 (email)   status 2 (open)   fr_due_by 2026-08-17T10:00:00Z
+tags           ["No New Tix Notification"]
+```
+
+`dmarc@asktic.com` delivers into the Gmail mailbox Freshdesk polls for `hello@`, so each
+report opens a ticket. Someone has already tagged them to suppress the new-ticket alert,
+which hides the noise without stopping it — the tickets still open, still sit unassigned,
+and **still carry a first-response SLA clock**, so they accumulate as breaches and distort
+response-time reporting. Every reporting provider sends daily.
+
+**Do not solve this by deleting them.** The reports are the evidence needed to settle
+whether `include:email.freshdesk.com` authorises anything (above). They need to land
+somewhere readable, not nowhere.
+
+The fix is in Google Workspace, not in DNS and not in this repo:
+
+1. **Preferred — stop `dmarc@` reaching the polled mailbox.** Remove `dmarc@asktic.com`
+   wherever it is currently an alias on, or forwards into, the account Freshdesk polls, and
+   recreate it as a standalone Group with external posting allowed (reporters are external
+   senders — if posting is restricted the reports bounce and the data is lost silently).
+   Leaves DNS untouched, so nothing already cached by reporters changes.
+2. **Stopgap, two minutes, Freshdesk-side.** A dispatch rule matching requester
+   `noreply-dmarc-support@google.com`, or subject starting `Report domain:`, set to close
+   and skip SLA. Stops the queue and SLA damage immediately while option 1 is arranged. It
+   does not stop ticket creation.
+3. **Only if a dedicated analyser is wanted:** repoint `rua=` at it. Note that an external
+   destination must publish `asktic.com._report._dmarc.<their-domain>` containing
+   `v=DMARC1`, or it is not authorised to receive reports for this domain and they are
+   dropped. Same-domain addresses need no such record, which is why option 1 is simpler.
 
 ---
 
