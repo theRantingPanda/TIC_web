@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { Container } from '@/components/container'
 import { about, contact, footerNav, regulatory, siteConfig } from '@/lib/site'
@@ -8,9 +9,18 @@ export function SiteFooter() {
       <Container className="py-12">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
-            <p className="text-lg font-semibold tracking-tight text-ink">
-              {siteConfig.name}
-            </p>
+            {/*
+              The wordmark reads "InsuranceConcierge", which is not the registered name,
+              so the full name follows it in text. Here the alt IS the name: unlike the
+              header, nothing else in this block announces the firm.
+            */}
+            <Image
+              src="/images/tic-logo.png"
+              alt={siteConfig.name}
+              width={300}
+              height={70}
+              className="h-9 w-auto"
+            />
             <p className="mt-2 max-w-xs text-sm text-ink-muted">{about}</p>
             <p className="mt-4 text-sm">
               <a
