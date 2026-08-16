@@ -6,24 +6,42 @@ import { ConcernCard } from '@/components/concern-card'
 import { ConcernPanel } from '@/components/concern-panel'
 import { Container } from '@/components/container'
 import { EmailField } from '@/components/email-field'
-import { Faq, type FaqItem } from '@/components/faq'
 import { Section } from '@/components/section'
 import { SectionHeading } from '@/components/section-heading'
 import { concernByPath, concernsFor, type Concern } from '@/content/concerns'
 import { captureEnabled } from '@/lib/capture'
-import { readPost } from '@/lib/content'
 import { contact } from '@/lib/site'
 
 /**
- * A concern's own page: the same panel the homepage reveals, plus the two things the
- * homepage deliberately does not carry.
+ * A concern's own page: the same panel the homepage reveals, plus the one thing the
+ * homepage deliberately does not carry — an enquiry form tagged with the path and
+ * concern the visitor arrived on.
  *
- *   - the questions band, from this concern's own `questionSlugs`
- *   - the enquiry form, tagged with the path and concern the visitor arrived on
- *
- * That second one is the whole argument for these being real pages rather than in-page
+ * That tagging is the whole argument for these being real pages rather than in-page
  * state. An enquiry from here reaches n8n already knowing "individual, planning for a
  * family", so the reply can open on the situation rather than on a blank form.
+ *
+ * ---- There is no questions band here, and there should not be ----
+ *
+ * One was built and removed on 2026-08-16. It sat between the panel's call to action and
+ * the form, and it was wrong in three ways at once:
+ *
+ *   1. It WIDENED a flow whose every other step narrows. The visitor has just chosen a
+ *      path, chosen a situation, and read an answer to it. Following that with three more
+ *      things they might be worried about puts them back into the scanning-and-doubt mode
+ *      this whole design exists to remove.
+ *   2. The questions were NOT ABOUT THE CONCERN. Offshore and deployed teams got "how do
+ *      I make a claim" and "what is the difference between international and local
+ *      cover", because no article about a multi-country workforce exists. It was padding
+ *      dressed as helpfulness.
+ *   3. It sat AFTER the call to action, so it diluted the ask it was meant to support.
+ *
+ * Where a genuinely on-topic article exists it belongs in the panel's `furtherReading`:
+ * one link, in context, before the CTA rather than a band of three after it. Nothing is
+ * orphaned by the removal — every article is linked from /knowledge and /services.
+ *
+ * If concern-specific articles ever get written, the answer is still `furtherReading`,
+ * not a band.
  *
  * `metadataFor` lives here too, so a route file is four lines and cannot forget the
  * canonical or the description.
@@ -65,15 +83,7 @@ export function ConcernPage({
   const concern = concernByPath(path)
   const company = concern.audience === 'company'
 
-  const faqItems: FaqItem[] = concern.questionSlugs.map((slug) => {
-    const post = readPost(slug)
-    return {
-      question: post.frontmatter.title,
-      // The article's own summary, never a rewrite of it.
-      answer: post.frontmatter.summary,
-      href: `/single-post/${post.frontmatter.slug}`,
-    }
-  })
+
 
   return (
     <>
@@ -101,22 +111,7 @@ export function ConcernPage({
 
       {children}
 
-      {faqItems.length > 0 ? (
-        <Section tone="surface" labelledBy="questions-heading">
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
-            <div className="lg:col-span-5">
-              <SectionHeading id="questions-heading" title="What people ask us" />
-            </div>
-            <div className="lg:col-span-7">
-              <Faq
-                items={faqItems}
-                allAnswersHref="/knowledge"
-                allAnswersLabel="All answers"
-              />
-            </div>
-          </div>
-        </Section>
-      ) : null}
+
 
       <Section id="talk-to-us" tone="subtle" labelledBy="enquiry-heading">
         <SectionHeading

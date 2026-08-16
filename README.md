@@ -22,7 +22,7 @@ editorial pass over the ported copy
 | **1 — Capture** | Wix: **done** — 21 pages and 18 images archived; 2 pages could not be captured (below). Freshdesk: **stopped by decision** — content is stale and will be supplied by hand; folder inventory kept. See [`content/_inventory/_capture-status.md`](content/_inventory/_capture-status.md). |
 | **2 — Scaffold** | Complete. Builds, exports, and passes the URL-contract check. |
 | **3 — Port content** | **Complete.** Every preserved path renders real content; no stubs remain. |
-| **4 — Concern flow** | **Complete, pending content.** Homepage rebuilt as five moves; nine concerns, each a real indexable page from one shared source; palette and type re-derived from the logo. Eight case studies and five lead images are still placeholders. |
+| **4 — Concern flow** | **Complete, pending content.** Homepage rebuilt as five moves; nine concerns, each a real indexable page from one shared source; palette and type re-derived from the logo. Eight case studies and five lead images are still placeholders, and five concerns have no on-topic article to link. |
 
 ### Phase 1: what came back
 
@@ -384,6 +384,15 @@ odd-numbered grid leaves one card alone on its last row, so the last card spans 
 columns and reads as a deliberate closer. That rule is `spansFullWidth` in the content
 module rather than a class on one card, so the next odd grid is not solved a different
 way.
+
+**There is no questions band on a concern page.** One was built and removed the same day:
+it widened a flow whose every other step narrows, its questions were not about the concern
+(offshore teams got "how do I make a claim", because no article about a multi-country
+workforce exists), and it sat between the panel's call to action and the form, diluting
+the ask it was meant to support. A genuinely on-topic article belongs in the panel's
+`furtherReading` — one link, in context, before the CTA. Four of the nine have one; the
+rest have no matching article written yet, and no link beats a link that answers a
+different question.
 
 Each concern is a **real indexable page**, and `content/concerns/index.ts`
 is the single source both surfaces read: the homepage reveals a concern's panel inline,

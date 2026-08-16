@@ -166,16 +166,20 @@ export type Concern = {
   considerations: readonly { term: string; body: string }[]
   whatWeDo: readonly string[]
   ctaLabel: string
-  /** Where the panel points for more depth, when a fuller page already exists. */
-  furtherReading?: { href: string; label: string }
   /**
-   * Blog slugs for the questions band on the concern's own route. Not shown in the
-   * homepage panel: the homepage's job ends at the drill-down, and three more links
-   * there would be the clutter this whole flow removes.
+   * One link out, when a genuinely on-topic page or article exists.
    *
-   * Answers are each article's own `summary` frontmatter, never a rewrite of it.
+   * This is the ONLY route from a concern to further reading, by design. A three-question
+   * band used to sit on each concern page and was removed on 2026-08-16: it widened a
+   * flow whose every other step narrows, and its questions were not about the concern
+   * because the matching articles do not exist. See the note in
+   * components/concern-page.tsx.
+   *
+   * Leave it undefined rather than reaching for a loosely related article. Five of the
+   * nine concerns have no genuinely on-topic piece written yet, and no link is better
+   * than a link that answers a different question.
    */
-  questionSlugs: readonly string[]
+  furtherReading?: { href: string; label: string }
   meta: { title: string; description: string }
 }
 
@@ -228,11 +232,10 @@ export const concerns: readonly Concern[] = [
       'Handle the enrolment when the baby arrives, including putting the case for cover to run from the date of birth rather than from the date the form landed.',
     ],
     ctaLabel: 'Tell us where you are on the clock',
-    questionSlugs: [
-      'does-my-plan-cover-maternity-and-newborn-care',
-      'how-do-i-get-pre-authorisation-for-a-planned-procedure',
-      'will-my-pre-existing-conditions-be-covered',
-    ],
+    furtherReading: {
+      href: '/single-post/does-my-plan-cover-maternity-and-newborn-care',
+      label: 'Does my plan cover maternity and newborn care?',
+    },
     meta: {
       title: 'Maternity and newborn cover in Singapore',
       description:
@@ -312,11 +315,6 @@ export const concerns: readonly Concern[] = [
       href: '/international-health-insurance',
       label: 'How international cover works',
     },
-    questionSlugs: [
-      'what-is-the-difference-between-international-and-local-health-insurance-in-singapore',
-      'will-my-pre-existing-conditions-be-covered',
-      'how-does-the-insurance-concierge-get-paid',
-    ],
     meta: {
       title: 'Relocating to Singapore: health cover from the day you land',
       description:
@@ -424,11 +422,6 @@ export const concerns: readonly Concern[] = [
       'Tell you when the scheme is already enough. That answer costs us the sale and it is still the right one.',
     ],
     ctaLabel: 'Find out what you could buy today',
-    questionSlugs: [
-      'will-my-pre-existing-conditions-be-covered',
-      'what-is-the-difference-between-international-and-local-health-insurance-in-singapore',
-      'how-does-the-insurance-concierge-get-paid',
-    ],
     meta: {
       title: 'Cover beyond your employer’s scheme',
       description:
@@ -498,11 +491,6 @@ export const concerns: readonly Concern[] = [
       href: '/single-post/will-my-pre-existing-conditions-be-covered',
       label: 'Will my pre-existing conditions be covered?',
     },
-    questionSlugs: [
-      'will-my-pre-existing-conditions-be-covered',
-      'what-happens-if-my-claim-is-rejected',
-      'how-do-i-make-a-claim-with-my-international-health-insurance',
-    ],
     meta: {
       title: 'Pre-existing conditions and international health cover',
       description:
@@ -580,11 +568,6 @@ export const concerns: readonly Concern[] = [
       'Line the dates up so there is no uncovered gap in the middle of the move.',
     ],
     ctaLabel: 'Check what happens to your cover',
-    questionSlugs: [
-      'what-is-the-difference-between-international-and-local-health-insurance-in-singapore',
-      'will-my-pre-existing-conditions-be-covered',
-      'how-do-i-make-a-claim-with-my-international-health-insurance',
-    ],
     meta: {
       title: 'Leaving Singapore: what happens to your health cover',
       description:
@@ -638,11 +621,6 @@ export const concerns: readonly Concern[] = [
       href: '/single-post/why-has-my-renewal-premium-increased',
       label: 'Why has my renewal premium increased?',
     },
-    questionSlugs: [
-      'why-has-my-renewal-premium-increased',
-      'when-should-i-start-my-policy-renewal-process',
-      'how-does-the-insurance-concierge-get-paid',
-    ],
     meta: {
       title: 'Group medical renewal: why the premium increased',
       description:
@@ -692,11 +670,6 @@ export const concerns: readonly Concern[] = [
       'Keep the scheme consistent as people are hired into different countries.',
     ],
     ctaLabel: 'Build a package that holds up',
-    questionSlugs: [
-      'how-does-the-insurance-concierge-get-paid',
-      'am-i-covered-for-dental-and-optical-treatment',
-      'does-my-plan-cover-maternity-and-newborn-care',
-    ],
     meta: {
       title: 'Medical cover for senior and regional hires',
       description:
@@ -753,11 +726,6 @@ export const concerns: readonly Concern[] = [
       'Handle the movement, since a workforce like this generates more changes than most.',
     ],
     ctaLabel: 'Tell us how your team is deployed',
-    questionSlugs: [
-      'how-do-i-make-a-claim-with-my-international-health-insurance',
-      'how-do-i-get-pre-authorisation-for-a-planned-procedure',
-      'what-is-the-difference-between-international-and-local-health-insurance-in-singapore',
-    ],
     meta: {
       title: 'Offshore and deployed teams',
       description:
@@ -806,11 +774,6 @@ export const concerns: readonly Concern[] = [
       'Run it once it is in place, including the renewal and the adds and leavers.',
     ],
     ctaLabel: 'Start with a few questions',
-    questionSlugs: [
-      'how-does-the-insurance-concierge-get-paid',
-      'when-should-i-start-my-policy-renewal-process',
-      'am-i-covered-for-dental-and-optical-treatment',
-    ],
     meta: {
       title: 'Setting up employee medical benefits for the first time',
       description:
