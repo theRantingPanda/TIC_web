@@ -294,19 +294,19 @@ export const s08TwoWaysIn = {
  * The deck's first question is "What happens to my cover when I leave the company?",
  * which has no article anywhere — content/kb/ is empty and it is not among the 12 ported
  * posts. Linking a question to nothing is exactly the defect the deck complains about on
- * the current homepage, so it is substituted here with an existing article that stays in
- * register: the other two are worries, and a renewal increase is a worry. It also
- * reinforces section 05's lead point.
+ * the current homepage, so it is substituted here with an existing article. "How does
+ * The Insurance Concierge get paid?" echoes section 05's second point, that buying
+ * through the firm costs nothing extra.
  *
  * Write the leaving-a-company-scheme article and swap it back. The deck names it as one
  * of three knowledge base pieces section 04 feeds directly.
  *
- * ⚠ The substitute must be one of the articles that names NO insurer. The deck's rule is
- * "no insurer names in any public page copy or meta", and 4 of the 10 ported posts break
- * it in their body copy — including the more natural substitute here, "Why has my
- * renewal premium increased?", which lists the panel by name. Featuring it on the
- * homepage would propagate that. The four are recorded in the build notes; cleaning them
- * up is an editorial decision, not a homepage one.
+ * On picking a substitute: check it against `npm run verify:copy`, not by eye. Four of
+ * the ten ported posts once carried insurer names or panel references in their body
+ * copy, and a name-only search misses the panel half — that is how the first substitute
+ * chosen here, which named no insurer, still turned out to describe the panel. All four
+ * were cleaned on 2026-08-16 and the guard now fails the build if one comes back, so
+ * this is a check rather than a hazard. Do not reintroduce the hazard by eyeballing it.
  *
  * Answers are each article's own `summary` frontmatter, never a rewrite.
  */

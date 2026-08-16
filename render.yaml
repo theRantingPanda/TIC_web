@@ -131,6 +131,19 @@ services:
         source: /speciality-insurance
         destination: /offshore-and-energy
 
+      # ⚠ BEFORE RUNNING `npm run gen:redirects`, READ THIS.
+      #
+      # content/_inventory/freshdesk/redirects.json carries destination slugs with an
+      # insurer's name in them, e.g. /knowledge/allianz-family-policy-number-access-rules.
+      # Generating from it as-is would publish insurer names in this file, in the live
+      # redirect config, and in the destination URLs themselves — and the site names no
+      # insurer in public copy. `npm run verify:copy` cannot catch it, because a redirect
+      # rule is service configuration and never appears in out/.
+      #
+      # Those four articles are an archive that must not be ported at all (see
+      # content/_inventory/_capture-status.md), so their destinations do not exist either.
+      # Rename the slugs, or drop those entries, before generating.
+      #
       # BEGIN GENERATED freshdesk-article-map
       # (empty until `npm run ingest:freshdesk` has run)
       # END GENERATED freshdesk-article-map
