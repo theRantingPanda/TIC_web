@@ -263,11 +263,23 @@ set to skip the inbox and apply a `DMARC` label. Freshdesk ingests from the inbo
 takes the reports out of its reach while leaving them readable and searchable in Gmail. It
 is one click to undo, which the alternatives below are not.
 
-Two things about it are not yet settled. **It is unverified** — the next report is the test,
-and if a ticket still opens, Freshdesk is reading more than the inbox and the filter cannot
-help. And Gmail's `to:` matches the header, so a reporter that sends to `dmarc@` by envelope
-only, or via Bcc, slips past; adding `deliveredto:dmarc@asktic.com` to the filter's *Has the
-words* field closes that.
+**It is unverified** — the next report is the test, and if a ticket still opens, Freshdesk
+is reading more than the inbox and the filter cannot help.
+
+**Widening it needs care, because Gmail ANDs the filter fields.** `to:` matches the header
+only, so a reporter addressing `dmarc@` by envelope or Bcc slips past. But adding a second
+condition in *Has the words* while *To* is still populated ANDs the two and matches
+strictly fewer messages — the opposite of the intent. Put the whole condition in *Has the
+words* as an explicit OR and leave every other field empty:
+
+```
+{to:dmarc@asktic.com deliveredto:dmarc@asktic.com cc:dmarc@asktic.com subject:"Report Domain: asktic.com"}
+```
+
+Gmail's `{ }` is OR. The subject clause is the durable one — RFC 7489 §7.2.1.1 fixes that
+format for every reporter, so it catches Microsoft and Yahoo as well as Google, and it does
+not depend on how an alias rewrites `Delivered-To`. Paste the string into the Gmail search
+box first to see exactly what it matches, then use *Create filter from this search*.
 
 This is a containment, not a structure. The options below remain the tidy fix if the
 reports ever want a home of their own:
