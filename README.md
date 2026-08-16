@@ -204,8 +204,10 @@ outstanding SPF/DMARC gap — is in
 
 **Two things to know before editing this zone.** The Freshworks `_domainkey` and `fwdkim`
 records authenticate the mail Freshdesk sends on the firm's behalf — deleting them
-silently pushes ticket replies toward spam. And there is still no SPF or DMARC record on
-the apex; a proposed pair, with its DNS-lookup budget already counted, is in that file.
+silently pushes ticket replies toward spam. And SPF, DMARC and Google DKIM are now
+published after years without them, with only **2 of SPF's 10 DNS lookups spare** —
+cost any future "add our SPF include" request before adding it, because exceeding the
+limit fails SPF permanently rather than degrading.
 
 
 Two assumptions in that service could **not** be verified — `render.com` is blocked by

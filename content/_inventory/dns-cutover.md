@@ -75,38 +75,69 @@ before any future change of this kind.
 
 ---
 
+## Email authentication — fixed 2026-08-16
+
+Prompted by a real symptom: mail to clients was intermittently landing in spam.
+
+It was not caused by the cutover. The domain had **no SPF, no DMARC, and no Google DKIM**
+— and had not had them for years. The two mail paths were authenticated very differently,
+which is exactly why the symptom was intermittent rather than constant:
+
+| Sender | SPF | DKIM | Was |
+| --- | --- | --- | --- |
+| Staff mail via Google Workspace | none | **none** | completely unauthenticated |
+| Freshdesk ticket replies | none | signed | partially authenticated |
+
+The important mail — quotes and advice sent from Gmail — was the unauthenticated half.
+Gmail and Outlook both tightened enforcement on unauthenticated business mail over the
+preceding two years.
+
+### What is now published
+
+```
+asktic.com                    TXT   v=spf1 include:_spf.google.com include:email.freshdesk.com ~all
+_dmarc.asktic.com             TXT   v=DMARC1; p=none; rua=mailto:dmarc@asktic.com
+google._domainkey.asktic.com  TXT   v=DKIM1; k=rsa; p=…   (2048-bit)
+```
+
+All three verified live against two independent resolvers:
+
+- **SPF** — exactly one record (two would be a permerror), every nested include resolves,
+  and **8 of the permitted 10 DNS lookups** consumed. Counted by walking the chain, not
+  estimated.
+- **DMARC** — `p=none`, so it enforces nothing and only collects reports. Deliberate:
+  the sender list was an assumption, and tightening before the reports confirm it is how
+  legitimate mail starts getting rejected.
+- **DKIM** — the published key parses as a real RSA public key, modulus **2048 bits**,
+  exponent 65537. Checked because a 2048-bit key exceeds the 255-character limit for a
+  single TXT string, and a panel that truncates it produces a record that looks saved and
+  fails every check. Wix assembled it correctly.
+
+### Two things that are easy to get wrong here
+
+**Publishing the DKIM record does not enable signing.** Google Workspace requires
+*Start authentication* in the admin console afterwards. The key otherwise sits in DNS
+unused.
+
+**Only 2 SPF lookups of headroom remain.** `_spf.google.com` costs 1;
+`email.freshdesk.com` costs 7, because it nests `sendgrid.net`, `ab.sendgrid.net` and
+four regional Freshdesk ranges. Any future "just add our SPF include" request must be
+costed first — the Freshworks chain alone would need 7 and take the record over the
+limit. Exceeding 10 does not degrade gracefully; SPF fails permanently for every message.
+
+### What to expect
+
+DMARC aggregate reports arrive daily at `dmarc@asktic.com`. They are the diagnostic that
+turns "sometimes goes to spam" into a named list of which sending system fails which
+check. Read a few weeks of them before considering `p=quarantine` or `-all`.
+
+Deliverability will improve gradually rather than immediately. Filters weight domain
+history, and this domain sent unauthenticated mail for years. Authentication is also not
+the only input — message content, attachments and recipient-side rules still apply.
+
 ## Outstanding
 
-### 1. No SPF or DMARC on the apex
-
-Pre-existing, unrelated to the cutover, and now the weakest thing about this zone. Mail
-from `@asktic.com` is unauthenticated while three systems send as the domain: Google
-Workspace, Freshdesk, and Freshworks.
-
-**Proposed** — add both as TXT records on the apex:
-
-```
-asktic.com   TXT   v=spf1 include:_spf.google.com include:email.freshdesk.com ~all
-_dmarc       TXT   v=DMARC1; p=none; rua=mailto:dmarc@asktic.com
-```
-
-Three things about that SPF record:
-
-- **It costs 8 of SPF's 10 permitted DNS lookups.** `_spf.google.com` is 1 (all inline
-  IPs); `email.freshdesk.com` is 7, because it nests `sendgrid.net`, `ab.sendgrid.net`
-  and four regional Freshdesk ranges. Counted, not estimated. **Adding the Freshworks
-  chain as well would exceed 10 and break SPF entirely** — a permanent error, not a
-  degraded one.
-- **`~all`, not `-all`.** Softfail while the sender list is unproven. Tighten later.
-- **Confirm the sender list first.** This assumes Google Workspace and Freshdesk send as
-  `@asktic.com` and nothing else does. If anything else does — a newsletter tool, an
-  invoicing system — it must be included or its mail starts failing.
-
-DMARC starts at `p=none`, which enforces nothing and only collects reports. Read them for
-a few weeks before considering `quarantine`. **`dmarc@asktic.com` must exist** as a
-mailbox or alias, or the reports bounce.
-
-### 2. The apex does not redirect to www
+### The apex does not redirect to www
 
 Both hostnames serve the site. Canonical tags in `app/layout.tsx` point at `www` and make
 this harmless for search, but a 301 would be better. See the note in `render.yaml` for
