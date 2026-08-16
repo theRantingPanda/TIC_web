@@ -526,9 +526,11 @@ export const concerns: readonly Concern[] = [
     icon: 'depart',
     panelTitle: 'Leaving Singapore',
     image: {
-      kind: 'brief',
-      brief:
-        'Packing up, or a departure moment. Warm rather than stressful, and not an empty apartment framed as loss.',
+      kind: 'photo',
+      src: '/images/leaving-singapore.webp',
+      alt: '',
+      width: 1800,
+      height: 1200,
     },
     situation: [
       'A posting ends, or a contract does, and the question is whether the cover goes with you or starts again in the next country. It is worth asking early, because the answer changes what you should do before you leave rather than after.',
@@ -583,10 +585,17 @@ export const concerns: readonly Concern[] = [
     hook: 'Worth understanding what is driving it before deciding what to change.',
     icon: 'trend-up',
     panelTitle: 'When the renewal comes back higher',
+    /*
+      On brief: a notebook, a calculator and someone actually working a number, rather
+      than the generic team meeting the brief ruled out. The rising stacks read wryly
+      against a panel about a premium going up, which is the right register for it.
+    */
     image: {
-      kind: 'brief',
-      brief:
-        'Photography brief: someone genuinely focused on figures, an HR director or a founder. Not a generic stock team meeting, which is the exact weakness on the page this replaces.',
+      kind: 'photo',
+      src: '/images/renewal-premium-increase.webp',
+      alt: '',
+      width: 1800,
+      height: 1200,
     },
     situation: [
       'Premiums climb every year, and some years the increase is harder to justify than others. Before you accept it or start shopping the market, it is worth knowing what is driving the number and what you would give up by moving.',
@@ -636,10 +645,29 @@ export const concerns: readonly Concern[] = [
     hook: 'Benefits matter more when someone is relocating their family.',
     icon: 'briefcase',
     panelTitle: 'Cover as part of a senior package',
+    /*
+      OFF BRIEF, and used on instruction rather than by choice. Recorded so nobody has to
+      rediscover the reasoning:
+
+        - The brief asked for a senior hire settling in and explicitly ruled out a stock
+          handshake. Miniature figures under a magnifier is a more conceptual stock image
+          than the one the brief banned.
+        - A magnifier over a crowd depicts SELECTION. This concern is about retention and
+          about what cover is worth inside a package, which is a different argument.
+        - Its green is not the logo's leaf green, so it sits against the palette rather
+          than in it. Deliberately not corrected: grading one image would contradict the
+          standing decision to leave photographs exactly as licensed.
+
+      A calmer second version of the same concept exists on `main`
+      (`close-up-view-of-talent-word-made-of-wooden-cubes…`), neutral wood and white,
+      which sits far better on the stone paper. Swapping is a one-line change here.
+    */
     image: {
-      kind: 'brief',
-      brief:
-        'Photography brief: a senior hire settling in, arriving at an office or meeting a new team. Not a stock handshake.',
+      kind: 'photo',
+      src: '/images/cover-for-senior-hires.webp',
+      alt: '',
+      width: 1800,
+      height: 1200,
     },
     situation: [
       'Thirty thousand dollars of medical cover and fifty thousand dollars of salary are not the same offer to someone deciding whether to relocate their family. Cover answers the question salary cannot, which is what happens if something goes wrong out here.',
@@ -741,10 +769,17 @@ export const concerns: readonly Concern[] = [
     hook: 'No existing scheme to compare against, just a decision to make.',
     icon: 'sprout',
     panelTitle: 'Setting up a scheme from nothing',
+    /*
+      Also off brief, also on instruction. The brief ruled out a corporate boardroom stock
+      shot and this is the hands-in gesture, which is the same genre. It is at least about
+      a group starting something together, which is what the panel is about.
+    */
     image: {
-      kind: 'brief',
-      brief:
-        'Photography brief: a founder or a small leadership team, early stage and genuine. Not a corporate boardroom stock shot.',
+      kind: 'photo',
+      src: '/images/first-company-scheme.webp',
+      alt: '',
+      width: 1800,
+      height: 895,
     },
     situation: [
       'No existing scheme to compare against, just a decision about what to offer. We will ask a handful of questions about the roles and where people are based, and come back with what is typical for a company your size and what it would cost to go further.',
