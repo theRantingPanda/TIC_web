@@ -18,7 +18,7 @@ and are not editable, so the zone is managed in Wix's DNS panel.
 | `www` | CNAME | `tic-web.onrender.com` | the site |
 | `asktic.com` | MX | `aspmx.l.google.com` (10), `alt1` (20), `alt2` (30), `alt3` (40), `alt4` (50) | **Google Workspace — do not touch** |
 | `support` | CNAME | `asktic.freshdesk.com` | help centre, still Freshdesk |
-| `rainmaker` | CNAME | `tic-crm-dev.onrender.com` | CRM — points at the **dev** service |
+| `rainmaker` | CNAME | `tic-crm-dev.onrender.com` | CRM — **correct, despite the name.** See below |
 | `docs` | CNAME | `cname.bitly.com` | Bitly short domain |
 | `fdkey.support` | TXT | `8471c5…` | Freshdesk domain verification |
 | `freshdesk` | SPF | `v=spf1 include:email.freshdesk.com ~all` | subdomain only |
@@ -153,6 +153,36 @@ check. Read a few weeks of them before considering `p=quarantine` or `-all`.
 Deliverability will improve gradually rather than immediately. Filters weight domain
 history, and this domain sent unauthenticated mail for years. Authentication is also not
 the only input — message content, attachments and recipient-side rules still apply.
+
+## `rainmaker` is not misrouted — the service is misnamed
+
+**Do not "fix" this record.** `rainmaker.asktic.com` points at `tic-crm-dev.onrender.com`,
+which reads like a production hostname aimed at a dev service. It is not. Checked
+2026-08-16, against the full Render account rather than the first page of results:
+
+| Service | Type | Repo |
+| --- | --- | --- |
+| `tic-web` | static site | TIC_web |
+| `tic-crm-scheduler` | cron job | TIC_CRM_WebAPP |
+| `tic-crm-dev` | web service | TIC_CRM_WebAPP |
+
+That is every service in the account — the next page is empty. **There is no
+`tic-crm-prod`.** `tic-crm-dev` is the only CRM web service that exists, so the DNS record
+points at the only thing it could point at, and repointing it would take the CRM offline.
+
+It is also clearly the production instance rather than a leftover: the custom domain was
+attached deliberately on 2026-03-18, `autoDeploy` is off so releases are manual, and the
+scheduler cron runs against the same repo every minute.
+
+So the problem is real but it is not a DNS problem. Production runs on a service named
+`dev`, because a production one was never created. Fixing that properly means standing up
+a real production service with its own database and environment, deploying, verifying,
+and only then moving the custom domain — a CRM migration, and work for the
+`TIC_CRM_WebAPP` project, which is explicitly out of scope for this repo.
+
+The live hazard worth naming: if someone later creates a genuine development service
+against that name or that database, development traffic lands on production. The current
+naming makes that easy to do by accident.
 
 ## Outstanding
 
