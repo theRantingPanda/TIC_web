@@ -4,15 +4,15 @@ The site moved from Wix hosting to Render on **2026-08-12**. This is what change
 it looks like now, and what was verified. Written down because the next person to touch
 this zone should not have to rediscover any of it.
 
-**DNS hosting stayed on Wix.** The domain registration moved to Vodien; the nameservers
-did not, and the plan to move them was dropped. `ns4/ns5.wixdns.net` remain authoritative
-and are not editable, so the zone is managed in Wix's DNS panel.
+**DNS hosting moved to Vodien on 2026-08-16.** For the four days before that, registration
+sat at Vodien while `ns4/ns5.wixdns.net` stayed authoritative — the arrangement the rest of
+this document was written under. The zone is now served by Vodien and edited in Vodien's DNS
+panel. Wix hosts nothing and serves nothing.
 
-⚠ **Superseded as of 2026-08-16** — a full copy of this zone is now staged in Vodien's DNS
-panel and the move is going ahead. It is staged only; the delegation still points at Wix
-and nothing at Vodien is being served yet. Read
-[the Vodien panel section](#the-vodien-panel--read-before-touching-it) before touching
-either provider.
+Everything below describing Wix as authoritative is history, kept because the removals and
+the email-authentication work still explain why the zone looks the way it does. The
+[Vodien section](#the-vodien-panel--read-before-touching-it) has the current state and the
+post-cutover verification.
 
 ---
 
@@ -64,84 +64,67 @@ pushes replies toward spam folders, and the cause is not obvious weeks later.
 suite, and the two sit interleaved under near-identical-looking names. The tell inside the
 `fwdkim1` chain is `fdspfus.freshemail.io` — `fd` is Freshdesk. Always resolve the CNAME
 before deciding a Freshworks record is disposable; the full split is tabulated
-[below](#a-parallel-zone-is-staged-at-vodien-and-it-is-deliberate).
+[below](#the-zone-at-vodien-and-what-it-deliberately-drops).
 
 ---
 
 ## The Vodien panel — read before touching it
 
-Because registration sits at Vodien, its control panel offers both a **Name Servers** tab
-and a **DNS Settings** tab for `asktic.com`. Neither does what it appears to. Recorded
-2026-08-16 from the panel itself, after an attempted nameserver change failed with
-`Save changes request error`.
+Registration and DNS both sit at Vodien now. Its control panel has a **Name Servers** tab
+holding the delegation and a **DNS Settings** tab holding the zone.
 
-### The Name Servers tab misreports the delegation
+### The move, and the one row that blocked it
 
-What the tab displays:
+The first attempt failed with `Save changes request error`, from this state:
 
 | Row | Value | Assessment |
 | --- | --- | --- |
-| Name Server 1 | `ns5.wixdns.net` @ `216.239.38.101` | Correct host. The IP is superfluous |
-| Name Server 2 | `asktic.com` @ `216.24.57.1` | **Wrong.** `216.24.57.1` is Render's web load balancer, copied from the apex A record. It does not answer DNS |
-| Host Records | `asktic.com` → `216.24.57.1` | The host object feeding Name Server 2 |
+| Name Server 1 | `ns5.wixdns.net` @ `216.239.38.101` | Correct — that really is its address |
+| Name Server 2 | `asktic.com` @ `216.24.57.1` | **The fault.** A domain cannot be its own nameserver without proper glue, and `216.24.57.1` is Render's web load balancer, copied from the apex A record. It answers no DNS |
 
-**The real delegation is intact.** Checked 2026-08-16 against `1.1.1.1`, `8.8.8.8` and
-`9.9.9.9`, all three agreeing:
-
-```
-asktic.com.  NS  ns4.wixdns.net.
-asktic.com.  NS  ns5.wixdns.net.
-```
-
-Both Wix nameservers are published and the zone has full redundancy. The failed save never
-committed, so the panel is displaying an edit that the registry rejected — the tab is not a
-reliable view of what is delegated. **Verify delegation against a resolver, never against
-this tab.** Clear Name Server 2 and its host record anyway, so the display stops
-contradicting reality.
+The IP column was never the problem — the panel requires it and expects the host's true
+resolved address. Only the second row was wrong, and the registry rejecting it is the only
+reason a broken delegation never went live.
 
 A nameserver form and an A record are different layers. *Which server hosts the site* is a
 host record, set in the DNS zone. *Who answers DNS for this domain* is the delegation, set
 here. Pasting the first into the second is the error to watch for.
 
-**The panel requires an IP for every nameserver row, and expects the true resolved address
-of that host.** The `216.239.38.101` against `ns5.wixdns.net` is correct — that really is
-its address. So the IP column is not the fault here; the only bad row is Name Server 2,
-and `asktic.com` is rejected because a domain cannot be its own nameserver without proper
-glue. Correct addresses, resolved 2026-08-16:
+**Do not verify a delegation from this tab.** For the whole period it displayed the rejected
+edit, three independent resolvers agreed the registry still published `ns4/ns5.wixdns.net`.
+Check a resolver, not the panel.
 
-| Nameserver | IPv4 |
-| --- | --- |
-| `ns4.wixdns.net` | `216.239.36.101` |
-| `ns5.wixdns.net` | `216.239.38.101` |
-| `ns1.vodien.com` | `162.159.24.10` |
-| `ns2.vodien.com` | `162.159.25.66` |
+The tab requires an IP for every nameserver row and expects the host's true resolved
+address. What is delegated now:
 
-`ns3`/`ns4.vodien.com` are aliases — they share the addresses of `ns1`/`ns2`. Pick one from
-each pair, or two names resolve to a single server and the delegation has no redundancy.
+| Nameserver | IPv4 | IPv6 |
+| --- | --- | --- |
+| `ns1.vodien.com` | `162.159.24.10` | `2400:cb00:2049:1::a29f:180a` |
+| `ns2.vodien.com` | `162.159.25.66` | `2400:cb00:2049:1::a29f:1942` |
 
-These are anycast addresses and the registry resolves out-of-bailiwick nameservers itself
-rather than publishing a supplied IP, so a stale entry here is low-risk. Re-check it anyway
-if resolution ever behaves oddly after a provider renumbering.
+`ns3`/`ns4.vodien.com` are aliases sharing the addresses of `ns1`/`ns2`. Pick one from each
+pair — `ns1` + `ns3` would put both delegation entries on a single server and leave no
+redundancy. Vodien's own zone publishes a third NS (`ns3.vodien.com`) in the `NS` RRset,
+which is normal and adds nothing to worry about.
 
-**Do not re-enter the pair from this document.** Wix assigns nameservers per account. Read
-the values off a resolver or Wix's own domain panel.
+For reference, the Wix pair that was replaced: `ns4.wixdns.net` @ `216.239.36.101`,
+`ns5.wixdns.net` @ `216.239.38.101`.
 
-### A parallel zone is staged at Vodien, and it is deliberate
+### The zone at Vodien, and what it deliberately drops
 
-Vodien's DNS Settings tab holds 18 records, marked `Active`. **`Active` means "saved in
-Vodien's system", not "live on the internet".** The delegation points at Wix, so none of it
-is served, and there is no warning to that effect.
+Vodien's DNS Settings tab holds 18 records. Before the cutover they were marked `Active`
+while serving nothing — **`Active` means "saved in Vodien's system", not "live on the
+internet"**, and there was no warning to that effect. They are now genuinely live.
 
-Checked record-by-record against live DNS on 2026-08-16, the staged zone is **correct and
-complete** for a Freshdesk-only posture: the apex `A`, the `www`, `rainmaker`, `support` and
-`docs` CNAMEs, all five Google MX, the apex SPF, `_dmarc`, `fdkey.support`,
-`google._domainkey`, and four Freshworks CNAMEs.
+The zone is **correct and complete** for a Freshdesk-only posture: the apex `A`, the `www`,
+`rainmaker`, `support` and `docs` CNAMEs, all five Google MX, the apex SPF, `_dmarc`,
+`fdkey.support`, `google._domainkey`, and four Freshworks CNAMEs.
 
-It omits six records that are live at Wix. That is not an oversight — it matches the
+It drops six records that were live at Wix. That is not an oversight — it matches the
 decision to drop the wider Freshworks suite and keep only Freshdesk. **The two are
 distinguishable by target, and only by target:**
 
-| Record | Live target | Account | Product | Staged? |
+| Record | Target | Account | Product | Carried over? |
 | --- | --- | --- | --- | --- |
 | `rvec3._domainkey` | `wl601960s1.domainkey.freshemail.io` | `wl601960` | Freshdesk | ✅ kept |
 | `q2zty._domainkey` | `wl601960s2.domainkey.freshemail.io` | `wl601960` | Freshdesk | ✅ kept |
@@ -153,7 +136,9 @@ distinguishable by target, and only by target:**
 | `9tp4z4._domainkey` | `wl689718s4.domainkey.myfreshworks.com` | `wl689718` | Freshworks suite | ❌ dropped |
 | `fwdkim` | `spfmx7.domainkey.myfreshworks.com` | — | Freshworks suite | ❌ dropped |
 | `fwtrack` | `798c895246…fmsendcrmclick.net` | — | Freshmarketer | ❌ dropped |
-| `fslink` | NXDOMAIN | — | Freshsales | already removed |
+| `fslink` | NXDOMAIN | — | Freshsales | removed earlier |
+
+All seven dropped names now return no CNAME, confirmed post-cutover.
 
 **`freshemail.io` is Freshdesk; `myfreshworks.com` is everything else.** Two whitelabel
 accounts, `wl601960` and `wl689718`, split cleanly along that line. The selector names
@@ -163,41 +148,50 @@ a key serves, which is why the earlier warning in this file says to check the ch
 `freshdesk.asktic.com` also holds a legacy **type-99 SPF** record, not a TXT. Type 99 was
 deprecated by RFC 7208 in 2014 and is read by nothing. It does not need migrating.
 
-### Completing the move
+### Verified after the nameserver move, 2026-08-16
 
-The 2026-08-11 decision was to stay on Wix; the staged zone supersedes it. The argument
-that changed: Wix no longer hosts anything, and a zone living inside a subscription nobody
-is using is a domain outage waiting on whoever cancels it.
+Against live DNS through `1.1.1.1`, `8.8.8.8` and `9.9.9.9`, and against the live sites —
+not the control panel:
 
-The zone content needs no further additions. What remains:
+| Check | Result |
+| --- | --- |
+| Delegation | `ns1` / `ns2` / `ns3.vodien.com`, all three resolvers agreeing |
+| SOA | `ns1.vodien.com` — Vodien authoritative |
+| Google Workspace MX | **all five present**, priorities 10–50 intact |
+| SPF | exactly one record; two would be a permerror |
+| DMARC | `p=none` with `rua` intact |
+| `google._domainkey` | **byte-for-byte identical** to the value published at Wix — 410 chars, compared programmatically |
+| Freshdesk DKIM | all four `freshemail.io` CNAMEs resolving |
+| Dropped Freshworks records | all seven returning nothing, as intended |
+| `www` / apex / `support` / `rainmaker` / `docs` | `200` / `200` / `302` / `302` / `302`, TLS valid on all five |
 
-1. **Verify `google._domainkey` by copy-paste, not by eye.** This is the one record that
-   cannot be checked visually. The live key differs from a careful screen reading of the
-   staged one at exactly one character — position 85, `l` versus `I` — which most sans-serif
-   panel fonts render identically. Parsing as a valid 2048-bit key proves only that it is
-   not truncated; a different valid key passes that test and fails every signature. Paste
-   both into a diff. The live value is:
+The DKIM check was the one that mattered. A 2048-bit key exceeds the 255-character limit
+for a single TXT string, so a panel that reassembles it wrongly produces a record that looks
+saved and fails every signature — and it cannot be verified by eye, because a careful screen
+reading of the staged value differed from live at exactly one character, position 85, `l`
+against `I`, which the panel font renders identically. Compared by paste it matches exactly:
 
-   ```
-   v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjX2MmjFzF8Z5VEponBQY8+boQ3/2IDcKwaGK+POlClIEY0SR3gV23/L99ip2lSdJGCJ3Fyhd69PA5XZbBqnbQauy4W+UPZ/Kb0xoEaiP7fVg1efkkLfWDk8DQSLJEy091cvGPTj2va0sGLAa+quor3PVIT48o/xlUATFvUaArcmmrV0AQAQ3ahDT+k/OUgzNp8UZ8bRqzqVdL9HCxbI06EWy75wto2DIJxym/IgdcQ6j4L9xvd2gMqoIbKcJ7esWoyw8LTboJQmhgm+gQbq7jS0IibU9BG3K2H171rrbpsmsWD2aYYlMIobzr4WIsfAvzcWsMq80nbN1VWf+fj8QOQIDAQAB
-   ```
+```
+v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjX2MmjFzF8Z5VEponBQY8+boQ3/2IDcKwaGK+POlClIEY0SR3gV23/L99ip2lSdJGCJ3Fyhd69PA5XZbBqnbQauy4W+UPZ/Kb0xoEaiP7fVg1efkkLfWDk8DQSLJEy091cvGPTj2va0sGLAa+quor3PVIT48o/xlUATFvUaArcmmrV0AQAQ3ahDT+k/OUgzNp8UZ8bRqzqVdL9HCxbI06EWy75wto2DIJxym/IgdcQ6j4L9xvd2gMqoIbKcJ7esWoyw8LTboJQmhgm+gQbq7jS0IibU9BG3K2H171rrbpsmsWD2aYYlMIobzr4WIsfAvzcWsMq80nbN1VWf+fj8QOQIDAQAB
+```
 
-2. **Drop the TTL before cutting over.** The staged records sit at `14400`; Wix is at
-   `3600`. Both make rollback slow. Set 300 on both sides, wait out the old TTL, cut over,
-   then raise it again.
-3. **Change the nameservers last**, and only once the above is done. Clear the bogus Name
-   Server 2 and its host record in the same pass.
-4. Verify against live DNS afterwards, not the panel: five MX, exactly one SPF record,
-   DMARC, DKIM, and `www` / apex / `support` / `rainmaker` / `docs`.
-5. Finish with a real test message and confirm `dkim=pass`, `spf=pass`, `dmarc=pass`, as
-   below. DNS proves a key is published; only a delivered message proves it is used.
-6. Do not cancel the Wix subscription until step 5 passes — it is the rollback.
+### Still open after the move
+
+1. **Send a real test message** and confirm `dkim=pass`, `spf=pass`, `dmarc=pass` from an
+   external mailbox. DNS proves a key is published; only a delivered message proves it is
+   being used.
+2. **Do not cancel the Wix subscription** until that passes. The Wix zone is the rollback.
+3. **Delete the `asktic.com` → `216.24.57.1` Host Record.** It is inert now that the
+   delegation is correct, but it is the object that made `asktic.com` selectable as a
+   nameserver in the first place.
+4. **Raise the TTL** from `300` once the zone has been stable for a day or two.
 
 ---
 
-## Verified after cutover
+## Verified after the hosting cutover (2026-08-12)
 
-Against live DNS and the live site, not the control panel:
+The move of the *site* from Wix to Render, four days before the DNS move above. Against
+live DNS and the live site, not the control panel:
 
 - **Mail: all 5 Google MX records intact**, before and after
 - 23 of 23 preserved paths → `200`
@@ -209,9 +203,19 @@ Against live DNS and the live site, not the control panel:
 
 ## Rollback
 
-`www` CNAME → `cdn1.wixdns.net`; apex A → `185.230.63.171`, `185.230.63.107`,
-`185.230.63.186`. TTL is 1 hour, so a rollback is not instant — worth lowering TTL
-before any future change of this kind.
+**From the DNS move (2026-08-16):** point the nameservers back at `ns4.wixdns.net`
+@ `216.239.36.101` and `ns5.wixdns.net` @ `216.239.38.101`. The Wix zone still exists and
+still holds the full record set, so this restores everything in one step — but only for as
+long as the Wix subscription is alive. Once it is cancelled this rollback is gone, and the
+zone at Vodien is the only copy.
+
+**From the hosting move (2026-08-12):** `www` CNAME → `cdn1.wixdns.net`; apex A →
+`185.230.63.171`, `185.230.63.107`, `185.230.63.186`. This one is academic now that the
+Wix site is retired.
+
+TTL is currently `300`, so both are fast. It was `3600` at Wix and `14400` as first staged
+at Vodien; lowering it before the move is what makes a rollback quick, and it should be
+raised again once the zone has settled.
 
 ---
 
@@ -326,11 +330,12 @@ naming makes that easy to do by accident.
 
 ## Outstanding
 
-### The Vodien cutover is staged but not executed
+### Post-cutover follow-ups
 
-The zone content is complete and verified; the nameservers have not moved. See
-[Completing the move](#completing-the-move) for what remains — chiefly a copy-paste
-verification of the DKIM key and a TTL reduction before the switch.
+The DNS move to Vodien is done and verified. Four things remain: a real test message
+confirming `dkim=pass` / `spf=pass` / `dmarc=pass`, keeping the Wix subscription alive until
+it does, deleting the stray `asktic.com` Host Record, and raising the TTL off `300`. See
+[Still open after the move](#still-open-after-the-move).
 
 ### The apex does not redirect to www
 

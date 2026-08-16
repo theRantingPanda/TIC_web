@@ -6,9 +6,9 @@ section.
 
 **Current state: live.** The rebuild serves [www.asktic.com](https://www.asktic.com) from
 Render as of 2026-08-12. All three phases are complete; what remains is an editorial pass
-over the ported copy ([`port-worklist.md`](content/_inventory/port-worklist.md)) and the
-open DNS items ([`dns-cutover.md`](content/_inventory/dns-cutover.md)) — chiefly a staged
-but not-yet-executed move of the zone from Wix to Vodien.
+over the ported copy ([`port-worklist.md`](content/_inventory/port-worklist.md)) and a few
+post-cutover DNS follow-ups ([`dns-cutover.md`](content/_inventory/dns-cutover.md)). The
+zone moved from Wix to Vodien on 2026-08-16 and is verified.
 
 ---
 
@@ -196,9 +196,9 @@ on it: this site's nav links to `/knowledge` directly.
 
 **The site is live at [www.asktic.com](https://www.asktic.com), served by Render.**
 
-DNS hosting stayed on Wix — registration moved to Vodien, the nameservers did not, and
-that plan was dropped. `ns4/ns5.wixdns.net` remain authoritative, so the zone is managed
-in Wix's DNS panel.
+DNS hosting stayed on Wix at the time — registration had moved to Vodien, the nameservers
+had not. That changed on 2026-08-16, when the zone moved to Vodien as well;
+`ns1/ns2.vodien.com` are authoritative now and the zone is managed in Vodien's DNS panel.
 
 | Host | Type | Value |
 | --- | --- | --- |
@@ -221,9 +221,10 @@ apart, so resolve before deleting; removing a live one silently pushes ticket re
 toward spam. SPF, DMARC and Google DKIM are now published after years without them, with
 only **2 of SPF's 10 DNS lookups spare** — cost any future "add our SPF include" request
 before adding it, because exceeding the limit fails SPF permanently rather than degrading.
-And **the zone is still edited at Wix, not Vodien**: a complete copy is staged in Vodien's
-DNS panel but the delegation has not moved, so records saved there are not served. Read the
-Vodien section of `dns-cutover.md` before opening either.
+And **the zone now lives at Vodien**, moved 2026-08-16 and verified against three
+resolvers — Wix no longer serves it, though the old zone is kept as the rollback until a
+test message confirms mail authentication end to end. Read the Vodien section of
+`dns-cutover.md` before editing.
 
 
 Two assumptions in that service could **not** be verified — `render.com` is blocked by
