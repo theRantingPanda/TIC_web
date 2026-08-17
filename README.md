@@ -509,9 +509,15 @@ Nothing below is invented, but nothing below is finished either:
 - **Seven of the nine case studies.** Each renders bracketed and visibly unfinished, with
   a brief describing what a real one needs. A case does **not** have to end in a win —
   "we recommended staying put" is often the more credible story. The one real case is
-  anonymised and permission-cleared (both the family's and the employer's) and sits on
-  `/beyond-employer-cover`, because that panel's argument is a company scheme's ceiling
-  and the case is that ceiling being exceeded by S$53,000. Do not restate it elsewhere.
+  anonymised and permission-cleared by the family, and sits on `/maternity-insurance`. Do
+  not restate it elsewhere.
+
+  **It was published in the wrong place, and wrongly described, until 2026-08-17.** It ran
+  on `/beyond-employer-cover` as a company scheme — an opening line about an HR manager,
+  and the S$207,000 newborn limit attributed to an employer's plan. It is an *individual*
+  policy and no employer was involved, which also means that panel's argument (a company
+  plan has a ceiling you can run past) currently has no case under it. That gap is real and
+  is not to be closed by moving this case back.
 
   **A scenario is not a case.** `/cover-for-senior-hires` carries a written illustration
   rather than a client's story, typed as `kind: 'scenario'` so the panel labels it in
@@ -651,7 +657,7 @@ general:
 - **`verify:copy` cannot read them.** The guard that has caught every other copy problem
   here scans text. An image walks straight past it.
 - **That one contradicted the page it sat on.** The permission-cleared case printed three
-  inches below says the scheme covered to S$207,000 against a S$260,000 bill.
+  inches below says the policy covered to S$207,000 against a S$260,000 bill.
 
 `CaseChart` in `components/concern-panel.tsx` is the sanctioned alternative: the same
 comprehension, built as markup, from the concern's `case.chart`. Its constraint is that

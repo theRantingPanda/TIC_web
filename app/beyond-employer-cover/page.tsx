@@ -2,7 +2,10 @@ import type { Metadata } from 'next'
 import { ConcernPage, metadataFor } from '@/components/concern-page'
 
 /**
- * New route. Carries the one real, permission-cleared case study.
+ * New route. It carried the one real, permission-cleared case study until 2026-08-17,
+ * when that case moved to /maternity-insurance: it is an individual policy and had been
+ * written here as a company scheme. This page's case section is a placeholder again, and
+ * the note in the content module explains why refilling it with that case is not the fix.
  *
  * Everything on this page comes from content/concerns/index.ts, which the homepage flow
  * reads too. That is the point: the panel a visitor sees revealed inline on the homepage
