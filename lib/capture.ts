@@ -30,6 +30,34 @@ export const captureEnabled = Boolean(CAPTURE_WEBHOOK_URL)
 /** Real users never fill this in. Owned by CaptureForm so no caller can forget it. */
 export const HONEYPOT_FIELD = 'company_website'
 
+/** The consent tickbox's field name. Owned here for the same reason as the honeypot. */
+export const CONSENT_FIELD = 'consent'
+
+/**
+ * The disclaimer a visitor ticks before a form will send.
+ *
+ * SPLIT INTO PARTS SO THE RECORD IS EXACTLY WHAT THEY SAW. The page renders these three
+ * pieces with the middle one as a link to /privacy, and `CONSENT_STATEMENT` joins the
+ * same three into the string posted with the submission. One definition, so the wording
+ * on screen and the wording in the record cannot drift apart — and a consent record that
+ * does not say what was agreed to is not much of a record.
+ *
+ * ⚠ THE WORDING AGREES TO THE POLICY, NOT TO A NARROWER PURPOSE. "to respond to this
+ * enquiry" was considered and rejected: content/pages/privacy.mdx also reserves the use
+ * of data for direct marketing, so a tickbox promising reply-only use would authorise
+ * less than the policy it points at, and the two must not disagree. If the firm wants a
+ * separate marketing consent — which is the stronger practice, and which Singapore's Do
+ * Not Call rules treat as its own thing — that is a SECOND tickbox, not a rewording of
+ * this one.
+ */
+export const CONSENT = {
+  before: 'I agree to The Insurance Concierge handling my personal data as described in the ',
+  linkLabel: 'privacy policy',
+  after: '.',
+} as const
+
+export const CONSENT_STATEMENT = `${CONSENT.before}${CONSENT.linkLabel}${CONSENT.after}`
+
 /**
  * Where a lead came from. A string union rather than a free string, so a typo is a
  * `npm run typecheck` failure rather than an unroutable lead sitting in n8n.
@@ -104,6 +132,14 @@ export async function postCapture({
       list,
       page: typeof window === 'undefined' ? null : window.location.pathname,
       submittedAt: new Date().toISOString(),
+      /*
+        The consent record, sent on every submission rather than passed in by a caller so
+        no capture point can post a lead without one. `statement` is the literal wording
+        the visitor ticked; `submittedAt` above is when. Those two together are the thing
+        worth having — a bare `consent: true` records that a box existed, not what it
+        said, and the wording is what a question about consent would actually be about.
+      */
+      consent: { agreed: true, statement: CONSENT_STATEMENT },
       fields,
     }),
   })

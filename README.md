@@ -22,7 +22,7 @@ editorial pass over the ported copy
 | **1 — Capture** | Wix: **done** — 21 pages and 18 images archived; 2 pages could not be captured (below). Freshdesk: **stopped by decision** — content is stale and will be supplied by hand; folder inventory kept. See [`content/_inventory/_capture-status.md`](content/_inventory/_capture-status.md). |
 | **2 — Scaffold** | Complete. Builds, exports, and passes the URL-contract check. |
 | **3 — Port content** | **Complete.** Every preserved path renders real content; no stubs remain. |
-| **4 — Concern flow** | **Complete, pending content.** Homepage rebuilt as five moves; nine concerns, each a real indexable page from one shared source; palette and type re-derived from the logo. Eight case studies and five lead images are still placeholders, and five concerns have no on-topic article to link. |
+| **4 — Concern flow** | **Complete, pending content.** Homepage rebuilt as five moves; nine concerns, each a real indexable page from one shared source; palette and type re-derived from the logo. All nine lead images are in place; seven case studies are still placeholders, one panel carries a labelled scenario, and five concerns have no on-topic article to link. |
 
 ### Phase 1: what came back
 
@@ -552,7 +552,7 @@ contract. Only the links moved:
 
 | Path | Now reached by |
 | --- | --- |
-| `/privacy` | Two places, deliberately. The footer's **legal line**, beside the GST registration, on every page; and a line of fine print under the submit button in `components/capture-form.tsx`, at the point of collection. |
+| `/privacy` | Two places, deliberately. The footer's **legal line**, beside the GST registration, on every page; and the consent tickbox in `components/capture-form.tsx`, at the point of collection. |
 | `/forms` | A direct link sent to a member by email or WhatsApp when they need a specific document, plus the `/file-access` and `/file` 301s. Nobody hunts for a claim form on a marketing site. |
 | `/projects` | Nothing — the page is gone. The path 301s to `/services`. |
 
@@ -565,10 +565,29 @@ the link to the forms alone would have taken the site from a privacy link on eve
 a privacy link nowhere, on a firm that collects personal data and handles health data. Do
 not remove the footer one as a tidy-up; check that forms actually render in `out/` first.
 
-The form's wording — "We handle your details as described in our privacy policy" —
-deliberately promises nothing. "We will only use this to reply to you" was considered and
-rejected because `content/pages/privacy.mdx` reserves the right to use data for direct
-marketing, and the form must not contradict the policy it links to.
+#### Consent is a tickbox, and the record says what was ticked
+
+Every capture point requires a ticked disclaimer before it will send:
+*"I agree to The Insurance Concierge handling my personal data as described in the privacy
+policy."* It is `required` in the markup, so a browser blocks submit, and `handleSubmit`
+checks it again — a submission arriving by any other route must not reach n8n without
+consent, in the same spirit as the honeypot beside it.
+
+**The wording is defined once, in three parts, in `lib/capture.ts`.** The page renders
+them with the middle part linked to `/privacy`; `CONSENT_STATEMENT` joins the same three
+into the string posted with the submission. That is deliberate: the record has to be
+character-for-character what the visitor saw, and a consent record that does not say what
+was agreed to is not much of a record. Every submission carries
+`consent: { agreed, statement }` alongside `submittedAt` — what, and when.
+
+It **agrees to the policy, not to a narrower purpose.** "To respond to this enquiry" was
+considered and rejected: `content/pages/privacy.mdx` also reserves the use of data for
+direct marketing, so that tickbox would authorise less than the policy it points at.
+
+⚠ **A separate marketing consent would be the stronger practice** and is not built. One
+blanket tick covering both reply and marketing is weaker than splitting them, and
+Singapore's Do Not Call rules treat marketing consent as its own thing. That is a second
+tickbox and a second field in the record, not a rewording of this one.
 
 **`/projects` was retired**, on the owner's instruction, once losing the footer link left
 it with no inbound link at all. The Wix original was an unfinished template; Phase 2
