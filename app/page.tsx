@@ -311,7 +311,18 @@ export default function Page() {
                     {homeCopy.concerns.intro}
                   </p>
 
-                  <ul className="mt-6 grid gap-4 sm:grid-cols-2">
+                  {/*
+                    56rem, not the 72rem container, so the grid shares an edge with the
+                    panel that opens beneath it — ConcernPanel is `mx-auto max-w-[56rem]`
+                    and the two were 108px out on each side at 1280.
+
+                    The cards moved rather than the panel because the panel's width is
+                    load-bearing: its copy is set to a 42rem measure, and stretching it to
+                    the full container would leave roughly 220px of empty space beside
+                    every paragraph. Card labels are two or three words and lose nothing by
+                    being narrower. If one of these two numbers changes, change both.
+                  */}
+                  <ul className="mx-auto mt-6 grid max-w-[56rem] gap-4 sm:grid-cols-2">
                     {concernsFor(path.audience).map((concern, index, all) => (
                       <li
                         key={concern.key}
