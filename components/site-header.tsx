@@ -14,14 +14,22 @@ export function SiteHeader() {
             The real logo, replacing the gradient-square placeholder that stood here
             from the scaffold until 2026-08-16.
 
-            Pulled from Wix at its original resolution — `Logo-v1Apr19.png`, 508x114,
-            palette PNG with a tRNS chunk, so the ground is genuinely transparent and it
-            sits on the stone paper without a white box behind it. The roundel alone is
-            in public/images/logo-mark.png at 130x132 if a square mark is ever needed.
+            Pulled from Wix as `Logo-v1Apr19.png` at 508x114 and CROPPED to its ink on
+            2026-08-17. The original carried 13% transparent margin vertically, so at any
+            given CSS height only 87% of the box was actually logo — the mark rendered
+            shorter than the "Talk to us" button beside it, which is the wrong way round
+            for a brand mark. The box is now the artwork, so a height class means what it
+            says. The roundel alone is in public/images/logo-mark.png if a square mark is
+            ever needed.
+
+            SIZED RESPONSIVELY, and the two values are not interchangeable. At 484:99 the
+            mark is nearly five times wider than it is tall, so height is really a width
+            budget. A 390px header also has to hold the menu toggle and the CTA, which
+            leaves roughly 140px for the logo — hence h-8 there. From md there is room for
+            h-10, which is 44% more logo than the uncropped 32px it replaced.
 
             Sized explicitly because images.unoptimized is mandatory under static export,
-            so the intrinsic dimensions are the only thing preventing layout shift. Height
-            is capped at 32px and width follows the 508:114 ratio.
+            so the intrinsic dimensions are the only thing preventing layout shift.
 
             The wordmark reads "InsuranceConcierge", so the accessible name on the link is
             the firm's full name rather than the alt text being left to carry it.
@@ -29,10 +37,10 @@ export function SiteHeader() {
           <Image
             src="/images/logo-wordmark.png"
             alt={siteConfig.name}
-            width={508}
-            height={114}
+            width={484}
+            height={99}
             priority
-            className="h-8 w-auto"
+            className="h-8 w-auto md:h-10"
           />
         </Link>
         <div className="flex items-center gap-2">

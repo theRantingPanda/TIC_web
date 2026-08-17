@@ -18,6 +18,11 @@
  *
  * Formal disclosure of appointments is a real obligation, but it belongs in the advisory
  * documentation, not in marketing copy. This guard is about the public site only.
+ *
+ * ⚠ ONE ROUTE IS EXEMPT FROM THE INSURER-NAME CHECK: /forms, the member file library,
+ * which is grouped by insurer because that is how a member holds the problem — they think
+ * "the plan I'm on", and the insurer's name is printed on their schedule. See
+ * `INSURER_NAMES_ALLOWED_ON` below for the exact boundary and what stays enforced there.
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -85,6 +90,36 @@ const PANEL_PATTERNS: { label: string; pattern: RegExp }[] = [
 /** Government and statutory schemes. Correct to publish, never flagged. */
 const ALLOWED = ['MediShield Life', 'Integrated Shield Plan', 'MediSave', 'CareShield']
 
+/**
+ * The single route where an insurer may be named: /forms, the member file library.
+ *
+ * The rule's purpose is to keep panel composition out of marketing copy. A library whose
+ * whole job is to hand a member the right claim form is not marketing copy, and it has to
+ * be navigable by the name on their policy schedule. That is the entire exemption.
+ *
+ * WHAT IT DOES NOT DO, all three deliberate:
+ *
+ *   - It does not exempt anything but the `insurer name` label. `PANEL_PATTERNS` still
+ *     run here, so "our panel" and "all major insurers" still fail the build on /forms
+ *     exactly as they do everywhere else. Naming the insurer whose form you are hosting
+ *     is a service fact; describing your panel is a claim, and the claim is still barred.
+ *   - It does not exempt a directory that could quietly grow. The predicate below is the
+ *     page's verified footprint and nothing else: forms.html, forms.txt and the
+ *     forms/ directory, which holds the RSC payload dumps and the served manifest.json.
+ *     No other route's built output carries this page's copy — checked, not assumed.
+ *   - It does not go quiet. Every exempted name is reported at the end of the run, so a
+ *     build log shows what was allowed through. A carve-out nobody can see is how a guard
+ *     rots into a rule that used to exist.
+ */
+function insurerNamesAllowedOn(relativePath: string): boolean {
+  const normalised = relativePath.split(path.sep).join('/')
+  return (
+    normalised === 'forms.html' ||
+    normalised === 'forms.txt' ||
+    normalised.startsWith('forms/')
+  )
+}
+
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
@@ -131,6 +166,8 @@ function readableText(file: string): string {
 type Hit = { file: string; label: string; term: string; context: string }
 
 const hits: Hit[] = []
+/** What the /forms exemption let through this run, so the build log shows it. */
+const exempted = new Map<string, Set<string>>()
 
 if (!fs.existsSync(OUT_DIR)) {
   console.error('✗ out/ not found — run `npm run build` first.')
@@ -142,6 +179,8 @@ console.log(`Scanning ${files.length} built file(s) for insurer names and panel 
 
 for (const file of files) {
   const text = readableText(file)
+  const relative = path.relative(OUT_DIR, file)
+  const insurerNamesAllowed = insurerNamesAllowedOn(relative)
 
   for (const { label, pattern } of [...termPatterns, ...PANEL_PATTERNS]) {
     pattern.lastIndex = 0
@@ -159,12 +198,16 @@ for (const file of files) {
         if (isSchemeWord) continue
       }
 
-      hits.push({
-        file: path.relative(OUT_DIR, file),
-        label,
-        term: match[0],
-        context,
-      })
+      // The /forms exemption. Recorded rather than dropped, and narrow: a panel or
+      // market-coverage hit on this path still falls through to `hits` and fails.
+      if (label === 'insurer name' && insurerNamesAllowed) {
+        const names = exempted.get(relative) ?? new Set<string>()
+        names.add(match[0])
+        exempted.set(relative, names)
+        continue
+      }
+
+      hits.push({ file: relative, label, term: match[0], context })
     }
   }
 }
@@ -189,4 +232,23 @@ if (hits.length > 0) {
   process.exit(1)
 }
 
-console.log('✓ No insurer names or panel references in public copy.')
+if (exempted.size > 0) {
+  /*
+    Deduped case-insensitively. The matches include filenames, so an insurer named in a
+    heading and again in the PDF it links to arrives as "Allianz" and "allianz" — two
+    strings, one insurer. The capitalised variant is reported when both are present, so
+    the line reads as the roster it is rather than as a count of spellings.
+  */
+  const canonical = new Map<string, string>()
+  for (const term of [...exempted.values()].flatMap((set) => [...set])) {
+    const key = term.toLowerCase()
+    const seen = canonical.get(key)
+    if (!seen || (seen === key && term !== key)) canonical.set(key, term)
+  }
+  const names = [...canonical.values()].sort((a, b) => a.localeCompare(b))
+  console.log(`\n  /forms names ${names.length} insurer(s) by design: ${names.join(', ')}`)
+  for (const file of [...exempted.keys()].sort()) console.log(`    out/${file}`)
+  console.log('    Exempt on this path only. Every other route still fails on a name.')
+}
+
+console.log('\n✓ No insurer names or panel references in public copy.')

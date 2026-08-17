@@ -18,12 +18,19 @@ const rows = concerns.map((concern) => ({
   concern: concern.cardTitle,
   path: concern.path,
   photo: concern.image.kind === 'photo',
-  study: concern.case.kind === 'real',
+  /*
+    Three states, not two. A `scenario` is finished content and renders in production, so
+    calling it missing would be wrong; calling it a case would be worse. It gets its own
+    mark because the two are not interchangeable — see the ConcernCase doc comment.
+  */
+  study: concern.case.kind,
   figures: Boolean(concern.numbers?.table),
   reading: Boolean(concern.furtherReading),
 }))
 
 const mark = (ready: boolean) => (ready ? '  ✓  ' : '  ·  ')
+/** ✓ a real client's story, ~ an illustration, · unwritten. */
+const caseMark = (kind: string) => (kind === 'real' ? '✓' : kind === 'scenario' ? '~' : '·')
 
 console.log('\nWhat each concern panel is showing in production\n')
 console.log(
@@ -41,18 +48,20 @@ for (const row of rows) {
     '  ' +
       row.concern.padEnd(46) +
       mark(row.photo).trim().padEnd(8) +
-      mark(row.study).trim().padEnd(8) +
+      caseMark(row.study).padEnd(8) +
       mark(row.figures).trim().padEnd(9) +
       mark(row.reading).trim(),
   )
 }
 
 const missingPhoto = rows.filter((r) => !r.photo)
-const missingCase = rows.filter((r) => !r.study)
+const missingCase = rows.filter((r) => r.study === 'placeholder')
+const scenarios = rows.filter((r) => r.study === 'scenario')
 
 console.log(
   `\n  ${rows.length - missingPhoto.length}/${rows.length} panels have a photograph, ` +
-    `${rows.length - missingCase.length}/${rows.length} have a real case.`,
+    `${rows.length - missingCase.length - scenarios.length}/${rows.length} have a real ` +
+    `case, ${scenarios.length} ${scenarios.length === 1 ? 'shows' : 'show'} a scenario (~).`,
 )
 
 /*
@@ -68,6 +77,11 @@ if (missingPhoto.length > 0) {
 if (missingCase.length > 0) {
   console.log(`\n  Case study still needed (section is hidden in production):`)
   for (const row of missingCase) console.log(`    ${row.path}`)
+}
+
+if (scenarios.length > 0) {
+  console.log(`\n  Showing a scenario, labelled as one on the page (a real case is better):`)
+  for (const row of scenarios) console.log(`    ${row.path}`)
 }
 
 console.log(

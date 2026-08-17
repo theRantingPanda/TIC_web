@@ -109,8 +109,8 @@ function CaseChart({
  *
  * ---- Unfinished content SHIPS HIDDEN, and opens itself when it is ready ----
  *
- * Eight of the nine case studies are briefs, and five panels have no photograph. Those
- * placeholders exist so the team can see what is missing, which is useful in the editor
+ * Seven of the nine case studies are briefs. Those placeholders exist so the team can see
+ * what is missing, which is useful in the editor
  * and unacceptable in front of a customer: a visitor reading "[Real case needed,
  * anonymised…]" on a page selling advice learns exactly the wrong thing about the firm.
  *
@@ -119,9 +119,12 @@ function CaseChart({
  *
  * NOTHING IS DELETED AND NO FLAG HAS TO BE FLIPPED LATER. `image` and `case` are tagged
  * unions, so the moment a `kind: 'brief'` becomes a `kind: 'photo'`, or a
- * `kind: 'placeholder'` becomes a `kind: 'real'`, that section appears in production by
- * itself. Sections open as the pieces arrive, one concern at a time, with no code change
- * and no way to ship a half-finished panel by accident.
+ * `kind: 'placeholder'` becomes a `kind: 'real'` or a `kind: 'scenario'`, that section
+ * appears in production by itself. Sections open as the pieces arrive, one concern at a
+ * time, with no code change and no way to ship a half-finished panel by accident.
+ *
+ * This gate is about UNFINISHED, not about unverified. A `scenario` is finished content
+ * and ships; what keeps it honest is the label on it, not a hidden section.
  *
  * The panel still reads without them: situation, three things to consider, what we do,
  * and the call to action. That is the argument intact, just without the evidence.
@@ -228,37 +231,57 @@ export function ConcernPanel({
         {/*
           2. The case.
 
-          Rendered when it is real, and in development when it is still a brief so the gap
-          stays visible to whoever is writing. A production build with an unwritten case
-          shows no section at all rather than an empty promise. See SHOW_UNFINISHED above.
+          Rendered when it is finished — a real case or a written scenario — and in
+          development when it is still a brief, so the gap stays visible to whoever is
+          writing. A production build with an unwritten case shows no section at all
+          rather than an empty promise. See SHOW_UNFINISHED above.
+
+          ⚠ A SCENARIO IS LABELLED, IN WORDS, ON THE PAGE. It gets its own eyebrow and a
+          plain closing line saying it is not a client's story. That is not a legal
+          hedge, it is the whole reason the variant exists: this site's argument rests on
+          a reader being able to believe the one real case, and an illustration dressed
+          in the same frame spends credit it did not earn. Do not reduce the label to
+          something skimmable, and do not drop it because the panel looks cleaner without.
         */}
-        {concern.case.kind === 'real' || SHOW_UNFINISHED ? (
+        {concern.case.kind !== 'placeholder' || SHOW_UNFINISHED ? (
           <>
-        <p className="mt-10 text-eyebrow uppercase text-ink-muted">A real case</p>
-        <blockquote className={`mt-3 max-w-[42rem] border-l-2 py-1 pl-5 ${rule}`}>
-          {concern.case.kind === 'real' ? (
-            <>
-              {concern.case.paragraphs.map((paragraph, index) => (
-                <p
-                  key={paragraph.slice(0, 40)}
-                  className={`text-base/8 text-ink ${index > 0 ? 'mt-4' : ''}`}
-                >
-                  {paragraph}
-                </p>
-              ))}
-              {/* The verdict, set apart because it is not more narrative. */}
-              <p className="mt-4 font-medium text-ink">{concern.case.footer}</p>
-              {concern.case.chart ? <CaseChart chart={concern.case.chart} /> : null}
-            </>
-          ) : (
-            /*
-              Italic and muted because it is unfinished, not because it is a quotation.
-              When a real case replaces it, it renders in the branch above: full ink, no
-              italics, reading as the strongest thing on the panel, which it will be.
-            */
-            <p className="text-base/7 italic text-ink-muted">{concern.case.brief}</p>
-          )}
-        </blockquote>
+            <p className="mt-10 text-eyebrow uppercase text-ink-muted">
+              {concern.case.kind === 'scenario' ? 'A situation we see' : 'A real case'}
+            </p>
+            <blockquote className={`mt-3 max-w-[42rem] border-l-2 py-1 pl-5 ${rule}`}>
+              {concern.case.kind === 'placeholder' ? (
+                /*
+                  Italic and muted because it is unfinished, not because it is a
+                  quotation. When a real case replaces it, it renders in the branch
+                  below: full ink, no italics, reading as the strongest thing on the
+                  panel, which it will be.
+                */
+                <p className="text-base/7 italic text-ink-muted">{concern.case.brief}</p>
+              ) : (
+                <>
+                  {concern.case.paragraphs.map((paragraph, index) => (
+                    <p
+                      key={paragraph.slice(0, 40)}
+                      className={`text-base/8 text-ink ${index > 0 ? 'mt-4' : ''}`}
+                    >
+                      {paragraph}
+                    </p>
+                  ))}
+                  {/* The verdict, set apart because it is not more narrative. */}
+                  {concern.case.footer ? (
+                    <p className="mt-4 font-medium text-ink">{concern.case.footer}</p>
+                  ) : null}
+                  {concern.case.kind === 'real' && concern.case.chart ? (
+                    <CaseChart chart={concern.case.chart} />
+                  ) : null}
+                  {concern.case.kind === 'scenario' ? (
+                    <p className="mt-4 text-sm text-ink-muted">
+                      An illustration, not an account of a particular client.
+                    </p>
+                  ) : null}
+                </>
+              )}
+            </blockquote>
           </>
         ) : null}
 

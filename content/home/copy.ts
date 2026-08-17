@@ -28,7 +28,15 @@ export const homeCopy = {
    */
   hero: {
     headline: 'Cover, explained by someone who is actually looking at your situation.',
-    subhead: 'International health insurance for people and companies in Singapore.',
+    /*
+      "Private" is load-bearing, not decoration. It names the tier, and the tier is this
+      site's whole argument for an expat reader: they sit outside the subsidised public
+      one, so a bill arrives with nothing taken off it.
+
+      "for people and companies" was dropped because the fork immediately below asks that
+      question directly, and a subhead that answers it first makes the question redundant.
+    */
+    subhead: 'International private health insurance in Singapore',
   },
 
   /**

@@ -470,7 +470,7 @@ each is assembled from material the site already publishes:
 | `/services` | Client-rendered on Wix at `/blog`; never captured. That path was the **Services** landing page, not a blog index, and it now 301s here. | The two product pages, all eight concerns in one flat list, the individual lead magnet, and the 12 posts — which also gives the posts an index, since the Wix category pages were dropped. |
 | the six new concern pages | New paths, added with the flow. | The shared panel, a questions band, and a lead-tagged enquiry form. |
 | `/knowledge` | New path. `content/kb/` is empty and stays empty — KB copy is being written by hand, not ported from Freshdesk. | The posts, and a link to the live help centre at `support.asktic.com`, which Freshdesk still serves. |
-| `/forms` | New path. The Wix `/file-access` original was an unconfigured template. | `public/forms/manifest.json`, which is empty — so an empty state that invites contact rather than a blank list. |
+| `/forms` | New path. The Wix `/file-access` original was an unconfigured template. | The member file library from `public/forms/manifest.json`, **grouped by insurer** — the one route on this site that names them. Empty manifest renders an empty state that invites contact rather than a blank list. |
 
 ### Unfinished sections ship hidden, and open themselves
 
@@ -497,12 +497,21 @@ and the call to action.
 
 Nothing below is invented, but nothing below is finished either:
 
-- **Eight of the nine case studies.** Each renders bracketed and visibly unfinished, with
+- **Seven of the nine case studies.** Each renders bracketed and visibly unfinished, with
   a brief describing what a real one needs. A case does **not** have to end in a win —
   "we recommended staying put" is often the more credible story. The one real case is
   anonymised and permission-cleared (both the family's and the employer's) and sits on
   `/beyond-employer-cover`, because that panel's argument is a company scheme's ceiling
   and the case is that ceiling being exceeded by S$53,000. Do not restate it elsewhere.
+
+  **A scenario is not a case.** `/cover-for-senior-hires` carries a written illustration
+  rather than a client's story, typed as `kind: 'scenario'` so the panel labels it in
+  plain words on the page. It exists as its own variant, and not as a real case with a
+  caveat, because the two must not render alike: the site's argument rests on a reader
+  being able to believe the real one, and an illustration in the identical frame spends
+  credit it did not earn. Never promote a scenario to `real` to make it read better — the
+  only thing that turns one into a case is it having happened, to someone who agreed.
+  `npm run content:status` marks scenarios `~` and real cases `✓`.
 - **Five of the nine lead images.** Real photography is in place for maternity (plus the
   newborn section), relocating, pre-existing conditions and offshore. The other five
   render a holding frame at the real image's 16:7 with the photography brief in it, so the
@@ -513,6 +522,47 @@ Nothing below is invented, but nothing below is finished either:
 - **The trust stats**, which are published on the live site but were queried against
   `tic_crm_dev` rather than production. The outstanding checks are listed in
   `content/home/copy.ts`.
+- **The forms library**, which now holds exactly one document. It is live and linked from
+  the footer again. Adding to it is editing `public/forms/manifest.json` and committing
+  the file beside it; see below.
+- **The privacy policy**, which is complete but dated 5 MAY 2018, so it predates the PDPA
+  amendments in force from 2021 — mandatory data-breach notification among them. This firm
+  handles health and claims data, which is where that matters most. It stays linked and
+  flagged for **legal** review: currency, retention periods, and whether the described
+  claims-data flows are the ones the firm actually runs. It is not flagged for naming the
+  wrong law — it cites the Personal Data Protection Act 2012 correctly, and a review
+  claiming otherwise was mistaken. See the note in `app/privacy/page.tsx`.
+
+#### `/forms` is the one route that names insurers
+
+Everywhere else it is a hard rule and `npm run verify:copy` fails the build on a name
+anywhere in `out/` — body copy, a metadata description, an image alt, a served JSON file.
+The file library is the exception, because it is grouped by insurer and it is grouped that
+way for the member's sake: nobody thinks "outpatient guide", they think "the plan I'm on",
+and that insurer's name is printed on their schedule. A library that refuses to say it is
+a library they cannot navigate.
+
+The guard was **scoped, not switched off**, and the boundary is narrow on purpose:
+
+- Only the `insurer name` check is exempt, and only on `forms.html`, `forms.txt` and
+  `forms/`. That is the page's verified built footprint; no other route's output carries
+  its copy.
+- **Panel and market-coverage patterns still fail here.** Naming the insurer whose form
+  you are hosting is a service fact. "Our panel" and "all major insurers" are claims, and
+  they are still barred on this page like every other.
+- The exemption **prints what it allowed** on every run, so a build log always shows the
+  roster it let through. A carve-out nobody can see is how a guard rots.
+
+Adding a document is two steps: commit the file to `public/forms/files/`, and add an entry
+to `public/forms/manifest.json`. `lib/forms-schema.ts` validates it and `readFormLibrary`
+in `lib/content.ts` throws if the file is not on disk, so a manifest entry can never ship
+as a 404 for the one member who needed that form. File size is read from disk rather than
+typed in. `updatedAt` means the **document's** revision date and should be left out rather
+than guessed — a wrong date tells a member their claim form is current when it may not be.
+
+Two open questions for the firm, not for the code: these are the insurers' documents on a
+public indexable domain, which is worth confirming per carrier; and a superseded form left
+up is a live service failure, so the library wants a review cadence.
 
 #### Figures never go inside a photograph
 

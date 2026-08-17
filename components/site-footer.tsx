@@ -31,19 +31,11 @@ export function SiteFooter() {
               in social bios, not above the fold where it competes with the subhead.
             */}
             <p className="mt-2 text-sm text-ink-muted">#askTheInsuranceConcierge</p>
-            <ul className="mt-3 flex gap-4">
-              {contact.social.map((item) => (
-                <li key={item.href}>
-                  <a
-                    href={item.href}
-                    rel="noreferrer"
-                    className="text-sm text-ink-muted no-underline hover:text-brand-blue"
-                  >
-                    {item.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            {/*
+              The Facebook and LinkedIn links stood here until 2026-08-17. Both profiles
+              are thin, and this footer's whole job is trust — see `contact` in
+              lib/site.ts for the reasoning and for what restoring them entails.
+            */}
           </div>
 
           {/*
@@ -92,8 +84,18 @@ export function SiteFooter() {
         <div className="mt-10 border-t border-border pt-6 text-sm text-ink-muted">
           {/* Licensing disclosure — on every page of the live site, and required to be. */}
           <p className="max-w-3xl">{regulatory}</p>
+          {/*
+            The GST registration sits on the copyright line rather than being appended to
+            the compliance sentence above. That is the conventional placement for a
+            registration number on a Singapore business site, and it keeps the licensing
+            statement to the one thing it asserts. New here — it is not on the live site.
+
+            The number is siteConfig.uen, because in Singapore the GST registration number
+            is the UEN, and the privacy policy already publishes it as the UEN.
+          */}
           <p className="mt-4">
-            © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
+            © {new Date().getFullYear()} {siteConfig.name}. All rights reserved. GST Reg.{' '}
+            {siteConfig.uen}
           </p>
         </div>
       </Container>
