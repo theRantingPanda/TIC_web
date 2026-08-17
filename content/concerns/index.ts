@@ -306,10 +306,8 @@ export const concerns: readonly Concern[] = [
       'Handle the enrolment when the baby arrives, including putting the case for cover to run from the date of birth rather than from the date the form landed.',
     ],
     ctaLabel: 'Tell us where you are on the clock',
-    furtherReading: {
-      href: '/single-post/does-my-plan-cover-maternity-and-newborn-care',
-      label: 'Does my plan cover maternity and newborn care?',
-    },
+    // furtherReading removed 2026-08-17 with the article it pointed at. See the note on
+    // the field's declaration: no link beats a link to a page that no longer exists.
     meta: {
       title: 'Maternity and newborn cover in Singapore',
       description:
@@ -594,10 +592,7 @@ export const concerns: readonly Concern[] = [
       'Tell you plainly if moving would cost you more in lost history than it saves in premium.',
     ],
     ctaLabel: 'Ask about your condition, confidentially',
-    furtherReading: {
-      href: '/single-post/will-my-pre-existing-conditions-be-covered',
-      label: 'Will my pre-existing conditions be covered?',
-    },
+    // furtherReading removed 2026-08-17 with the article it pointed at.
     meta: {
       title: 'Pre-existing conditions and international health cover',
       description:
@@ -733,10 +728,7 @@ export const concerns: readonly Concern[] = [
       'Say plainly whether moving is worth it, including when the answer is that it is not.',
     ],
     ctaLabel: 'Tell us about your renewal',
-    furtherReading: {
-      href: '/single-post/why-has-my-renewal-premium-increased',
-      label: 'Why has my renewal premium increased?',
-    },
+    // furtherReading removed 2026-08-17 with the article it pointed at.
     meta: {
       title: 'Group medical renewal: why the premium increased',
       description:
@@ -748,7 +740,7 @@ export const concerns: readonly Concern[] = [
     key: 'retention',
     path: '/cover-for-senior-hires',
     audience: 'company',
-    cardTitle: 'Retaining senior and regional hires',
+    cardTitle: 'Retaining talent',
     hook: 'Benefits matter more when someone is relocating their family.',
     icon: 'briefcase',
     /*
@@ -761,11 +753,18 @@ export const concerns: readonly Concern[] = [
       would be the overclaim this project already cut once — see the superlatives rule at
       the top of this file. Keep any rewrite on this side of that line.
 
-      Only the heading changed. The nav label stays "Cover for senior hires" and the meta
+      The cardTitle followed on 2026-08-17, from "Retaining senior and regional hires" to
+      "Retaining talent" — sentence case, matching the other eight, and "talent" uncountable
+      in this sense, so never "Retaining Talents".
+
+      ⚠ THE NAV LABEL AND META TITLE STILL DO NOT FOLLOW, and that is the decision, not an
+      oversight anyone should tidy up. The nav stays "Cover for senior hires" and the meta
       title stays "Medical cover for senior and regional hires", because those two fields
       have a different job: they have to match what a buyer types, and "cover" language
       reaches the right person where "talent retention" would not. A heading's job starts
-      after the click, which is why it can afford to make the argument instead.
+      after the click, which is why it can afford to make the argument instead. Renaming
+      them to match is an SEO trade, not a consistency fix — make it deliberately or not at
+      all.
 
       ⚠ It is the only panelTitle of the nine ending in a full stop, and used as supplied.
       "Maternity cover runs on a clock" is the other sentence-shaped one and carries none.

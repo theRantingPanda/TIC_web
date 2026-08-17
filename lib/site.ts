@@ -86,7 +86,16 @@ export const primaryNav: readonly NavGroup[] = [
       { href: '/first-company-scheme', label: 'Setting up a first scheme' },
     ],
   },
-  { label: 'Answers', href: '/knowledge' },
+  /*
+    "Answers" stood here, pointing at /knowledge, until 2026-08-17. The knowledge base and
+    every /single-post/… article were retired from the public site that day and moved to
+    the CRM, so the destination stopped existing.
+
+    It was not repointed. The two candidates were a CRM login, which sends a visitor to a
+    wall most of them cannot pass, and /services, which would leave a nav item labelled
+    "Answers" landing on a page about what we arrange. Both are worse than two honest
+    groups. If a public answers surface returns, this is where it goes back.
+  */
 ] as const
 
 /**

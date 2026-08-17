@@ -23,16 +23,6 @@
       "source": "wix"
     },
     {
-      "path": "/forms",
-      "source": "new",
-      "note": "redirect target for /file-access"
-    },
-    {
-      "path": "/knowledge",
-      "source": "new",
-      "note": "redirect target for help.asktic.com"
-    },
-    {
       "path": "/services",
       "source": "new",
       "note": "301 destination for /blog. The Wix path served the Services landing page, not a blog index; the homepage copy deck moves Services here and the equity follows."
@@ -41,66 +31,6 @@
       "path": "/offshore-and-energy",
       "source": "new",
       "note": "301 destination for /speciality-insurance. NOT to /services - the specialty product line was dropped and the offshore audience survived it, so the equity follows the audience."
-    },
-    {
-      "path": "/single-post/how-do-i-make-a-claim-with-my-international-health-insurance",
-      "source": "wix",
-      "note": "blog post"
-    },
-    {
-      "path": "/single-post/why-has-my-renewal-premium-increased",
-      "source": "wix",
-      "note": "blog post"
-    },
-    {
-      "path": "/single-post/what-happens-if-my-claim-is-rejected",
-      "source": "wix",
-      "note": "blog post"
-    },
-    {
-      "path": "/single-post/how-do-i-get-pre-authorisation-for-a-planned-procedure",
-      "source": "wix",
-      "note": "blog post"
-    },
-    {
-      "path": "/single-post/does-my-plan-cover-maternity-and-newborn-care",
-      "source": "wix",
-      "note": "blog post"
-    },
-    {
-      "path": "/single-post/will-my-pre-existing-conditions-be-covered",
-      "source": "wix",
-      "note": "blog post"
-    },
-    {
-      "path": "/single-post/what-is-the-difference-between-international-and-local-health-insurance-in-singapore",
-      "source": "wix",
-      "note": "blog post"
-    },
-    {
-      "path": "/single-post/how-does-the-insurance-concierge-get-paid",
-      "source": "wix",
-      "note": "blog post"
-    },
-    {
-      "path": "/single-post/when-should-i-start-my-policy-renewal-process",
-      "source": "wix",
-      "note": "blog post"
-    },
-    {
-      "path": "/single-post/am-i-covered-for-dental-and-optical-treatment",
-      "source": "wix",
-      "note": "blog post"
-    },
-    {
-      "path": "/single-post/2018/04/30/travel-insurance-tips-i-wished-i-knew",
-      "source": "wix",
-      "note": "Wix date-segment path - preserved verbatim"
-    },
-    {
-      "path": "/single-post/2018/05/06/with-health-insurance-is-major-illness-insurance-necessary",
-      "source": "wix",
-      "note": "Wix date-segment path - preserved verbatim"
     },
     {
       "path": "/relocating-to-singapore",
@@ -143,17 +73,6 @@
       "path": "/home-1",
       "destination": "/",
       "status": 301
-    },
-    {
-      "path": "/file-access",
-      "destination": "/forms",
-      "status": 301
-    },
-    {
-      "path": "/file",
-      "destination": "/forms",
-      "status": 301,
-      "note": "Old file-access page (confirmed 2026-08-11) - same destination as /file-access"
     },
     {
       "path": "/blog",
@@ -234,6 +153,27 @@
         "reason": "Unfinished Wix template page, retired 2026-08-17 on the owner's instruction: \"legacy and a mistake from the old site\". The Wix original had an \"Our Services\" heading and the literal placeholder \"I'm a title. Click here to edit me.\" Phase 2 rescued it by listing the service pages derived from primaryNav, which meant it re-listed the nav and nothing else; removing the footer sitemap then left it with no inbound link. It was briefly classified redirectOnly with a 301 to /services, on the assumption an indexed path is always worth preserving. It is not: there was never any original content to preserve, and render.yaml does not govern the live service, so that redirect would have been a rule nobody ever configured. Dropped, and it 404s deliberately.",
         "paths": [
           "/projects"
+        ]
+      },
+      {
+        "reason": "Retired from the public site on 2026-08-17. The knowledge base, the forms library and every blog article moved into the CRM, so none of this content is coming back to a public URL. Steven chose 410 Gone over a 301: there is no topically honest destination for 12 articles, and a mass redirect onto /services is the pattern search engines collapse into soft-404s. NOTE the site is a static export (next.config output: 'export'), which cannot emit a status for a path it does not build - these 404 unless a 410 rule is added at the hosting layer for exactly these paths.",
+        "paths": [
+          "/single-post/2018/04/30/travel-insurance-tips-i-wished-i-knew",
+          "/single-post/2018/05/06/with-health-insurance-is-major-illness-insurance-necessary",
+          "/single-post/am-i-covered-for-dental-and-optical-treatment",
+          "/single-post/does-my-plan-cover-maternity-and-newborn-care",
+          "/single-post/how-do-i-get-pre-authorisation-for-a-planned-procedure",
+          "/single-post/how-do-i-make-a-claim-with-my-international-health-insurance",
+          "/single-post/how-does-the-insurance-concierge-get-paid",
+          "/single-post/what-happens-if-my-claim-is-rejected",
+          "/single-post/what-is-the-difference-between-international-and-local-health-insurance-in-singapore",
+          "/single-post/when-should-i-start-my-policy-renewal-process",
+          "/single-post/why-has-my-renewal-premium-increased",
+          "/single-post/will-my-pre-existing-conditions-be-covered",
+          "/forms",
+          "/knowledge",
+          "/file-access",
+          "/file"
         ]
       }
     ]
