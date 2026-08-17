@@ -164,7 +164,7 @@ export const flatNav: readonly NavItem[] = primaryNav.flatMap((group) => [
  *    should be easier and have taken up the challenge to simplify it for our client. We
  *    have been at it since 2003; Listening, Understanding, ensuring their Peace of Mind."
  *
- * 44 words to 8. What went is a prose claim to simplicity sitting a screen below the trust
+ * 43 words to 6. What went is a prose claim to simplicity sitting a screen below the trust
  * stats and the concern fork, which demonstrate the same thing with numbers and with an
  * interaction — it told the reader what the page had just finished showing them. Its
  * grammar faults went with it: "our client" singular for a plural, a semicolon doing a

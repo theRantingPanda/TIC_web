@@ -29,8 +29,8 @@ export function SiteFooter() {
         <div>
           <p className="text-lg font-semibold tracking-tight text-ink">{siteConfig.name}</p>
           {/*
-            No `max-w-xs` here. It was needed when `about` was a 44-word paragraph; at eight
-            words that cap only forces a break mid-tagline on desktop. See lib/site.ts.
+            No `max-w-xs` here. It was needed when `about` was a 43-word paragraph. At six
+            words the cap only costs a line — it split the tagline at 390px. See lib/site.ts.
           */}
           <p className="mt-2 text-sm text-ink-muted">{about}</p>
           <p className="mt-4 text-sm">
