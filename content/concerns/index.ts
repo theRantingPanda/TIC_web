@@ -97,19 +97,33 @@ export type ConcernImage =
   | { kind: 'brief'; brief: string }
 
 /**
- * The case.
+ * The case. Three kinds, and THE DIFFERENCE BETWEEN TWO OF THEM IS THE POINT.
  *
  * `placeholder` renders bracketed and visibly unfinished on the page as well as in the
- * source, so nobody mistakes it for copy. Replace it with a `real` case; never delete
- * the section, and never quietly fill it with generic testimonial language.
+ * source, so nobody mistakes it for copy. Replace it with a `real` case or a `scenario`;
+ * never delete the section, and never quietly fill it with generic testimonial language.
  *
- * Exactly one `real` case exists at the time of writing. It is anonymised and
- * permission-cleared, and BOTH permissions were needed rather than one: the family's,
+ * `real` means a real client. Exactly one exists at the time of writing. It is anonymised
+ * and permission-cleared, and BOTH permissions were needed rather than one: the family's,
  * and the employer's, since the story opens on their HR function and describes their
  * scheme's limits. Do not add a second `real` case without the same clearance.
+ *
+ * `scenario` is written to illustrate a situation the firm sees, and nobody's permission
+ * is involved because nobody real is in it. It exists as a separate variant rather than
+ * as a `real` case with a caveat because the two must not render alike: this site's
+ * argument rests on a reader being able to believe the real one, and an illustration in
+ * the identical frame quietly spends that credit. The panel labels it in plain words on
+ * the page. NEVER PROMOTE A SCENARIO TO `real` to make it read better — the only thing
+ * that changes a scenario into a case is it having happened, to someone who agreed.
  */
 export type ConcernCase =
   | { kind: 'placeholder'; brief: string }
+  | {
+      kind: 'scenario'
+      paragraphs: readonly string[]
+      /** Optional. Absent when the supplied text ends where it ends. */
+      footer?: string
+    }
   | {
       kind: 'real'
       paragraphs: readonly string[]
@@ -676,10 +690,40 @@ export const concerns: readonly Concern[] = [
       'Thirty thousand dollars of medical cover and fifty thousand dollars of salary are not the same offer to someone deciding whether to relocate their family. Cover answers the question salary cannot, which is what happens if something goes wrong out here.',
       'For a senior or regional hire weighing up a move, that question sits somewhere behind every other line in the offer. Turnover and a wrong hire cost more than the premium ever will.',
     ],
+    /**
+     * A SCENARIO, NOT A CLIENT CASE, and typed as one so the panel says so on the page.
+     * Supplied 2026-08-17 to show cover working as a retention lever and to put the
+     * thought in an HR reader's head. Nobody real is in it, so no clearance applies.
+     *
+     * Told from the candidate's side on a page written for the employer, which is the
+     * whole trick: the HR director is reading the moment their own benefit either holds
+     * someone or fails to.
+     *
+     * ⚠ USED VERBATIM AS SUPPLIED, on instruction. Two things were queried and left
+     * alone, recorded here so nobody "corrects" them in a later tidy-up:
+     *
+     *   - the semicolon before "turning", where the structure wants a comma;
+     *   - "asked TIC", third person and abbreviated, where the rest of the site says
+     *     "us" and never shortens the firm's name in public copy.
+     *
+     * Two things were queried and settled on the facts:
+     *
+     *   - The 30% is of TOTAL REMUNERATION. An earlier draft said "remuneration uplift",
+     *     which means 30% of the pay rise instead, and confirmed as total.
+     *   - It says NOTHING about whether a private plan could have covered a pregnancy
+     *     already underway. It must not: /maternity-insurance tells readers "once a
+     *     pregnancy has started it is usually excluded from a new plan", and a claim to
+     *     the contrary here would put two answers on one site. Leave that alone unless
+     *     the mechanism is stated on both pages.
+     *
+     * No chart. One percentage needs no visualising, and the chart exists for a case
+     * where a covered amount meets a bill.
+     */
     case: {
-      kind: 'placeholder',
-      brief:
-        '[Real case needed, anonymised. Be concrete: the role, what the package needed to include and why, the real outcome.]',
+      kind: 'scenario',
+      paragraphs: [
+        'A senior executive considering a move asked TIC if his existing international medical cover could follow him. His prospective employer offered only domestic cover with no maternity benefit, while his wife was already pregnant. Replacing the cover privately would absorb almost 30% of his remuneration; turning an attractive offer into a much less compelling move.',
+      ],
     },
     considerations: [
       {

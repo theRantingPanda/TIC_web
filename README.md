@@ -497,12 +497,21 @@ and the call to action.
 
 Nothing below is invented, but nothing below is finished either:
 
-- **Eight of the nine case studies.** Each renders bracketed and visibly unfinished, with
+- **Seven of the nine case studies.** Each renders bracketed and visibly unfinished, with
   a brief describing what a real one needs. A case does **not** have to end in a win —
   "we recommended staying put" is often the more credible story. The one real case is
   anonymised and permission-cleared (both the family's and the employer's) and sits on
   `/beyond-employer-cover`, because that panel's argument is a company scheme's ceiling
   and the case is that ceiling being exceeded by S$53,000. Do not restate it elsewhere.
+
+  **A scenario is not a case.** `/cover-for-senior-hires` carries a written illustration
+  rather than a client's story, typed as `kind: 'scenario'` so the panel labels it in
+  plain words on the page. It exists as its own variant, and not as a real case with a
+  caveat, because the two must not render alike: the site's argument rests on a reader
+  being able to believe the real one, and an illustration in the identical frame spends
+  credit it did not earn. Never promote a scenario to `real` to make it read better — the
+  only thing that turns one into a case is it having happened, to someone who agreed.
+  `npm run content:status` marks scenarios `~` and real cases `✓`.
 - **Five of the nine lead images.** Real photography is in place for maternity (plus the
   newborn section), relocating, pre-existing conditions and offshore. The other five
   render a holding frame at the real image's 16:7 with the photography brief in it, so the
