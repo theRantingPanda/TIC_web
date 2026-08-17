@@ -19,10 +19,6 @@
       "source": "wix"
     },
     {
-      "path": "/projects",
-      "source": "wix"
-    },
-    {
       "path": "/privacy",
       "source": "wix"
     },
@@ -232,6 +228,12 @@
         "reason": "Wix quotation questionnaire form. Dropped by decision 2026-08-11. Unlike the other dropped groups this was a functioning page rather than template junk - if it ever carried quote-request traffic, a 301 to /forms or a contact page would preserve it. Deliberately not redirected.",
         "paths": [
           "/quotation-questionaire"
+        ]
+      },
+      {
+        "reason": "Unfinished Wix template page, retired 2026-08-17 on the owner's instruction: \"legacy and a mistake from the old site\". The Wix original had an \"Our Services\" heading and the literal placeholder \"I'm a title. Click here to edit me.\" Phase 2 rescued it by listing the service pages derived from primaryNav, which meant it re-listed the nav and nothing else; removing the footer sitemap then left it with no inbound link. It was briefly classified redirectOnly with a 301 to /services, on the assumption an indexed path is always worth preserving. It is not: there was never any original content to preserve, and render.yaml does not govern the live service, so that redirect would have been a rule nobody ever configured. Dropped, and it 404s deliberately.",
+        "paths": [
+          "/projects"
         ]
       }
     ]

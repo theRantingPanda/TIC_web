@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { ConcernCard } from '@/components/concern-card'
 import { ConcernPanel } from '@/components/concern-panel'
 import { Container } from '@/components/container'
@@ -85,14 +86,78 @@ export default function Page() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organisationSchema) }}
       />
 
-      {/* 1. Sparse hero. Name and headline. Nothing else belongs here. */}
-      <section className="bg-surface-subtle">
-        <Container className="py-16 text-center md:py-24">
+      {/*
+        1. Hero. Name and headline over the photograph. Nothing else belongs here.
+
+        THE PHOTOGRAPH IS THE OLD SITE'S OWN HERO, restored on 2026-08-17 on the owner's
+        instruction. It was pulled from Wix during Phase 1, dropped from the tree, and
+        recovered from git history at c22e5f27. The Wix markup had it as a column-strip
+        `bgImage` with `displayMode: fill` behind a `colorUnderlay`, which is the same
+        treatment rebuilt below — full bleed, with a wash over it so the ink still reads.
+
+        ⚠ TWO THINGS THAT WERE FLAGGED AND OVERRULED, recorded so they are not rediscovered
+        as if they were oversights:
+
+          1. The homepage deliberately had no photograph. The rule that stands is the one
+             below about the FORK AND THE CARDS: selection steps stay lean and imagery is
+             earned at the drill-down. A hero is not a selection step, so the two can
+             coexist — but do not read this as licence to put photographs back on the
+             cards.
+          2. LICENSING IS UNCONFIRMED. This came off Wix as stock, and a sibling file in
+             the same capture was Unsplash-sourced through Wix's integration. A licence
+             covering the Wix site does not automatically cover this one. Confirm the
+             provenance; if it does not hold, this is the file to pull.
+
+        `object-left` on the image, not the default centre: the subject sits in the left
+        third and the right two-thirds is bright curtain. Cropping from the centre on a
+        narrow viewport would cut her out and leave an empty wash.
+
+        Sized by `fill` rather than intrinsic dimensions because it is a background that
+        has to cover an arbitrary box. The section carries its own min-height so there is
+        nothing to shift: the image never decides the layout. `priority` because this is
+        the largest element above the fold and lazy-loading it would delay LCP.
+      */}
+      <section className="relative isolate flex min-h-[26rem] items-center overflow-hidden bg-surface-subtle md:min-h-[32rem]">
+        <Image
+          src="/images/home-hero.webp"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="-z-10 object-cover object-[38%_center] md:object-left"
+        />
+        {/*
+          The wash, and it is DELIBERATELY LIGHT. Wix used a flat colour underlay; the
+          first attempt here rebuilt that at full strength and erased the photograph
+          completely — a 14.05:1 headline over what may as well have been a plain stone
+          background. Contrast was never the constraint: the photograph is high-key, the
+          bright curtain reads at 0.85 luminance and even the chair sits near 0.55, so ink
+          clears large-text contrast against the whole frame without help.
+
+          What the wash is actually for is knocking the photograph back far enough that it
+          reads as ground rather than as subject, and unifying its warm cast with the
+          page's stone. It is the page's own colour rather than black or white, so the
+          hero belongs to the site instead of looking like a photo with a filter on it.
+
+          Slightly stronger on the left, where the woman and the chair are the only
+          mid-tones in the frame, and lighter to the right where there is nothing but
+          curtain to protect. Every figure above was measured off the rendered pixels
+          rather than judged by eye.
+        */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-linear-to-r from-surface-subtle/65 via-surface-subtle/45 to-surface-subtle/35"
+        />
+        <Container className="relative w-full py-16 text-center md:py-24">
           <p className="text-eyebrow uppercase text-ink-muted">{siteConfig.name}</p>
           <h1 className="mx-auto mt-4 max-w-[38rem] text-display-md sm:text-display-lg text-ink">
             {homeCopy.hero.headline}
           </h1>
-          <p className="mx-auto mt-5 max-w-[30rem] text-lg/8 text-ink-muted">
+          {/*
+            `text-balance` because at 390px the line breaks after "in" and orphans
+            "Singapore" on a line of its own, which is conspicuous set over a photograph.
+          */}
+          <p className="mx-auto mt-5 max-w-[30rem] text-balance text-lg/8 text-ink-muted">
             {homeCopy.hero.subhead}
           </p>
         </Container>

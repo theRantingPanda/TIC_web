@@ -5,6 +5,8 @@ import { useCapture } from '@/components/capture-context'
 import { ctaClassName } from '@/components/cta-button'
 import {
   CAPTURE_WEBHOOK_URL,
+  CONSENT,
+  CONSENT_FIELD,
   HONEYPOT_FIELD,
   postCapture,
   type CaptureList,
@@ -78,9 +80,23 @@ export function CaptureForm({
       return
     }
 
+    /*
+      The tickbox is `required`, so a browser blocks submit without it. This is the second
+      line of defence, in the same spirit as the honeypot above: a submission that arrives
+      by any other route must not reach n8n without consent, because the record is the
+      entire reason for asking.
+    */
+    if (!data.get(CONSENT_FIELD)) {
+      setStatus('error')
+      setError('Please tick the box so we know we may use your details.')
+      return
+    }
+
     const fields: Record<string, string> = {}
     for (const [key, value] of data.entries()) {
-      if (key === HONEYPOT_FIELD) continue
+      // Both are carried in the envelope rather than as lead data: the honeypot is
+      // discarded outright, and consent is posted as a structured record by postCapture.
+      if (key === HONEYPOT_FIELD || key === CONSENT_FIELD) continue
       if (typeof value === 'string' && value.length > 0) fields[key] = value
     }
 
@@ -138,6 +154,42 @@ export function CaptureForm({
         </p>
       ) : null}
 
+      {/*
+        THE CONSENT DISCLAIMER, and the site's point-of-collection privacy link.
+
+        It stands ABOVE the submit button, not below it, because a disclaimer you agree to
+        has to be read before the action, not after it. It is `required`, so the browser
+        will not send the form until it is ticked, and handleSubmit checks it again.
+
+        Because it lives in CaptureForm rather than in a caller, EVERY capture point on
+        the site gets it — the contact form, the lead magnets, the concern pages, and the
+        fourth one somebody adds in six months. DO NOT MOVE IT INTO A CALLER; that is
+        exactly how a capture point ends up collecting personal data without a consent
+        record, and this form posts a name, an email address and free text straight to an
+        n8n webhook.
+
+        The wording lives in lib/capture.ts, split into three parts so the string posted
+        with the submission is character-for-character what is rendered here. See the note
+        there for why it agrees to the policy rather than to a narrower purpose, and why a
+        marketing consent would be a second tickbox rather than a rewrite of this one.
+      */}
+      <div className="mt-6 flex items-start gap-3">
+        <input
+          id={`${source}-${CONSENT_FIELD}`}
+          name={CONSENT_FIELD}
+          type="checkbox"
+          required
+          className="mt-0.5 h-4 w-4 shrink-0 accent-brand-blue"
+        />
+        <label htmlFor={`${source}-${CONSENT_FIELD}`} className="text-xs/5 text-ink-muted">
+          {CONSENT.before}
+          <a href="/privacy" className="text-brand-blue">
+            {CONSENT.linkLabel}
+          </a>
+          {CONSENT.after}
+        </label>
+      </div>
+
       <button
         type="submit"
         disabled={status === 'submitting'}
@@ -145,33 +197,6 @@ export function CaptureForm({
       >
         {status === 'submitting' ? 'Sending…' : submitLabel}
       </button>
-
-      {/*
-        THE PRIVACY POLICY'S ONLY LINK ON THIS SITE, and it lives here on purpose.
-
-        It sat in the footer's sitemap until 2026-08-17. When that sitemap came out, this
-        was the reason it could: a privacy link at the point of collection is where it
-        actually belongs, and one buried under a column of nav duplicates is where nobody
-        reads it. Because it lives in CaptureForm rather than in a caller, every capture
-        point on the site gets it — the contact form, the lead magnets, the concern pages
-        — including the fourth one somebody adds later. DO NOT MOVE IT INTO A CALLER.
-
-        The wording deliberately makes no promise. "We will only use this to reply to
-        you" was considered and rejected: content/pages/privacy.mdx reserves the right to
-        use data for direct marketing, so that sentence would put the form and the policy
-        in disagreement. This points at the policy; it does not summarise it.
-
-        This form posts a name, an email address and free text straight to an n8n webhook
-        — see lib/capture.ts. That is personal data leaving the browser, which is what
-        makes the link load-bearing rather than decorative.
-      */}
-      <p className="mt-3 text-xs text-ink-muted">
-        We handle your details as described in our{' '}
-        <a href="/privacy" className="text-brand-blue">
-          privacy policy
-        </a>
-        .
-      </p>
     </form>
   )
 }

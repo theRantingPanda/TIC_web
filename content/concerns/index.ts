@@ -665,7 +665,27 @@ export const concerns: readonly Concern[] = [
     cardTitle: 'Retaining senior and regional hires',
     hook: 'Benefits matter more when someone is relocating their family.',
     icon: 'briefcase',
-    panelTitle: 'Cover as part of a senior package',
+    /*
+      Addendum 5, 2026-08-17. Was "Cover as part of a senior package", which listed
+      "cover" and "senior package" as two nouns beside each other and left the reader to
+      infer the connection. This states the thesis: cover is a retention lever.
+
+      THE CLAIM IS DELIBERATELY BOUNDED. "Starts with" is a real factor, not a magic
+      bullet. "The cheapest way to retain people" or "the best retention you can buy"
+      would be the overclaim this project already cut once — see the superlatives rule at
+      the top of this file. Keep any rewrite on this side of that line.
+
+      Only the heading changed. The nav label stays "Cover for senior hires" and the meta
+      title stays "Medical cover for senior and regional hires", because those two fields
+      have a different job: they have to match what a buyer types, and "cover" language
+      reaches the right person where "talent retention" would not. A heading's job starts
+      after the click, which is why it can afford to make the argument instead.
+
+      ⚠ It is the only panelTitle of the nine ending in a full stop, and used as supplied.
+      "Maternity cover runs on a clock" is the other sentence-shaped one and carries none.
+      Dropping the stop is a one-character change if the mismatch ever reads as an error.
+    */
+    panelTitle: 'Retaining talent starts with the cover you offer.',
     /*
       Wooden letter cubes on white, swapped in on 2026-08-16 for a brighter version of the
       same concept shot on a saturated green background. That green was not the logo's

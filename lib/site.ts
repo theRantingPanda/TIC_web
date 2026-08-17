@@ -40,8 +40,8 @@ export type NavGroup = {
  *   The parent still points at `/services`, which is `/blog`'s 301 destination.
  * - **For companies** is the company path, and its dropdown is the four company
  *   concerns. The parent points at `/employee-benefits`, which is the company hub.
- * - **About** is omitted entirely. `/about` does not exist, and pointing it at
- *   `/projects` would be worse than leaving it out.
+ * - **About** is omitted entirely. `/about` does not exist, and there is no near-enough
+ *   page to point it at. Build one before adding the entry, not the other way round.
  *
  * The dropdown labels are NOT the homepage's card titles. A card says "I already have a
  * medical condition" because the visitor has just been asked what is on their mind and
@@ -50,11 +50,13 @@ export type NavGroup = {
  *
  * "Home" is dropped because the header's logo already links `/`. The "Members" dropdown
  * is killed per the deck; its two destinations move to Answers and to the footer.
- * "Projects" moves to the footer's Company column so `/projects` is not orphaned.
  *
- * `/income-preservation-1` is retired. It was unlinked first, then withdrawn entirely
- * on 2026-08-16 and now 301s to /services. Do not add it back to either nav array:
- * `verify:urls` requires every nav href to be a preserved path, and it is no longer one.
+ * `/income-preservation-1` and `/projects` are both retired, and they are NOT retired the
+ * same way. The first was a real service page, so it 301s to /services and the equity
+ * follows. The second was an unfinished Wix template with no original content, so it is
+ * `dropped` in the URL contract and 404s deliberately — there is nothing to send anyone
+ * to. Do not add either back to a nav array: `verify:urls` requires every nav href to be
+ * a preserved path and neither is one, so the check fails the build, which is the point.
  *
  * Every href here must exist in content/url-contract.json → `preserved`. That invariant
  * is asserted at build time by `npm run verify:urls`, which reads this file's source
@@ -132,10 +134,12 @@ export const flatNav: readonly NavItem[] = primaryNav.flatMap((group) => [
  *                 the form link alone would have meant no privacy link anywhere.
  *   /forms     -> sent to members directly by email or WhatsApp when they need a
  *                 specific document. Nobody hunts for a claim form on a marketing site.
- *   /projects  -> redundant. Its page content is derived from `primaryNav`, so the
- *                 footer linked to a page that re-lists the nav.
+ *   /projects  -> nowhere. It was redundant — its page content was derived from
+ *                 `primaryNav`, so the footer linked to a page that re-listed the nav.
+ *                 Retired entirely on 2026-08-17 as a legacy mistake from the old site.
+ *                 The page is gone and the path is `dropped`, so it 404s on purpose.
  *
- * All three routes still build and are still preserved paths; only the links went.
+ * /privacy and /forms still build and are still preserved paths; only their links moved.
  *
  * ⚠ IF YOU ARE ABOUT TO ADD A FOOTER SITEMAP BACK, count first. The test is not whether
  * a footer conventionally has one, it is how many of its links the sticky header already
