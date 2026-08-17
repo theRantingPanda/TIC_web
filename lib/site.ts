@@ -153,24 +153,21 @@ export const footerNav: readonly { heading: string; items: readonly NavItem[] }[
   },
   {
     /*
-      One item, on purpose, and the heading stays.
+      "Forms and documents" came out on 2026-08-17 and went back in the same day.
 
-      "Forms and documents" was removed on 2026-08-17 because /forms is a stub:
-      public/forms/manifest.json is empty, so the page renders "The library is being
-      assembled". A footer-clicker is an engaged visitor still doing their reading, and
-      landing them on an obviously unfinished page straight off a deliberate homepage
-      costs more trust than the link is worth. PUT IT BACK the day the manifest has files
-      in it — this column is the slot it returns to, which is why the heading survives a
-      single link.
-
-      The page itself is untouched and must stay built: /forms is a preserved path and
-      the 301 destination for /file-access and /file (render.yaml). Removing the link
-      leaves it reachable by redirect only, which is the intent. `verify:urls` checks
-      that nav hrefs are preserved paths, not that preserved paths are linked, so this
-      passes.
+      It was removed because /forms was a stub — the manifest was empty and the page read
+      "The library is being assembled", which is a poor landing for an engaged visitor
+      arriving off a deliberate homepage. The note left here said to restore it the day
+      the manifest had files in it. The first document landed that afternoon, so it is
+      restored, and the note is kept rather than deleted because the reasoning is the
+      standing test: this link belongs in the footer only while the page behind it is
+      worth arriving at.
     */
     heading: 'Answers',
-    items: [{ href: '/knowledge', label: 'Knowledge base' }],
+    items: [
+      { href: '/knowledge', label: 'Knowledge base' },
+      { href: '/forms', label: 'Forms and documents' },
+    ],
   },
   {
     heading: 'Company',

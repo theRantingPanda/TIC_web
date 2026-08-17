@@ -4,6 +4,11 @@ import { evaluate } from '@mdx-js/mdx'
 import matter from 'gray-matter'
 import * as runtime from 'react/jsx-runtime'
 import { postFrontmatterSchema, type PostFrontmatter } from '@/lib/blog-schema'
+import {
+  formManifestSchema,
+  type LibraryDocument,
+  type LibraryGroup,
+} from '@/lib/forms-schema'
 import { kbFrontmatterSchema, type KbFrontmatter } from '@/lib/kb-schema'
 
 /**
@@ -14,6 +19,7 @@ import { kbFrontmatterSchema, type KbFrontmatter } from '@/lib/kb-schema'
 
 const KB_DIR = path.join(process.cwd(), 'content', 'kb')
 const BLOG_DIR = path.join(process.cwd(), 'content', 'blog')
+const PUBLIC_DIR = path.join(process.cwd(), 'public')
 
 export type KbArticle = {
   frontmatter: KbFrontmatter
@@ -192,6 +198,62 @@ export function readProsePage(slug: string): ProsePage {
     sourceUrl: typeof data.sourceUrl === 'string' ? data.sourceUrl : null,
     body: content,
   }
+}
+
+/**
+ * Reads the file library (public/forms/manifest.json) for /forms.
+ *
+ * Three things happen here that the page deliberately does not do for itself:
+ *
+ *   1. The manifest is VALIDATED, so a typo fails `next build` instead of rendering a
+ *      broken row to a member. Same posture as readKbArticle.
+ *   2. Every `file` is CHECKED AGAINST DISK. A manifest entry pointing at a PDF nobody
+ *      committed is a 404 for the one person who needed that form, and a 404 is exactly
+ *      the failure that never reaches whoever could fix it. It stops the build instead.
+ *   3. The size shown on the page is the FILE'S REAL SIZE, statted here rather than typed
+ *      into the manifest, because a hand-maintained byte count goes stale the first time
+ *      a PDF is replaced in place and nobody remembers to update the number beside it.
+ *
+ * Ordering is fixed and has no manual override: insurers alphabetically, then category,
+ * then title. Predictable beats curated for a list somebody scans looking for one form.
+ */
+export function readFormLibrary(): LibraryGroup[] {
+  const manifestPath = path.join(PUBLIC_DIR, 'forms', 'manifest.json')
+  const parsed = formManifestSchema.safeParse(
+    JSON.parse(fs.readFileSync(manifestPath, 'utf8')),
+  )
+  if (!parsed.success) {
+    throw new Error(
+      `Invalid public/forms/manifest.json:\n${JSON.stringify(parsed.error.format(), null, 2)}`,
+    )
+  }
+
+  const documents: LibraryDocument[] = parsed.data.forms.map((form) => {
+    // `file` is rooted at /public, so strip the leading slash before joining.
+    const onDisk = path.join(PUBLIC_DIR, form.file.replace(/^\//, ''))
+    if (!fs.existsSync(onDisk)) {
+      throw new Error(
+        `public/forms/manifest.json: "${form.id}" points at ${form.file}, which does not ` +
+          `exist. Commit the file or remove the entry — a member must never click a form ` +
+          `and get a 404.`,
+      )
+    }
+    return { ...form, sizeBytes: fs.statSync(onDisk).size }
+  })
+
+  const byCarrier = new Map<string, LibraryDocument[]>()
+  for (const document of documents) {
+    byCarrier.set(document.carrier, [...(byCarrier.get(document.carrier) ?? []), document])
+  }
+
+  return [...byCarrier]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([carrier, list]) => ({
+      carrier,
+      documents: list.sort(
+        (a, b) => a.category.localeCompare(b.category) || a.title.localeCompare(b.title),
+      ),
+    }))
 }
 
 /** Compiles MDX to a React component. Build-time only. */

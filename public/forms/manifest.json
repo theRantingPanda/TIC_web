@@ -1,5 +1,15 @@
 {
   "$schema": "./manifest.schema.json",
   "version": 1,
-  "forms": []
+  "forms": [
+    {
+      "id": "allianz-telehealth-user-guide",
+      "title": "Telehealth User Guide",
+      "description": "Using Doctor Anywhere for 24/7 video GP consultations, prescriptions and medication delivery in Singapore, Malaysia, Thailand and the Philippines.",
+      "file": "/forms/files/allianz-telehealth-user-guide.pdf",
+      "carrier": "Allianz",
+      "category": "Guide",
+      "productLine": "International Health, Outpatient Plan"
+    }
+  ]
 }
