@@ -57,9 +57,11 @@
  * legitimate and often more credible case, because it says the job is advice rather than
  * moving policies. Do not let these fill up with generic testimonial language.
  *
- * The one real case is on `maternity`. It ran on `beyond-employer` until 2026-08-17,
- * described as a company scheme it never was; see the notes on both concerns for what was
- * wrong, and why it must not be restated on a second page.
+ * Two real cases, one on `maternity` and one on `beyond-employer`. The maternity one ran on
+ * `beyond-employer` until 2026-08-17, described as a company scheme it never was; the
+ * beyond-employer one is a genuine company plan whose ceiling was run past, and replaced it
+ * there. See the notes on both concerns for what was wrong, and why neither may be restated
+ * on a second page.
  *
  * NEVER SHOW A NUMBER THAT DOES NOT ANSWER THE QUESTION ASKED. Only `relocating` carries
  * figures, because "what does cover cost" is the question that page is actually
@@ -104,11 +106,13 @@ export type ConcernImage =
  * source, so nobody mistakes it for copy. Replace it with a `real` case or a `scenario`;
  * never delete the section, and never quietly fill it with generic testimonial language.
  *
- * `real` means a real client. Exactly one exists at the time of writing. It is anonymised
- * and permission-cleared by the family whose case it is. An earlier version of this note
- * claimed an employer's clearance was needed too, because the case was then written as a
- * company scheme — it is an individual policy and no employer was ever involved. Do not
- * add a second `real` case without the family's own clearance.
+ * `real` means a real client. Two exist at the time of writing, each anonymised and each
+ * cleared by the family whose case it is. An earlier version of this note claimed an
+ * employer's clearance was needed for the first, because it was then written as a company
+ * scheme — it is an individual policy and no employer was ever involved. Do not add a
+ * third `real` case without that same clearance from the family in it, and note that
+ * clearance is needed from everyone whose medical history appears, not only the person who
+ * happened to call us.
  *
  * `scenario` is written to illustrate a situation the firm sees, and nobody's permission
  * is involved because nobody real is in it. It exists as a separate variant rather than
@@ -417,27 +421,77 @@ export const concerns: readonly Concern[] = [
       'The other half of it is that the cover belongs to the job rather than to you. It ends when the job does, and if something is diagnosed along the way it may be excluded or loaded when you come to buy your own. You are insurable today, and that is the part people miss.',
     ],
     /**
-     * ⚠ THIS PANEL HAS NO REAL CASE, AND THAT IS A CORRECTION RATHER THAN AN OVERSIGHT.
+     * The second real case, added 2026-08-17. Anonymised and cleared by the family.
      *
-     * The neonatal case ran here until 2026-08-17, described as a company scheme, and it
-     * was the site's only real case and only chart. It is an INDIVIDUAL policy. There was
-     * no employer in it: the opening line invented an HR manager, and the S$207,000
-     * newborn limit was attributed to a company scheme that did not exist. It has moved to
-     * `maternity`, where it actually belongs, and the wording is corrected there.
+     * It replaced a placeholder that stood here for a few hours, after the neonatal case
+     * left for `maternity` — that one is an individual policy that had been written as a
+     * company scheme, and this panel was left arguing a company plan's ceiling with no
+     * case under it. This is the case that argument was always waiting for: the ceiling is
+     * the whole story, and it was genuinely run past.
      *
-     * So this panel's argument — a company plan has a ceiling and you can run past it — is
-     * currently unevidenced. It is a sound argument and the copy above stays; what it
-     * lacks is a case, and the honest fix is a real one rather than the nearest story to
-     * hand. That is exactly the mistake being undone here.
+     * ⚠ DO NOT BRING THE NEONATAL CASE BACK, here or as a second case alongside this one.
+     * It belongs to maternity, and it would have to be mis-described again to fit.
      *
-     * ⚠ DO NOT SOLVE THIS BY MOVING THE NEONATAL CASE BACK, or by restating it here
-     * alongside its home on maternity. A case restated on a second page dilutes on both,
-     * and this one would additionally have to be mis-described again to fit.
+     * FOUR PARAGRAPHS, NOT TWO, and the fourth is the one that earns the panel. The other
+     * eight concerns run two. This one runs the problem, what we built, what happened, and
+     * what it means now — because the `considerations` on this concern are "The ceiling"
+     * AND "Portability", and the situation copy above ends on "you are insurable today,
+     * and that is the part people miss". Nothing on this site demonstrated that sentence
+     * until now. The renewal paragraph is not an epilogue. Do not trim it as one.
+     *
+     * ⚠ THE RENEWAL IS THIS POLICY'S TERMS, NOT THE MARKET'S. "It goes on renewing even if
+     * they move to another country" is true of what he holds and is the most valuable
+     * sentence here, which is exactly why it must never drift into a general promise about
+     * what plans do. It is a sentence a reader could act on. If it is ever generalised,
+     * cut it instead.
+     *
+     * ⚠ THE 70% IS A COMPARISON, NOT A PRICE, and it is deliberately allowed to stand on
+     * the one panel whose `numbers` block below publishes no figures at all. That rule is
+     * about the cost of a top-up, where two sources disagree; this is one client's own
+     * quote against itself. The rule has not lapsed — do not read this as licence to put a
+     * premium figure in `numbers`.
+     *
+     * Written in plain words on Steven's instruction: no "scoped", no "deductible
+     * liability", nothing "sitting underneath" anything. The excess is explained as money
+     * — whose it is and who actually pays it — because a reader who thinks a high excess
+     * means a free one has been misled by the very sentence meant to reassure them.
+     *
+     * No names, no employer, no insurer, no hospital, no dates. The industry he works in
+     * was in the source and is deliberately out: seniority explains the cover level, and
+     * naming the sector alongside a spouse's diagnosis narrows him to a small community.
      */
     case: {
-      kind: 'placeholder',
-      brief:
-        '[Real case needed, and it must be a genuine company-scheme one — an employer plan whose limit was actually reached, or an employee who found out too late that the cover ended with the job. Be concrete: what the scheme covered, where it stopped, what we did, the real outcome. It does not need to be a win.]',
+      kind: 'real',
+      paragraphs: [
+        'An expat in a top corporate role came to us about a number he had gone and checked. His company plan paid up to S$100,000 for a stay in hospital. For a serious illness in a private hospital here that does not go far, and it was the only cover his family had.',
+        'We built a top-up to sit above it. Two decisions kept it affordable: it pays only for treatment in hospital, and it only starts once a bill passes S$10,000. Without those two it would have cost about 70% more. He never has to find that first S$10,000 himself, because his company plan pays that part. Between them, his family went from S$100,000 of cover to S$3.8 million.',
+        'A few years in, his wife was diagnosed with stage 3 cancer. The first year of treatment came to over S$200,000.',
+        'No new insurer would take her on now. This plan renews anyway, and it goes on renewing even if they move to another country.',
+      ],
+      footer:
+        'The company plan alone would have run out inside the first year. The rest was bought while she was still insurable, which is the part nobody can buy back later.',
+      /**
+       * Both figures are lifted from the paragraphs above. The gap is S$200,000 less
+       * S$100,000, and it inherits the "over" from the treatment figure rather than
+       * claiming a precision the case does not have.
+       *
+       * ⚠ THE GAP MEANS THE OPPOSITE OF THE ONE ON MATERNITY. There it is what the family
+       * paid, and it is credible because it admits a shortfall. Here nobody paid it — the
+       * top-up did — and the bar is what the company plan did NOT reach. Same three bars,
+       * reversed meaning. Do not copy that label across, in either direction.
+       */
+      chart: {
+        heading: 'Where the company plan stopped',
+        total: {
+          label: 'First year of treatment',
+          display: 'Over S$200,000',
+          amount: 200_000,
+        },
+        covered: { label: 'The company plan’s cap', display: 'S$100,000', amount: 100_000 },
+        gap: { label: 'Past the cap, met by the top-up', display: 'Over S$100,000' },
+        footnote:
+          'One real case, anonymised and permission-cleared. A cap of S$100,000 is that employer’s, and the terms of the top-up are that policy’s — including its renewal. Both will differ from yours. It is here to show that a ceiling is a real number with a real edge, not to predict where yours sits.',
+      },
     },
     numbers: {
       heading: 'What a top-up costs',
