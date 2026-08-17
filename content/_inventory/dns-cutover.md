@@ -73,6 +73,13 @@ before deciding a Freshworks record is disposable; the full split is tabulated
 Registration and DNS both sit at Vodien now. Its control panel has a **Name Servers** tab
 holding the delegation and a **DNS Settings** tab holding the zone.
 
+**Check this panel against a resolver before believing it.** It has now misreported the
+zone three separate times, in three different ways: the Name Servers tab displayed a
+rejected edit as though it were the delegation; the green `Active` badges meant "saved at
+Vodien" while the records were serving nowhere; and the TTL column reads `300` against
+records the nameservers publish at `3600`. None of these announce themselves. Every check in
+this document was run against `1.1.1.1`, `8.8.8.8` and `9.9.9.9` for that reason.
+
 ### The move, and the one row that blocked it
 
 The first attempt failed with `Save changes request error`, from this state:
@@ -229,7 +236,11 @@ the zone alone until the DMARC reports settle it.
    and the four `freshemail.io` CNAMEs can go, taking SPF from 7 lookups to 1.
 2. **Do not cancel the Wix subscription** until that is settled. The Wix zone is the
    rollback, and the only remaining copy of the records that were dropped.
-3. **Raise the TTL** from `300` once the zone has been stable for a day or two.
+3. ~~Raise the TTL from `300`.~~ Nothing to do — **the zone already serves `3600`.** The
+   panel's `300` is not what the nameservers publish; measured 2026-08-17, every record
+   answers with `3600` and the `NS` RRset with `21600`. A resolver cannot report a TTL
+   higher than the authoritative value, so this is conclusive rather than a caching
+   artefact. `3600` is the value worth having and matches what the zone ran at under Wix.
 4. ~~Route `dmarc@` out of the support queue.~~ Settled 2026-08-16: Gmail filter in place,
    anything that leaks gets marked spam in Freshdesk. Reports remain readable under the
    `DMARC` label.
@@ -340,9 +351,11 @@ zone at Vodien is the only copy.
 `185.230.63.171`, `185.230.63.107`, `185.230.63.186`. This one is academic now that the
 Wix site is retired.
 
-TTL is currently `300`, so both are fast. It was `3600` at Wix and `14400` as first staged
-at Vodien; lowering it before the move is what makes a rollback quick, and it should be
-raised again once the zone has settled.
+**A rollback takes about an hour, not five minutes.** The records were set to `300` in
+Vodien's panel before the cutover, but the nameservers serve `3600` regardless — measured
+2026-08-17 across every record in the zone. Wix was also at `3600`, so the cutover ran with
+a one-hour cache window in both directions rather than the five minutes the panel implied.
+It caused no harm, but do not plan the next change around a TTL this panel reports.
 
 ---
 
@@ -475,8 +488,8 @@ The DNS move to Vodien is done, verified against three resolvers, and confirmed 
 messages over both sending paths. What remains is a question the move surfaced rather than
 caused: Freshdesk relays through Google Workspace and signs with the `google` selector, so
 `include:email.freshdesk.com` — 6 of the record's 7 SPF lookups — may authorise nothing. A
-week of DMARC reports settles it. Also outstanding: holding the Wix rollback until then,
-raising the TTL off `300`, and getting `dmarc@asktic.com` out of the support queue. See
+week of DMARC reports settles it. Also outstanding: holding the Wix rollback until then. The
+TTL and `dmarc@` items are both closed. See
 [Still open after the move](#still-open-after-the-move).
 
 ### The apex does not redirect to www
