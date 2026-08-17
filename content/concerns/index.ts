@@ -330,10 +330,17 @@ export const concerns: readonly Concern[] = [
     hook: 'Most group plans have a ceiling, worth knowing where yours sits.',
     icon: 'ceiling',
     panelTitle: 'Looking beyond your employer’s cover',
+    /*
+      On brief: a desk, and an expression that is considered rather than worried. The
+      brief ruled out both a hospital and a look of distress, because this panel is about
+      someone working out where a ceiling sits, not about being frightened by it.
+    */
     image: {
-      kind: 'brief',
-      brief:
-        'Photography brief: a quiet, considered moment. Someone at a desk or a kitchen table. Not a hospital, and not a worried expression.',
+      kind: 'photo',
+      src: '/images/beyond-employer-cover.webp',
+      alt: '',
+      width: 1800,
+      height: 949,
     },
     situation: [
       'A company plan is built to a budget, and that budget was not set with your family in mind. A serious illness in a private hospital here can run past the limit faster than most people expect.',
@@ -646,28 +653,24 @@ export const concerns: readonly Concern[] = [
     icon: 'briefcase',
     panelTitle: 'Cover as part of a senior package',
     /*
-      OFF BRIEF, and used on instruction rather than by choice. Recorded so nobody has to
-      rediscover the reasoning:
+      Wooden letter cubes on white, swapped in on 2026-08-16 for a brighter version of the
+      same concept shot on a saturated green background. That green was not the logo's
+      leaf green and fought the stone paper; this one is neutral wood and white and sits
+      on it. The swap was the palette fix, made by choosing a different photograph rather
+      than by grading one, which keeps the standing decision to leave images as licensed.
 
-        - The brief asked for a senior hire settling in and explicitly ruled out a stock
-          handshake. Miniature figures under a magnifier is a more conceptual stock image
-          than the one the brief banned.
-        - A magnifier over a crowd depicts SELECTION. This concern is about retention and
-          about what cover is worth inside a package, which is a different argument.
-        - Its green is not the logo's leaf green, so it sits against the palette rather
-          than in it. Deliberately not corrected: grading one image would contradict the
-          standing decision to leave photographs exactly as licensed.
-
-      A calmer second version of the same concept exists on `main`
-      (`close-up-view-of-talent-word-made-of-wooden-cubes…`), neutral wood and white,
-      which sits far better on the stone paper. Swapping is a one-line change here.
+      STILL OFF BRIEF, and used on instruction. Recorded so nobody rediscovers it: the
+      brief asked for a senior hire settling in and ruled out a stock handshake, and a
+      word spelled in blocks is a more conceptual stock image than the one it banned. It
+      also reads as SELECTION, where this concern is about retention and about what cover
+      is worth inside a package. A photograph of a person would still be better.
     */
     image: {
       kind: 'photo',
       src: '/images/cover-for-senior-hires.webp',
       alt: '',
       width: 1800,
-      height: 1200,
+      height: 1201,
     },
     situation: [
       'Thirty thousand dollars of medical cover and fifty thousand dollars of salary are not the same offer to someone deciding whether to relocate their family. Cover answers the question salary cannot, which is what happens if something goes wrong out here.',
