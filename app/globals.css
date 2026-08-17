@@ -3,54 +3,102 @@
 /*
  * Design tokens — the single source of truth for colour, type and spacing.
  *
- * Components must never hardcode a hex value. Brand green (#3a8c3f) and brand blue
- * (#1b5faa) are the two fixed points; each scale is built around them at the 600 step,
- * so `brand-green-600` and `brand-green` are the same colour.
+ * Components must never hardcode a hex value.
+ *
+ * ---- The palette is sampled from the logo, not chosen ----
+ *
+ * Brand green `#6aab35` and brand blue `#196db6` are read straight out of the roundel
+ * in public/images/logo-mark.png, which contains exactly two saturated colours. Each
+ * scale is built around its anchor at the 600 step, so `brand-green-600` and
+ * `brand-green` are the same colour and both are the mark's own.
+ *
+ * The values changed on 2026-08-16 and the correction matters: the previous green was
+ * `#3a8c3f`, a forest green at hue 123. The logo's green is a leaf green at hue 93.
+ * They are not the same colour and the old one was never on the mark. Blue was close —
+ * `#1b5faa` against the real `#196db6` — and moved for the same reason. Do not
+ * "restore" either; sample the file if you ever need to check.
+ *
+ * The wordmark carries a third hue, an indigo `#3f59a8` on the word "Concierge". It is
+ * deliberately not a token: two accents is the system, a third is decoration.
+ *
+ * ---- Two rules the contrast maths forced ----
+ *
+ * 1. GREEN CANNOT CARRY WHITE TEXT. `brand-green-600` against white is 2.80:1, which
+ *    fails at every size. Primary calls to action are therefore ink on paper (14.05:1),
+ *    which is also what the design direction asks for. Do not add a green button back —
+ *    the old one was `#3a8c3f` at 4.20:1 and was already failing body-text contrast.
+ * 2. Green is a GRAPHIC accent, blue is a TEXT accent. `brand-blue-600` clears body
+ *    text on paper at 4.62:1; green does not until the 800 step. So path identity is
+ *    carried by tint and border, never by colouring body copy green.
+ *
+ * Green is the individual path, blue is the company path. Links are blue sitewide.
  *
  * Scales are namespaced `brand-*` rather than overriding Tailwind's own `green`/`blue`
  * so the default palette stays available for incidental UI.
  */
 @theme {
-  /* ---- Brand: green ---- */
-  --color-brand-green: #3a8c3f;
-  --color-brand-green-50: #f2f8f2;
-  --color-brand-green-100: #e0efe1;
-  --color-brand-green-200: #c2dfc4;
-  --color-brand-green-300: #97c79b;
-  --color-brand-green-400: #66a96c;
-  --color-brand-green-500: #479a4d;
-  --color-brand-green-600: #3a8c3f;
-  --color-brand-green-700: #2e6f32;
-  --color-brand-green-800: #275a2a;
-  --color-brand-green-900: #214a24;
-  --color-brand-green-950: #0e280f;
+  /* ---- Brand: green. Anchor 600 = the logo roundel's leaf. ---- */
+  --color-brand-green: #6aab35;
+  --color-brand-green-50: #f6f9f3;
+  --color-brand-green-100: #ebf3e5;
+  --color-brand-green-200: #d7e7ca;
+  --color-brand-green-300: #badb9f;
+  --color-brand-green-400: #9aca72;
+  --color-brand-green-500: #7ec643;
+  --color-brand-green-600: #6aab35;
+  /* 700 is 4.00:1 on paper — large text and UI only. Body copy needs 800. */
+  --color-brand-green-700: #508127;
+  --color-brand-green-800: #416a20;
+  --color-brand-green-900: #35561a;
+  --color-brand-green-950: #1f330f;
 
-  /* ---- Brand: blue ---- */
-  --color-brand-blue: #1b5faa;
-  --color-brand-blue-50: #f0f6fc;
-  --color-brand-blue-100: #dfebf8;
-  --color-brand-blue-200: #c6dcf3;
-  --color-brand-blue-300: #9fc6ea;
-  --color-brand-blue-400: #71a8de;
-  --color-brand-blue-500: #4f8bd2;
-  --color-brand-blue-600: #1b5faa;
-  --color-brand-blue-700: #1a538f;
-  --color-brand-blue-800: #1a4776;
-  --color-brand-blue-900: #1a3d62;
-  --color-brand-blue-950: #112741;
+  /* ---- Brand: blue. Anchor 600 = the logo roundel's bell and ring. ---- */
+  --color-brand-blue: #196db6;
+  --color-brand-blue-50: #f1f6fb;
+  --color-brand-blue-100: #e1edf6;
+  --color-brand-blue-200: #c4daee;
+  --color-brand-blue-300: #91c0e8;
+  --color-brand-blue-400: #5fa3dd;
+  --color-brand-blue-500: #268be3;
+  --color-brand-blue-600: #196db6;
+  --color-brand-blue-700: #135995;
+  --color-brand-blue-800: #10497a;
+  --color-brand-blue-900: #0d3b64;
+  --color-brand-blue-950: #08233b;
 
-  /* ---- Semantic surfaces and text ---- */
-  --color-ink: #10231a;
-  --color-ink-muted: #55665c;
-  --color-surface: #ffffff;
-  --color-surface-subtle: #f6f8f6;
-  --color-border: #dde4de;
+  /*
+   * ---- Semantic surfaces and text ----
+   *
+   * The ground is warm stone rather than white, and cards sit on it in a warm
+   * near-white. That inversion is the whole visual move: `surface` is the raised thing,
+   * `surface-subtle` is the page it sits on. Both are set on body below.
+   *
+   * Ink is a near-black with a green cast, which keeps it sympathetic to the leaf green
+   * rather than reading blue-black against it. 14.05:1 on paper.
+   */
+  --color-ink: #17221f;
+  --color-ink-muted: #4b5652;
+  --color-surface: #fbfaf8;
+  --color-surface-subtle: #efeee7;
+  /* A hairline, deliberately quiet: 1.24:1 on paper. Not meant to read as a line. */
+  --color-border: #d8d5cc;
 
-  /* ---- Type ---- */
+  /* ---- Type ----
+   *
+   * Fraunces for display, Public Sans for body, both loaded and self-hosted by
+   * next/font in app/layout.tsx — no request leaves the visitor's browser for a font.
+   * The `--font-*-src` variables are what next/font declares; these two tokens are what
+   * Tailwind's `font-sans` and `font-serif` utilities resolve to.
+   *
+   * Fraunces is applied to headings in the base layer below, so a heading is editorial
+   * without every call site opting in.
+   */
   --font-sans:
-    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
-    Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
-  --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    var(--font-public-sans-src), ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji';
+  --font-serif: var(--font-fraunces-src), ui-serif, Georgia, Cambria, 'Times New Roman',
+    Times, serif;
 
   /* ---- Type: display sizes for section furniture ----
    *
@@ -115,20 +163,30 @@
   }
 
   body {
-    background-color: var(--color-surface);
+    /* The page ground is the stone, not the card. See the surface tokens above. */
+    background-color: var(--color-surface-subtle);
     color: var(--color-ink);
     font-family: var(--font-sans);
     line-height: 1.6;
     text-rendering: optimizeLegibility;
   }
 
+  /*
+   * Headings are Fraunces, set here rather than at each call site so the editorial
+   * voice is the default and a heading has to opt OUT rather than in.
+   *
+   * Weight 500, not 600. Fraunces has real weight at its optical sizes and a semibold
+   * setting at display sizes reads as shouting next to Public Sans body copy. This is
+   * the one place the type system deviates from Tailwind's habit of bolding headings.
+   */
   h1,
   h2,
   h3,
   h4 {
+    font-family: var(--font-serif);
     line-height: 1.2;
     text-wrap: balance;
-    font-weight: 600;
+    font-weight: 500;
   }
 
   /*
@@ -216,6 +274,82 @@
     outline: 2px solid var(--color-brand-blue);
     outline-offset: 2px;
     border-radius: 2px;
+  }
+
+  /*
+   * ---- The homepage fork, in CSS ----
+   *
+   * Which concern grid is showing is decided by two radio inputs and `:has()`, with no
+   * JavaScript at all. components/home-flow.tsx adds the inline drill-down on top, but
+   * the choice itself never depends on it, so there is no flash of both grids while the
+   * page hydrates and the fork still works if the script never arrives.
+   *
+   * The DEFAULT IS VISIBLE and the hiding happens only inside `@supports`. A browser
+   * without `:has()` shows both grids under their own headings, and every card in them
+   * is a real link to a real page, so the page degrades to a plain list of eight
+   * situations rather than to nothing. That is the same inversion as [data-reveal]
+   * below: never let a page's content depend on a feature the visitor might not have.
+   */
+  @supports selector(:has(*)) {
+    [data-concern-flow] [data-concern-group] {
+      display: none;
+    }
+
+    [data-concern-flow]:has(#tic-path-individual:checked)
+      [data-concern-group='individual'],
+    [data-concern-flow]:has(#tic-path-company:checked) [data-concern-group='company'] {
+      display: block;
+    }
+
+    /* The group headings only earn their place when both grids are on screen at once. */
+    [data-concern-flow]:has(input[name='tic-path']:checked) [data-concern-group-heading] {
+      display: none;
+    }
+  }
+
+  /*
+   * ---- The footer's mobile accordions ----
+   *
+   * components/site-footer.tsx wraps each column in <details>. Below the `sm` breakpoint
+   * that is a real accordion; from `sm` up every group is forced open and the chevron is
+   * hidden, so the desktop footer looks exactly as it did before the columns collapsed.
+   *
+   * Forcing `display: block` on the list is what overrides the user-agent rule that hides
+   * a closed <details>'s non-summary children. Doing it in CSS rather than by setting the
+   * `open` attribute means the state is decided by viewport rather than by markup, so one
+   * render serves both and nothing has to re-run on resize.
+   *
+   * 40rem is Tailwind's `sm`. Keep the two in step: this is the one place the breakpoint
+   * is written out rather than expressed as a utility.
+   */
+  @media (min-width: 40rem) {
+    /*
+     * BOTH of these are needed and neither is redundant.
+     *
+     * Current Chromium hides a closed <details>'s content with
+     * `::details-content { content-visibility: hidden }`, which `display: block` does not
+     * override — the first version of this shipped with only the display rule and the
+     * desktop footer rendered with no links at all. Engines without ::details-content
+     * still use the older `display: none` on the children, which is what the second rule
+     * is for. Remove either and one class of browser loses the footer.
+     */
+    [data-footer-group]::details-content {
+      content-visibility: visible;
+      block-size: auto;
+    }
+
+    [data-footer-group] > ul {
+      display: block;
+    }
+
+    [data-footer-group] > summary {
+      cursor: default;
+      pointer-events: none;
+    }
+
+    [data-footer-chevron] {
+      display: none;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

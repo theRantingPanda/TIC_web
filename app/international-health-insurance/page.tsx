@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { CardGrid } from '@/components/card-grid'
 import { Container } from '@/components/container'
+import { CtaButton } from '@/components/cta-button'
 import { Faq, type FaqItem } from '@/components/faq'
 import { FeatureCard } from '@/components/feature-card'
 import { Section } from '@/components/section'
@@ -129,10 +130,10 @@ export default function Page() {
               because images are served unoptimised.
             */}
             <Image
-              src="/images/e5c3769b69fb4c25a48a0c0c8cd15aa3-d1874e47.jpg"
+              src="/images/e5c3769b69fb4c25a48a0c0c8cd15aa3-d1874e47.webp"
               alt=""
-              width={2000}
-              height={1575}
+              width={1200}
+              height={945}
               sizes="(min-width: 1024px) 32rem, 100vw"
               priority
               className="h-64 w-full rounded-(--radius-panel) object-cover sm:h-80 lg:h-96"
@@ -314,12 +315,7 @@ export default function Page() {
           </p>
         </div>
         <p className="mt-8">
-          <Link
-            href="/#talk-to-us"
-            className="inline-block rounded-md bg-brand-green px-5 py-3 text-sm font-medium text-white no-underline hover:bg-brand-green-700"
-          >
-            Ask us what would carry across
-          </Link>
+          <CtaButton href="/#talk-to-us">Ask us what would carry across</CtaButton>
         </p>
       </Section>
     </>

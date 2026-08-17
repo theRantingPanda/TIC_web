@@ -1,13 +1,19 @@
 import Link from 'next/link'
 import { Container } from '@/components/container'
+import { ChevronDownIcon } from '@/components/icons'
 import { about, contact, footerNav, regulatory, siteConfig } from '@/lib/site'
 
 export function SiteFooter() {
   return (
     <footer className="mt-(--spacing-section) border-t border-border bg-surface-subtle">
       <Container className="py-12">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
+        {/*
+          Tight vertical rhythm below sm, where the columns are stacked accordion rows and
+          a 40px gap between four collapsed headings reads as four orphaned labels rather
+          than as a list. From sm up the grid gap is what it always was.
+        */}
+        <div className="grid gap-x-10 gap-y-1 sm:grid-cols-2 sm:gap-10 lg:grid-cols-4">
+          <div className="mb-6 sm:mb-0">
             <p className="text-lg font-semibold tracking-tight text-ink">
               {siteConfig.name}
             </p>
@@ -40,23 +46,45 @@ export function SiteFooter() {
             </ul>
           </div>
 
+          {/*
+            Accordions below md, plain columns from md up.
+
+            The footer grew from three columns to four when the concern pages landed, each
+            with five entries, so mobile ended in a second sitemap longer than the
+            decision interface above it. A design review flagged it and was right: it was
+            roughly a third of the page.
+
+            Built on <details>, like components/site-nav.tsx and components/faq.tsx, so it
+            needs no JavaScript and cannot break on a hydration failure. app/globals.css
+            forces every group open from md up and hides the chevron there, so the desktop
+            footer is unchanged.
+
+            The <nav> stays outside the <details> so each landmark and its accessible name
+            survive whether the group is open or shut.
+          */}
           {footerNav.map((group) => (
             <nav key={group.heading} aria-label={group.heading}>
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
-                {group.heading}
-              </h2>
-              <ul className="mt-3 space-y-2">
-                {group.items.map((item) => (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className="text-sm text-ink no-underline hover:text-brand-blue"
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              <details data-footer-group className="group border-b border-border sm:border-0">
+                <summary className="flex cursor-pointer list-none items-center justify-between py-3 text-xs font-semibold uppercase tracking-wider text-ink-muted marker:content-none sm:py-0">
+                  {group.heading}
+                  <ChevronDownIcon
+                    data-footer-chevron
+                    className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180"
+                  />
+                </summary>
+                <ul className="mt-1 space-y-2 pb-4 sm:mt-3 sm:pb-0">
+                  {group.items.map((item) => (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        className="text-sm text-ink no-underline hover:text-brand-blue"
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </details>
             </nav>
           ))}
         </div>

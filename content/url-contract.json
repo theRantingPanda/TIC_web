@@ -105,6 +105,41 @@
       "path": "/single-post/2018/05/06/with-health-insurance-is-major-illness-insurance-necessary",
       "source": "wix",
       "note": "Wix date-segment path - preserved verbatim"
+    },
+    {
+      "path": "/relocating-to-singapore",
+      "source": "new",
+      "note": "Added 2026-08-16 with the homepage concern flow. Each concern the homepage offers is a real indexable page rather than in-page state, matching how /maternity-insurance and /offshore-and-energy already work — those two are concern pages as well and keep their existing paths rather than being duplicated. Concern page: \"Relocating to Singapore\" on the individual path."
+    },
+    {
+      "path": "/beyond-employer-cover",
+      "source": "new",
+      "note": "Added 2026-08-16 with the homepage concern flow. Each concern the homepage offers is a real indexable page rather than in-page state, matching how /maternity-insurance and /offshore-and-energy already work — those two are concern pages as well and keep their existing paths rather than being duplicated. Concern page: \"Looking beyond my employer’s cover\" on the individual path."
+    },
+    {
+      "path": "/pre-existing-conditions",
+      "source": "new",
+      "note": "Added 2026-08-16 with the homepage concern flow. Each concern the homepage offers is a real indexable page rather than in-page state, matching how /maternity-insurance and /offshore-and-energy already work — those two are concern pages as well and keep their existing paths rather than being duplicated. Concern page: \"I already have a medical condition\" on the individual path."
+    },
+    {
+      "path": "/renewal-premium-increase",
+      "source": "new",
+      "note": "Added 2026-08-16 with the homepage concern flow. Each concern the homepage offers is a real indexable page rather than in-page state, matching how /maternity-insurance and /offshore-and-energy already work — those two are concern pages as well and keep their existing paths rather than being duplicated. Concern page: \"My renewal premium has increased\" on the company path."
+    },
+    {
+      "path": "/cover-for-senior-hires",
+      "source": "new",
+      "note": "Added 2026-08-16 with the homepage concern flow. Each concern the homepage offers is a real indexable page rather than in-page state, matching how /maternity-insurance and /offshore-and-energy already work — those two are concern pages as well and keep their existing paths rather than being duplicated. Concern page: \"Retaining senior and regional hires\" on the company path."
+    },
+    {
+      "path": "/first-company-scheme",
+      "source": "new",
+      "note": "Added 2026-08-16 with the homepage concern flow. Each concern the homepage offers is a real indexable page rather than in-page state, matching how /maternity-insurance and /offshore-and-energy already work — those two are concern pages as well and keep their existing paths rather than being duplicated. Concern page: \"Setting up benefits for the first time\" on the company path."
+    },
+    {
+      "path": "/leaving-singapore",
+      "source": "new",
+      "note": "Added 2026-08-16 by addendum 1 to the homepage flow handoff. Concern page: \"Leaving Singapore\", the fifth card on the individual path. Deliberately separate from /relocating-to-singapore: arriving and leaving are different questions with different answers, and bundling them would make the visitor read further just to find out which half applies."
     }
   ],
   "redirectOnly": [
@@ -144,7 +179,7 @@
     }
   ],
   "pendingSitemapConfirmation": false,
-  "$pendingNote": "COMPLETE (2026-08-11), amended 2026-08-16. Every path in https://www.asktic.com/sitemap.xml is classified: 22 preserved, 25 dropped, 6 redirect-only = 53 entries covering the 50 sitemap URLs plus /knowledge, /forms, /services and /offshore-and-energy (new paths that are not in the Wix sitemap). The 2026-08-16 amendments moved /blog and /speciality-insurance from preserved to redirect-only and added their two destinations, then retired /income-preservation-1 the same way without a new destination, which is why preserved fell by one. This file is now authoritative. Rationale for each decision is in content/_inventory/STOP-REPORT.md.",
+  "$pendingNote": "COMPLETE (2026-08-11), amended 2026-08-16 twice. Every path in https://www.asktic.com/sitemap.xml is classified. The second 2026-08-16 amendment added six concern pages for the homepage flow; they are new paths, not in the Wix sitemap, and each must emit an artifact. The first amendment moved /blog and /speciality-insurance from preserved to redirect-only and added their two destinations, then retired /income-preservation-1 the same way without a new destination. This file is authoritative. Rationale for each decision is in content/_inventory/STOP-REPORT.md and url-decisions.md.",
   "dropped": {
     "$comment": "Indexed on the Wix site but DELIBERATELY NOT preserved (decision 2026-08-11). These are an explicit, signed-off exception to the URL-preservation constraint - not an oversight. They must emit no artifact; `npm run verify:urls` enforces that. Do not re-add them because they appear in the old sitemap.",
     "status": "404 (see note in STOP-REPORT.md on 410)",
