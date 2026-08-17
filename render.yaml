@@ -138,6 +138,19 @@ services:
         source: /income-preservation-1
         destination: /services
 
+      # Retired on the owner's instruction, 2026-08-17: "kill it, we don't need it
+      # anymore". /projects was an unfinished Wix template rescued in Phase 2 by listing
+      # the service pages, which it derived from `primaryNav` — so it re-listed the nav
+      # and nothing else. When the footer sitemap went, it lost its only inbound link,
+      # and a page nobody links that only repeats the nav is not worth keeping.
+      #
+      # 301 rather than 404 because it is an INDEXED WIX PATH. The page is what was
+      # unwanted; the URL still has to work. /services is the honest destination — it is
+      # the page /projects was standing in for, under the heading /projects itself used.
+      - type: redirect
+        source: /projects
+        destination: /services
+
       # ⚠ BEFORE RUNNING `npm run gen:redirects`, READ THIS.
       #
       # content/_inventory/freshdesk/redirects.json carries destination slugs with an

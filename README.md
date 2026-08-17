@@ -189,6 +189,7 @@ Change one and you must change both. This is not pedantry: the redirects existed
 | `/blog` | `/services` | `tic-web` routes |
 | `/speciality-insurance` | `/offshore-and-energy` | `tic-web` routes |
 | `/income-preservation-1` | `/services` | `tic-web` routes |
+| `/projects` | `/services` | `tic-web` routes |
 | `help.asktic.com/*` | `https://www.asktic.com/knowledge` | `tic-help-redirect` service |
 | `support.asktic.com/...` | — | not handled; Freshdesk keeps serving these |
 
@@ -553,7 +554,7 @@ contract. Only the links moved:
 | --- | --- |
 | `/privacy` | Two places, deliberately. The footer's **legal line**, beside the GST registration, on every page; and a line of fine print under the submit button in `components/capture-form.tsx`, at the point of collection. |
 | `/forms` | A direct link sent to a member by email or WhatsApp when they need a specific document, plus the `/file-access` and `/file` 301s. Nobody hunts for a claim form on a marketing site. |
-| `/projects` | Nothing. It is orphaned — see the note below. |
+| `/projects` | Nothing — the page is gone. The path 301s to `/services`. |
 
 **Why `/privacy` is in two places and not one.** The point-of-collection link is the
 better of the two and was meant to replace the footer link outright. It cannot yet:
@@ -569,10 +570,17 @@ deliberately promises nothing. "We will only use this to reply to you" was consi
 rejected because `content/pages/privacy.mdx` reserves the right to use data for direct
 marketing, and the form must not contradict the policy it links to.
 
-**`/projects` is now orphaned**, which is a decision waiting to be made rather than a
-finished state. It is a preserved Wix path whose page content is derived from `primaryNav`,
-so it re-lists the nav and nothing else. If it is genuinely redundant, the honest end state
-is a 301 to `/services` recorded in `content/url-contract.json` — not a page nobody links.
+**`/projects` was retired**, on the owner's instruction, once losing the footer link left
+it with no inbound link at all. The Wix original was an unfinished template; Phase 2
+rescued it by listing the service pages derived from `primaryNav`, which meant it re-listed
+the nav and nothing else. A page nobody links that only repeats the nav is not worth
+keeping.
+
+It **301s to `/services`** rather than 404ing, and the distinction matters: the page was
+unwanted, the URL is indexed and still has to work. `/services` is the page `/projects` was
+standing in for, under the heading it used itself. The path moved from `preserved` to
+`redirectOnly` in `content/url-contract.json`, so `verify:urls` now asserts it emits
+nothing — which is what stops it being restored later on the strength of an old sitemap.
 
 #### `/forms` is the one route that names insurers
 
