@@ -513,6 +513,18 @@ Nothing below is invented, but nothing below is finished either:
 - **The trust stats**, which are published on the live site but were queried against
   `tic_crm_dev` rather than production. The outstanding checks are listed in
   `content/home/copy.ts`.
+- **The forms library.** `public/forms/manifest.json` is empty, so `/forms` renders an
+  empty state that invites an email. The page is still built and still the 301 target for
+  `/file-access` and `/file`, but **it is no longer linked from the footer** — landing an
+  engaged visitor on an obviously unfinished page costs more trust than the link is worth.
+  Put the link back in `footerNav` the day the manifest has files in it.
+- **The privacy policy**, which is complete but dated 5 MAY 2018, so it predates the PDPA
+  amendments in force from 2021 — mandatory data-breach notification among them. This firm
+  handles health and claims data, which is where that matters most. It stays linked and
+  flagged for **legal** review: currency, retention periods, and whether the described
+  claims-data flows are the ones the firm actually runs. It is not flagged for naming the
+  wrong law — it cites the Personal Data Protection Act 2012 correctly, and a review
+  claiming otherwise was mistaken. See the note in `app/privacy/page.tsx`.
 
 #### Figures never go inside a photograph
 

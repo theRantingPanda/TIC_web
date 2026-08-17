@@ -58,6 +58,12 @@ const forkIcons = { individual: PersonIcon, company: BuildingIcon } as const
  *
  * There is deliberately no `telephone` — the published number is out of service and was
  * swept from the site on 2026-08-16. Do not add one back without checking it answers.
+ *
+ * There is deliberately no `sameAs` either. It listed the Facebook and LinkedIn profiles
+ * until 2026-08-17, when both were dropped sitewide for being thin (see `contact` in
+ * lib/site.ts). The field was removed rather than left as an empty array: `sameAs: []`
+ * tells a search engine the firm has no profiles, which is a claim, where an absent field
+ * simply says nothing. Bring it back with the links, not before.
  */
 const organisationSchema = {
   '@context': 'https://schema.org',
@@ -68,7 +74,6 @@ const organisationSchema = {
   email: contact.email,
   description: homeCopy.meta.description,
   areaServed: 'SG',
-  sameAs: contact.social.map((item) => item.href),
 }
 
 export default function Page() {

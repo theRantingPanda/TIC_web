@@ -5,6 +5,13 @@ export const siteConfig = {
   shortName: 'TIC',
   /** Kept in sync with the live domain — used for canonical URLs and metadataBase. */
   url: 'https://www.asktic.com',
+  /**
+   * The company's UEN, which in Singapore is also its GST registration number. It is the
+   * same number the privacy policy header carries, so it is held once here rather than
+   * typed into JSX. Confirmed 2026-08-17 that the firm is GST-registered — do not render
+   * a "GST Reg." label off this field for an entity that is not.
+   */
+  uen: '201415200G',
   description:
     'Insurance advisory in Singapore: international health, employee benefits, maternity and newborn, and cover for offshore and deployed teams.',
 } as const
@@ -107,7 +114,14 @@ export const flatNav: readonly NavItem[] = primaryNav.flatMap((group) => [
  * site answers the same question the same way, plus Answers and Company.
  *
  * Contact is not a column: it is the footer's brand block, which already carries the
- * email address and the social links.
+ * email address.
+ *
+ * THE FOOTER IS NOT GOVERNED BY THE HOMEPAGE'S RULES and should not be trimmed to match
+ * it. Everything cut from the hero, the fork and the concern grid was about not making a
+ * first-time visitor process anything before the one decision that matters. A visitor
+ * only reaches the footer after passing the entire funnel, so a full site map here does
+ * not compete with the flow above it — that is a footer's conventional job. Length is
+ * not the argument for removing something from this list. Being unfinished is.
  *
  * This is the only place every concern page is linked in one flat list alongside the
  * product pages, which is what keeps them all reachable from every page on the site.
@@ -138,11 +152,25 @@ export const footerNav: readonly { heading: string; items: readonly NavItem[] }[
     ],
   },
   {
+    /*
+      One item, on purpose, and the heading stays.
+
+      "Forms and documents" was removed on 2026-08-17 because /forms is a stub:
+      public/forms/manifest.json is empty, so the page renders "The library is being
+      assembled". A footer-clicker is an engaged visitor still doing their reading, and
+      landing them on an obviously unfinished page straight off a deliberate homepage
+      costs more trust than the link is worth. PUT IT BACK the day the manifest has files
+      in it — this column is the slot it returns to, which is why the heading survives a
+      single link.
+
+      The page itself is untouched and must stay built: /forms is a preserved path and
+      the 301 destination for /file-access and /file (render.yaml). Removing the link
+      leaves it reachable by redirect only, which is the intent. `verify:urls` checks
+      that nav hrefs are preserved paths, not that preserved paths are linked, so this
+      passes.
+    */
     heading: 'Answers',
-    items: [
-      { href: '/knowledge', label: 'Knowledge base' },
-      { href: '/forms', label: 'Forms and documents' },
-    ],
+    items: [{ href: '/knowledge', label: 'Knowledge base' }],
   },
   {
     heading: 'Company',
@@ -174,19 +202,37 @@ export const about =
   'have been at it since 2014; Listening, Understanding, ensuring their Peace of Mind.'
 
 /**
- * Regulatory disclosure, verbatim from the live footer.
+ * Regulatory disclosure — the live footer's, tightened on 2026-08-17.
  *
  * This is a licensing statement for a MAS-regulated firm and appears on every page of
  * the current site. It was missing from the rebuild entirely until 2026-08-12 — not a
  * styling choice but an omission, since the earlier capture never saw the footer.
+ *
+ * The live wording, kept here so the edit is auditable:
+ *
+ *   "We are a general insurance agency incorporated in Singapore complying with the
+ *    regulations and guidelines set out by the General Insurance Association (GIA), and
+ *    the Monetary Authority of Singapore (MAS)."
+ *
+ * 33 words to 27. Same disclosure, same two bodies named, no claim added or dropped.
+ *
+ * ⚠ "REGULATIONS AND" IS LOAD-BEARING. A review proposed "complying with guidelines set
+ * by the GIA and MAS", which is shorter and wrong: MAS is the statutory regulator and
+ * issues regulations, GIA is a trade association and issues guidelines. Collapsing both
+ * to "guidelines" understates the MAS relationship in the one sentence on this site whose
+ * job is to state it. Shorten this further if you like; do not lose that word.
+ *
+ * It must also not drift into contradicting `homeCopy.trust.line`, which deliberately
+ * asserts only that the INSURERS are MAS-regulated and says nothing about what this firm
+ * is registered as. This sentence claims compliance, not brokerage, so the two hold.
  */
 export const regulatory =
-  'We are a general insurance agency incorporated in Singapore complying with the ' +
-  'regulations and guidelines set out by the General Insurance Association (GIA), and ' +
-  'the Monetary Authority of Singapore (MAS).'
+  'A Singapore-incorporated general insurance agency, complying with the regulations ' +
+  'and guidelines of the General Insurance Association (GIA) and the Monetary ' +
+  'Authority of Singapore (MAS).'
 
 /**
- * Contact and social links.
+ * Contact.
  *
  * **There is deliberately no phone number here.** `+65 6681 6455` was published in the
  * live footer sitewide and on /employee-benefits, and it is out of service. Removing the
@@ -198,15 +244,20 @@ export const regulatory =
  * signatures. A dead number in a Google listing is worse than none, because it is often
  * the first thing someone finds and they never reach the site at all.
  *
- * YouTube was removed at the same time — the channel is being dropped, so the link goes
- * rather than being repointed.
+ * **There are deliberately no social links either**, for the same reason and by the same
+ * method. YouTube went on 2026-08-16 with the channel. Facebook and LinkedIn followed on
+ * 2026-08-17: both profiles are thin, and a link that lands a considering visitor on an
+ * inactive page spends exactly the trust the rest of the footer is built to earn. Better
+ * no link than a weak one. The `social` field is gone rather than emptied so that
+ * anything still reading it fails to compile — there were two consumers, the footer's
+ * brand block and the homepage's Organization JSON-LD, and both were removed with it.
+ *
+ * Revisit when either account has something on it worth a visitor's click. Restoring the
+ * field means restoring `sameAs` in app/page.tsx too; an empty `sameAs: []` is a worse
+ * signal to a search engine than an absent one, so it was deleted, not blanked.
  */
 export const contact = {
   email: 'hello@asktic.com',
-  social: [
-    { href: 'https://www.facebook.com/InsuranceConcierge', label: 'Facebook' },
-    { href: 'https://sg.linkedin.com/in/dstevenneo', label: 'LinkedIn' },
-  ],
 } as const
 
 /** Every path this build is contractually required to emit. */
