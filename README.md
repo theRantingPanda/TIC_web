@@ -443,12 +443,21 @@ headline, numbers, fork and cards all carried the same weight. Three fixes lande
   the sibling list on every concern page) — they were four copies of the same markup
   before. The icon is a wayfinding mark, never a photograph: selection steps stay lean and
   imagery is earned at the drill-down.
-- **The footer collapses on mobile.** It had grown to four columns of five, so the page
-  ended in a second sitemap. Each column is now a `<details>` accordion below `sm`, forced
-  open above it, which makes the footer **39% shorter** on a 390px viewport. It needs
-  **two** CSS rules to force open — `::details-content { content-visibility: visible }`
-  for current Chromium and `display: block` for engines without it. The first version
-  shipped only the second and the desktop footer rendered with no links at all.
+- **The footer carries no navigation at all.** The review was right that four columns of
+  five ended the page in a second sitemap, and the first fix was `<details>` accordions
+  below `sm` — 39% shorter on a 390px viewport, at the cost of ~30 lines of CSS and one
+  shipped bug (forcing a `<details>` open needs **both**
+  `::details-content { content-visibility: visible }` for current Chromium **and**
+  `display: block` for engines without it; the first version shipped only the second and
+  the desktop footer rendered with no links at all).
+
+  On 2026-08-17 the columns went entirely, and the accordions with them. The reason is a
+  count, not a taste: **12 of the 15 footer links were exact duplicates of `primaryNav`**,
+  and the header is `sticky top-0`, so a visitor at the footer already had them 64px
+  above. A comprehensive footer solves the problem of a header you must scroll back up to
+  reach; this site does not have one. The three non-duplicates were rehomed — see
+  **Where the footer's last three links went** below. Before adding a footer sitemap back,
+  count how many of its links the sticky header already carries.
 The review's third point, promoting the "same premium as going direct" line out of
 footnote weight, was **tried and reverted**. At body size the claim dominated the trust
 band and argued with the visitor before they had been asked anything, which is the
@@ -522,9 +531,10 @@ Nothing below is invented, but nothing below is finished either:
 - **The trust stats**, which are published on the live site but were queried against
   `tic_crm_dev` rather than production. The outstanding checks are listed in
   `content/home/copy.ts`.
-- **The forms library**, which now holds exactly one document. It is live and linked from
-  the footer again. Adding to it is editing `public/forms/manifest.json` and committing
-  the file beside it; see below.
+- **The forms library**, which now holds exactly one document. The page is live but no
+  longer linked from anywhere — members are sent a direct link when they need a document,
+  which is how the library is actually distributed. Adding to it is editing
+  `public/forms/manifest.json` and committing the file beside it; see below.
 - **The privacy policy**, which is complete but dated 5 MAY 2018, so it predates the PDPA
   amendments in force from 2021 — mandatory data-breach notification among them. This firm
   handles health and claims data, which is where that matters most. It stays linked and
@@ -532,6 +542,37 @@ Nothing below is invented, but nothing below is finished either:
   claims-data flows are the ones the firm actually runs. It is not flagged for naming the
   wrong law — it cites the Personal Data Protection Act 2012 correctly, and a review
   claiming otherwise was mistaken. See the note in `app/privacy/page.tsx`.
+
+#### Where the footer's last three links went
+
+Removing the sitemap left three destinations that the sticky header does not carry. None
+was deleted — all three routes still build and are still preserved paths in the URL
+contract. Only the links moved:
+
+| Path | Now reached by |
+| --- | --- |
+| `/privacy` | Two places, deliberately. The footer's **legal line**, beside the GST registration, on every page; and a line of fine print under the submit button in `components/capture-form.tsx`, at the point of collection. |
+| `/forms` | A direct link sent to a member by email or WhatsApp when they need a specific document, plus the `/file-access` and `/file` 301s. Nobody hunts for a claim form on a marketing site. |
+| `/projects` | Nothing. It is orphaned — see the note below. |
+
+**Why `/privacy` is in two places and not one.** The point-of-collection link is the
+better of the two and was meant to replace the footer link outright. It cannot yet:
+`captureEnabled` in `lib/capture.ts` is false unless `NEXT_PUBLIC_N8N_CONTACT_WEBHOOK` is
+set, `render.yaml` only documents that variable rather than setting it, and every capture
+point currently falls back to a mailto — so **no form renders on the live site**. Moving
+the link to the forms alone would have taken the site from a privacy link on every page to
+a privacy link nowhere, on a firm that collects personal data and handles health data. Do
+not remove the footer one as a tidy-up; check that forms actually render in `out/` first.
+
+The form's wording — "We handle your details as described in our privacy policy" —
+deliberately promises nothing. "We will only use this to reply to you" was considered and
+rejected because `content/pages/privacy.mdx` reserves the right to use data for direct
+marketing, and the form must not contradict the policy it links to.
+
+**`/projects` is now orphaned**, which is a decision waiting to be made rather than a
+finished state. It is a preserved Wix path whose page content is derived from `primaryNav`,
+so it re-lists the nav and nothing else. If it is genuinely redundant, the honest end state
+is a 301 to `/services` recorded in `content/url-contract.json` — not a page nobody links.
 
 #### `/forms` is the one route that names insurers
 
