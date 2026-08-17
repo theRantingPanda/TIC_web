@@ -145,6 +145,33 @@ export function CaptureForm({
       >
         {status === 'submitting' ? 'Sending…' : submitLabel}
       </button>
+
+      {/*
+        THE PRIVACY POLICY'S ONLY LINK ON THIS SITE, and it lives here on purpose.
+
+        It sat in the footer's sitemap until 2026-08-17. When that sitemap came out, this
+        was the reason it could: a privacy link at the point of collection is where it
+        actually belongs, and one buried under a column of nav duplicates is where nobody
+        reads it. Because it lives in CaptureForm rather than in a caller, every capture
+        point on the site gets it — the contact form, the lead magnets, the concern pages
+        — including the fourth one somebody adds later. DO NOT MOVE IT INTO A CALLER.
+
+        The wording deliberately makes no promise. "We will only use this to reply to
+        you" was considered and rejected: content/pages/privacy.mdx reserves the right to
+        use data for direct marketing, so that sentence would put the form and the policy
+        in disagreement. This points at the policy; it does not summarise it.
+
+        This form posts a name, an email address and free text straight to an n8n webhook
+        — see lib/capture.ts. That is personal data leaving the browser, which is what
+        makes the link load-bearing rather than decorative.
+      */}
+      <p className="mt-3 text-xs text-ink-muted">
+        We handle your details as described in our{' '}
+        <a href="/privacy" className="text-brand-blue">
+          privacy policy
+        </a>
+        .
+      </p>
     </form>
   )
 }

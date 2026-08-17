@@ -109,74 +109,38 @@ export const flatNav: readonly NavItem[] = primaryNav.flatMap((group) => [
   ...(group.items ?? []),
 ])
 
-/**
- * Footer columns. Split along the same fork as the nav and the homepage, so the whole
- * site answers the same question the same way, plus Answers and Company.
+/*
+ * THERE IS NO `footerNav`, AND THAT IS THE DECISION, NOT AN OVERSIGHT.
  *
- * Contact is not a column: it is the footer's brand block, which already carries the
- * email address.
+ * A four-column sitemap stood here until 2026-08-17: "For you and your family", "For
+ * companies", "Answers" and "Company", 15 links, on every page. It was removed after
+ * being measured rather than admired.
  *
- * THE FOOTER IS NOT GOVERNED BY THE HOMEPAGE'S RULES and should not be trimmed to match
- * it. Everything cut from the hero, the fork and the concern grid was about not making a
- * first-time visitor process anything before the one decision that matters. A visitor
- * only reaches the footer after passing the entire funnel, so a full site map here does
- * not compete with the flow above it — that is a footer's conventional job. Length is
- * not the argument for removing something from this list. Being unfinished is.
+ * 12 OF THE 15 WERE EXACT DUPLICATES of `primaryNav` above — same hrefs, same labels —
+ * and components/site-header.tsx is `sticky top-0`. A visitor standing at the footer
+ * already had every one of those links 64px above them, and the small-screen <details>
+ * menu in components/site-nav.tsx carries the same set in full. The conventional case
+ * for a comprehensive footer assumes a header you must scroll back up to reach. This
+ * site does not have one, so the sitemap was answering a question nobody was asking.
  *
- * This is the only place every concern page is linked in one flat list alongside the
- * product pages, which is what keeps them all reachable from every page on the site.
+ * The three links that were NOT duplicates each had a better home:
  *
- * "About" and "Contact" are absent from Company because those pages do not exist yet.
- * Add them here when they do; the layout already has the room.
+ *   /privacy   -> two places. components/capture-form.tsx, at the point of collection,
+ *                 which is where a privacy link belongs and where it gets read; AND the
+ *                 footer's legal line, because `captureEnabled` is false until
+ *                 NEXT_PUBLIC_N8N_CONTACT_WEBHOOK is set and no form renders today, so
+ *                 the form link alone would have meant no privacy link anywhere.
+ *   /forms     -> sent to members directly by email or WhatsApp when they need a
+ *                 specific document. Nobody hunts for a claim form on a marketing site.
+ *   /projects  -> redundant. Its page content is derived from `primaryNav`, so the
+ *                 footer linked to a page that re-lists the nav.
+ *
+ * All three routes still build and are still preserved paths; only the links went.
+ *
+ * ⚠ IF YOU ARE ABOUT TO ADD A FOOTER SITEMAP BACK, count first. The test is not whether
+ * a footer conventionally has one, it is how many of its links the sticky header already
+ * carries. A genuinely new destination belongs in `primaryNav`, where every page gets it.
  */
-export const footerNav: readonly { heading: string; items: readonly NavItem[] }[] = [
-  {
-    heading: 'For you and your family',
-    items: [
-      { href: '/international-health-insurance', label: 'International health insurance' },
-      { href: '/maternity-insurance', label: 'Planning for a family' },
-      { href: '/relocating-to-singapore', label: 'Relocating to Singapore' },
-      { href: '/beyond-employer-cover', label: 'Beyond your employer’s cover' },
-      { href: '/pre-existing-conditions', label: 'Pre-existing conditions' },
-      { href: '/leaving-singapore', label: 'Leaving Singapore' },
-    ],
-  },
-  {
-    heading: 'For companies',
-    items: [
-      { href: '/employee-benefits', label: 'Employee benefits' },
-      { href: '/renewal-premium-increase', label: 'A renewal that has increased' },
-      { href: '/cover-for-senior-hires', label: 'Cover for senior hires' },
-      { href: '/offshore-and-energy', label: 'Offshore and deployed teams' },
-      { href: '/first-company-scheme', label: 'Setting up a first scheme' },
-    ],
-  },
-  {
-    /*
-      "Forms and documents" came out on 2026-08-17 and went back in the same day.
-
-      It was removed because /forms was a stub — the manifest was empty and the page read
-      "The library is being assembled", which is a poor landing for an engaged visitor
-      arriving off a deliberate homepage. The note left here said to restore it the day
-      the manifest had files in it. The first document landed that afternoon, so it is
-      restored, and the note is kept rather than deleted because the reasoning is the
-      standing test: this link belongs in the footer only while the page behind it is
-      worth arriving at.
-    */
-    heading: 'Answers',
-    items: [
-      { href: '/knowledge', label: 'Knowledge base' },
-      { href: '/forms', label: 'Forms and documents' },
-    ],
-  },
-  {
-    heading: 'Company',
-    items: [
-      { href: '/projects', label: 'Projects' },
-      { href: '/privacy', label: 'Privacy' },
-    ],
-  },
-] as const
 
 /**
  * Contact and social links, as they appear in the live Wix footer (captured 2026-08-11).

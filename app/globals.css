@@ -308,49 +308,20 @@
   }
 
   /*
-   * ---- The footer's mobile accordions ----
+   * The footer's mobile accordions stood here until 2026-08-17 and went with the columns
+   * they folded. They wrapped each footer nav group in <details>, open from `sm` up.
    *
-   * components/site-footer.tsx wraps each column in <details>. Below the `sm` breakpoint
-   * that is a real accordion; from `sm` up every group is forced open and the chevron is
-   * hidden, so the desktop footer looks exactly as it did before the columns collapsed.
+   * Worth knowing if a <details> is ever forced open by CSS again anywhere on this site,
+   * because it cost a shipped bug to learn: TWO rules are needed and neither is
+   * redundant. Current Chromium hides a closed <details>'s content with
+   * `::details-content { content-visibility: hidden }`, which `display: block` on the
+   * children does NOT override — the first version shipped with only the display rule and
+   * the desktop footer rendered with no links at all. Engines without ::details-content
+   * still use the older `display: none` on the children, which the display rule is for.
    *
-   * Forcing `display: block` on the list is what overrides the user-agent rule that hides
-   * a closed <details>'s non-summary children. Doing it in CSS rather than by setting the
-   * `open` attribute means the state is decided by viewport rather than by markup, so one
-   * render serves both and nothing has to re-run on resize.
-   *
-   * 40rem is Tailwind's `sm`. Keep the two in step: this is the one place the breakpoint
-   * is written out rather than expressed as a utility.
+   * components/faq.tsx and components/site-nav.tsx also use <details>, but neither is
+   * forced open by CSS, so neither needs this.
    */
-  @media (min-width: 40rem) {
-    /*
-     * BOTH of these are needed and neither is redundant.
-     *
-     * Current Chromium hides a closed <details>'s content with
-     * `::details-content { content-visibility: hidden }`, which `display: block` does not
-     * override — the first version of this shipped with only the display rule and the
-     * desktop footer rendered with no links at all. Engines without ::details-content
-     * still use the older `display: none` on the children, which is what the second rule
-     * is for. Remove either and one class of browser loses the footer.
-     */
-    [data-footer-group]::details-content {
-      content-visibility: visible;
-      block-size: auto;
-    }
-
-    [data-footer-group] > ul {
-      display: block;
-    }
-
-    [data-footer-group] > summary {
-      cursor: default;
-      pointer-events: none;
-    }
-
-    [data-footer-chevron] {
-      display: none;
-    }
-  }
 
   @media (prefers-reduced-motion: reduce) {
     html {
