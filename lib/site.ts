@@ -183,8 +183,15 @@ export const flatNav: readonly NavItem[] = primaryNav.flatMap((group) => [
  * ⚠ THE EXCLAMATION MARK IS DELIBERATE, and it is the only one in this site's public copy.
  * It is the tagline as supplied, not stray enthusiasm — leave it, and do not "fix" it to a
  * full stop for consistency with the restrained voice everywhere else.
+ *
+ * ⚠ DO NOT PUT THE FIRM'S NAME BACK IN FRONT. The trim was first written as "The Insurance
+ * Concierge, since 2014. …", which screenshots killed: `SiteFooter` prints
+ * `siteConfig.name` as the heading immediately above this line and the copyright notice
+ * prints it again below, so the name landed three times in six lines and read as a bug. It
+ * also cost a line — at 390px "Simplified!" wrapped away from "Peace of Mind.", splitting
+ * the tagline. Naming the firm once, in the heading, fits one line at both 1280 and 390.
  */
-export const about = 'The Insurance Concierge, since 2014. Peace of Mind. Simplified!'
+export const about = 'Since 2014. Peace of Mind. Simplified!'
 
 /**
  * Regulatory disclosure — the live footer's, tightened on 2026-08-17.
