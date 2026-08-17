@@ -51,10 +51,12 @@ export type NavGroup = {
  * "Home" is dropped because the header's logo already links `/`. The "Members" dropdown
  * is killed per the deck; its two destinations move to Answers and to the footer.
  *
- * `/income-preservation-1` and `/projects` are both retired and now 301 to /services.
- * Each was unlinked first and withdrawn afterwards. Do not add either back to a nav
- * array: `verify:urls` requires every nav href to be a preserved path, and neither is
- * one any more — the check will fail the build, which is the point.
+ * `/income-preservation-1` and `/projects` are both retired, and they are NOT retired the
+ * same way. The first was a real service page, so it 301s to /services and the equity
+ * follows. The second was an unfinished Wix template with no original content, so it is
+ * `dropped` in the URL contract and 404s deliberately — there is nothing to send anyone
+ * to. Do not add either back to a nav array: `verify:urls` requires every nav href to be
+ * a preserved path and neither is one, so the check fails the build, which is the point.
  *
  * Every href here must exist in content/url-contract.json → `preserved`. That invariant
  * is asserted at build time by `npm run verify:urls`, which reads this file's source
@@ -134,7 +136,8 @@ export const flatNav: readonly NavItem[] = primaryNav.flatMap((group) => [
  *                 specific document. Nobody hunts for a claim form on a marketing site.
  *   /projects  -> nowhere. It was redundant — its page content was derived from
  *                 `primaryNav`, so the footer linked to a page that re-listed the nav.
- *                 Retired entirely on 2026-08-17 and now 301s to /services.
+ *                 Retired entirely on 2026-08-17 as a legacy mistake from the old site.
+ *                 The page is gone and the path is `dropped`, so it 404s on purpose.
  *
  * /privacy and /forms still build and are still preserved paths; only their links moved.
  *

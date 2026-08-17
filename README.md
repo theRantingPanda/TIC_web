@@ -189,7 +189,6 @@ Change one and you must change both. This is not pedantry: the redirects existed
 | `/blog` | `/services` | `tic-web` routes |
 | `/speciality-insurance` | `/offshore-and-energy` | `tic-web` routes |
 | `/income-preservation-1` | `/services` | `tic-web` routes |
-| `/projects` | `/services` | `tic-web` routes |
 | `help.asktic.com/*` | `https://www.asktic.com/knowledge` | `tic-help-redirect` service |
 | `support.asktic.com/...` | — | not handled; Freshdesk keeps serving these |
 
@@ -554,7 +553,7 @@ contract. Only the links moved:
 | --- | --- |
 | `/privacy` | Two places, deliberately. The footer's **legal line**, beside the GST registration, on every page; and the consent tickbox in `components/capture-form.tsx`, at the point of collection. |
 | `/forms` | A direct link sent to a member by email or WhatsApp when they need a specific document, plus the `/file-access` and `/file` 301s. Nobody hunts for a claim form on a marketing site. |
-| `/projects` | Nothing — the page is gone. The path 301s to `/services`. |
+| `/projects` | Nothing — the page is gone and the path is `dropped`, so it 404s. |
 
 **Why `/privacy` is in two places and not one.** The point-of-collection link is the
 better of the two and was meant to replace the footer link outright. It cannot yet:
@@ -595,11 +594,17 @@ rescued it by listing the service pages derived from `primaryNav`, which meant i
 the nav and nothing else. A page nobody links that only repeats the nav is not worth
 keeping.
 
-It **301s to `/services`** rather than 404ing, and the distinction matters: the page was
-unwanted, the URL is indexed and still has to work. `/services` is the page `/projects` was
-standing in for, under the heading it used itself. The path moved from `preserved` to
-`redirectOnly` in `content/url-contract.json`, so `verify:urls` now asserts it emits
-nothing — which is what stops it being restored later on the strength of an old sitemap.
+**It 404s, deliberately.** It was briefly given a 301 to `/services` on the reflex that an
+indexed path is always worth preserving. That reflex is right for a real page and wrong
+here: there was never any original content to preserve, and the owner's read is that the
+page was "legacy and a mistake from the old site". So it moved from `preserved` straight to
+**`dropped`**, alongside the Wix store template and the demo blog posts — the bucket that
+exists for exactly this. `verify:urls` now asserts it emits nothing, which is what stops it
+being restored later on the strength of an old sitemap.
+
+A useful side effect: because `render.yaml` does not govern the live service, a redirect
+here would have needed adding to the Render dashboard by hand, and would have sat
+unconfigured indefinitely. Dropping it leaves nothing outstanding.
 
 #### `/forms` is the one route that names insurers
 
@@ -704,7 +709,7 @@ dashboard, so its real configuration lives there — verified against the API on
 | build command | `npm run build` |
 | publish path | `out` |
 | environment variables | none |
-| redirects | the three from the URL contract |
+| redirects | the six from the URL contract |
 
 That divergence has already cost something: the redirects existed only in `render.yaml`,
 so `/home-1`, `/file-access` and `/file` returned **404 on the live site** until

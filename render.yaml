@@ -8,11 +8,16 @@
 #   buildCommand    npm run build publishPath   out
 #   env vars        none          routes        the six redirects below
 #
-# ⚠ ACTION REQUIRED (2026-08-16): the /blog, /speciality-insurance and
-# /income-preservation-1 redirects added
-# below are NOT yet on the service. Add them in the dashboard, or those three indexed
-# paths 404 in production the moment this branch deploys — their page files have been
-# deleted. Nothing in the build can catch this; see the paragraph below.
+# ✓ CLEARED (2026-08-17). This block used to warn that the /blog, /speciality-insurance
+# and /income-preservation-1 redirects were not yet on the service and that those three
+# paths would 404 the moment the branch deployed. They were added, and all three were
+# verified against the live site on 2026-08-17: each returns 301 to its documented
+# destination, as do /home-1, /file-access and /file. Six redirects, all serving.
+#
+# The warning is recorded as cleared rather than deleted, because the drift it describes
+# is permanent while this file and the service are maintained separately, and a future
+# addition here starts in exactly the same state. Check the live path before assuming a
+# redirect in this file is doing anything.
 #
 # The redirects were MISSING from the service until 2026-08-12 — they existed only in
 # this file, so /home-1, /file-access and /file returned 404 on the live site instead of
@@ -138,18 +143,12 @@ services:
         source: /income-preservation-1
         destination: /services
 
-      # Retired on the owner's instruction, 2026-08-17: "kill it, we don't need it
-      # anymore". /projects was an unfinished Wix template rescued in Phase 2 by listing
-      # the service pages, which it derived from `primaryNav` — so it re-listed the nav
-      # and nothing else. When the footer sitemap went, it lost its only inbound link,
-      # and a page nobody links that only repeats the nav is not worth keeping.
-      #
-      # 301 rather than 404 because it is an INDEXED WIX PATH. The page is what was
-      # unwanted; the URL still has to work. /services is the honest destination — it is
-      # the page /projects was standing in for, under the heading /projects itself used.
-      - type: redirect
-        source: /projects
-        destination: /services
+      # /projects is NOT here, and its absence is the decision. It was briefly given a 301
+      # to /services on the assumption that an indexed path is always worth preserving.
+      # It is not: the Wix original was an unfinished template with no original content,
+      # and the owner retired it as "legacy and a mistake from the old site". It now sits
+      # in content/url-contract.json -> dropped and 404s deliberately, which is also why
+      # there is nothing to add to the service for it.
 
       # ⚠ BEFORE RUNNING `npm run gen:redirects`, READ THIS.
       #
