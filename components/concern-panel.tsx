@@ -298,36 +298,51 @@ export function ConcernPanel({
             ) : null}
 
             {concern.numbers.table ? (
-              <table className="mt-4 w-full max-w-sm border-collapse text-left">
-                <thead>
-                  <tr>
-                    {concern.numbers.table.columns.map((column) => (
-                      <th
-                        key={column}
-                        scope="col"
-                        className="border-b border-border py-2 text-eyebrow font-medium uppercase text-ink-muted"
-                      >
-                        {column}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {concern.numbers.table.rows.map((row) => (
-                    <tr key={row[0]}>
-                      <th
-                        scope="row"
-                        className="border-b border-border py-2.5 font-normal text-ink-muted"
-                      >
-                        {row[0]}
-                      </th>
-                      <td className="border-b border-border py-2.5 font-medium text-ink">
-                        {row[1]}
-                      </td>
+              /*
+                Scrolls rather than squeezing. Two columns until 2026-08-18, when the
+                beyond-employer comparison arrived with four and no longer fits a phone.
+                A premium table that wraps its own figures is worse than one a reader
+                drags sideways, and shrinking the type to fit is how a disclosure becomes
+                unreadable. `max-w-sm` went with the same change: it was sized for two.
+              */
+              <div className="mt-4 -mx-1 overflow-x-auto px-1">
+                <table className="w-full min-w-[34rem] border-collapse text-left">
+                  <thead>
+                    <tr>
+                      {concern.numbers.table.columns.map((column, index) => (
+                        <th
+                          key={column || `col-${index}`}
+                          scope="col"
+                          className="border-b border-border py-2 pr-6 text-eyebrow font-medium uppercase text-ink-muted last:pr-0"
+                        >
+                          {column}
+                        </th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {concern.numbers.table.rows.map((row) => (
+                      <tr key={row[0]}>
+                        {/* First cell is the row header; the rest are figures. */}
+                        <th
+                          scope="row"
+                          className="whitespace-nowrap border-b border-border py-2.5 pr-6 font-normal text-ink-muted"
+                        >
+                          {row[0]}
+                        </th>
+                        {row.slice(1).map((cell, index) => (
+                          <td
+                            key={`${row[0]}-${index}`}
+                            className="whitespace-nowrap border-b border-border py-2.5 pr-6 font-medium text-ink last:pr-0"
+                          >
+                            {cell}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             ) : null}
 
             {/*

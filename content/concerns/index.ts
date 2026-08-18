@@ -63,11 +63,13 @@
  * there. See the notes on both concerns for what was wrong, and why neither may be restated
  * on a second page.
  *
- * NEVER SHOW A NUMBER THAT DOES NOT ANSWER THE QUESTION ASKED. Only `relocating` carries
- * figures, because "what does cover cost" is the question that page is actually
- * answering. The maternity panel deliberately shows no premium: a table of base
- * in-patient rates on a page about maternity would be a real mismatch, not an imprecise
- * caveat. If a number cannot be both accurate and on-topic, show no number.
+ * NEVER SHOW A NUMBER THAT DOES NOT ANSWER THE QUESTION ASKED. Two panels carry premium
+ * figures and both are answering "what does this cost": `relocating`, and — from
+ * 2026-08-18 — `beyond-employer`, which held none until its figures could be reconciled
+ * against the relocating table. See the long note at its `numbers` block; the rule that
+ * kept them out was satisfied, not waived. The maternity panel still shows no premium: a
+ * table of base in-patient rates on a page about maternity would be a real mismatch, not
+ * an imprecise caveat. If a number cannot be both accurate and on-topic, show no number.
  *
  * EVERY PREMIUM FIGURE TRACES TO A RATE LOOKUP, NEVER AN ESTIMATE. The relocating table
  * came from a live rate lookup, not from guessing at plausible figures. Anything added
@@ -176,9 +178,16 @@ export type Concern = {
   numbers?: {
     heading: string
     intro?: string
+    /**
+     * Any number of columns. Fixed 2-tuples until 2026-08-18, when the beyond-employer
+     * comparison arrived with four. The first cell of each row is the row header.
+     *
+     * Every row must have as many cells as there are columns. Not enforced by the type —
+     * a tuple-per-width union would be worse to read than the thing it guards.
+     */
     table?: {
-      columns: readonly [string, string]
-      rows: readonly (readonly [string, string])[]
+      columns: readonly string[]
+      rows: readonly (readonly string[])[]
     }
     /** Configuration disclosure. Load-bearing wherever a figure appears. */
     footnote: string
@@ -505,19 +514,61 @@ export const concerns: readonly Concern[] = [
     },
     numbers: {
       heading: 'What a top-up costs',
+      intro:
+        'Three insurers, priced for the same person on the same narrow cover. The premium is modest because the deductible is high, and the deductible is affordable because the company plan pays that layer first.',
       /**
-       * DELIBERATELY NO FIGURES. There is a real, traceable in-patient rate table on the
-       * relocating panel, and a second set of "from" figures was previously published for
-       * this configuration. The two do not agree at the same ages, and publishing both
-       * would put two different floors for the same cover on one site.
+       * FIGURES CAME BACK HERE ON 2026-08-18, AND THE RULE THAT KEPT THEM OUT WAS
+       * SATISFIED RATHER THAN OVERRULED. Read this before changing anything below.
        *
-       * Rather than pick one and hope, this shows the mechanism and no number. The
-       * handoff's rule governs: if a number cannot be both accurate and on-topic, show
-       * no number. Price this properly against the current rate table and it can come
-       * back.
+       * This block deliberately carried NO figures until now. The reason was a conflict:
+       * a live rate table on `relocating`, and a separate set of "from" figures once
+       * published for this configuration, which did not agree at the same ages. Two
+       * different floors for the same cover on one site is worse than no floor at all,
+       * so it showed the mechanism and no number, and said: price this properly against
+       * the current rate table and it can come back.
+       *
+       * It was priced properly, and the two now agree. The first column here is the same
+       * insurer and the same USD 8,500 deductible as the relocating table, which quotes
+       * monthly. Annualised, they land within 0.3%:
+       *
+       *   age 30   relocating 138/month -> 1,656     here 1,661.52
+       *   age 40   relocating 201/month -> 2,412     here 2,409.52
+       *
+       * and relocating's "from" sits just below the age-30 figure, exactly as a floor
+       * should. That agreement is the licence for this table. IF EITHER TABLE IS REPRICED,
+       * RE-RUN THAT COMPARISON. If they ever diverge again, one of them comes down — the
+       * old failure was publishing both and hoping nobody checked.
+       *
+       * ⚠ A, B AND P ARE THE REAL INSURERS' INITIALS, AND THAT IS STEVEN'S CALL, made
+       * 2026-08-18 after being told they decode instantly to anyone in the market. His
+       * reasoning: it eases internal reference, insiders guessing is not a concern, and
+       * competitors name insurers outright. Do not "fix" this to neutral labels, and do
+       * not read it as an oversight. `verify:copy` passes because no name appears.
+       *
+       * The cents are kept. They come from a real lookup, and rounding them to the dollar
+       * would quietly turn a quoted premium into an estimate.
+       */
+      table: {
+        columns: ['', 'Insurer B, USD 8,500', 'Insurer A, USD 8,100', 'Insurer P, SGD 10,000'],
+        rows: [
+          ['Annual limit', 'USD 2,890,000', 'USD 2,250,000', 'USD 1,562,500'],
+          ['Age 30', 'USD 1,661.52', 'USD 1,874.80', 'USD 1,398.27'],
+          ['Age 40', 'USD 2,409.52', 'USD 2,234.50', 'USD 1,789.98'],
+          ['Age 50', 'USD 4,273.90', 'USD 3,059.63', 'USD 2,662.84'],
+        ],
+      },
+      /**
+       * Kept short on Steven's instruction — the detail gets explained when a query comes
+       * in rather than drafted into the page. What survives that trim is only what makes
+       * the figures mean anything at all.
+       *
+       * ⚠ THE FX LINE IS NOT OPTIONAL. Insurer P prices in SGD only, so its column is
+       * converted. A converted premium sitting in a USD row without saying so is the one
+       * omission here that actively misleads, because it invites a comparison the reader
+       * cannot know is rate-dependent. Trim anything else first.
        */
       footnote:
-        'Because the company plan absorbs the first layer, a top-up sitting above it is usually priced on a high deductible, which keeps the added premium modest. We will size it once we can see what your existing scheme actually covers.',
+        'In-patient cover only, for a single adult resident in Singapore, worldwide excluding the United States, on the deductible shown in each column. Insurer P prices in SGD only; those figures are converted at 1.28. Real rates from our current rate table, priced August 2026. Indicative and subject to underwriting.',
     },
     considerations: [
       {
