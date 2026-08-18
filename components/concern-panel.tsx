@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { CtaButton } from '@/components/cta-button'
+import { Reveal } from '@/components/reveal'
 import { ImageIcon } from '@/components/icons'
 import type { Concern } from '@/content/concerns'
 
@@ -256,8 +257,8 @@ export function ConcernPanel({
           something skimmable, and do not drop it because the panel looks cleaner without.
         */}
         {concern.case.kind !== 'placeholder' || SHOW_UNFINISHED ? (
-          <>
-            <p className="mt-10 text-eyebrow uppercase text-ink-muted">
+          <Reveal className="mt-10">
+            <p className="text-eyebrow uppercase text-ink-muted">
               {concern.case.kind === 'scenario' ? 'A situation we see' : 'A real case'}
             </p>
             <blockquote className={`mt-3 max-w-[42rem] border-l-2 py-1 pl-5 ${rule}`}>
@@ -294,12 +295,12 @@ export function ConcernPanel({
                 </>
               )}
             </blockquote>
-          </>
+          </Reveal>
         ) : null}
 
         {/* 3. Numbers, only where a real on-topic figure exists. */}
         {concern.numbers ? (
-          <div className="mt-10">
+          <Reveal className="mt-10">
             <SubHeading className="text-display-xs text-ink">
               {concern.numbers.heading}
             </SubHeading>
@@ -379,11 +380,11 @@ export function ConcernPanel({
             <p className="mt-4 max-w-[42rem] text-eyebrow text-ink-muted">
               {concern.numbers.footnote}
             </p>
-          </div>
+          </Reveal>
         ) : null}
 
         {/* 4. Three things to consider. */}
-        <div className="mt-10">
+        <Reveal className="mt-10">
           <SubHeading className="text-display-xs text-ink">
             {countWord(concern.considerations.length)} things to consider
           </SubHeading>
@@ -395,10 +396,10 @@ export function ConcernPanel({
               </div>
             ))}
           </dl>
-        </div>
+        </Reveal>
 
         {/* 5. What we do. Administration and comparison only. */}
-        <div className="mt-10">
+        <Reveal className="mt-10">
           <SubHeading className="text-display-xs text-ink">What we do</SubHeading>
           <ul className="mt-4 max-w-[42rem] space-y-3">
             {concern.whatWeDo.map((item) => (
@@ -413,10 +414,10 @@ export function ConcernPanel({
               </li>
             ))}
           </ul>
-        </div>
+        </Reveal>
 
         {/* 6. One call to action. */}
-        <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
+        <Reveal className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
           <CtaButton href={ctaHref}>{concern.ctaLabel}</CtaButton>
           {concern.furtherReading ? (
             <Link
@@ -427,7 +428,7 @@ export function ConcernPanel({
               <span aria-hidden="true"> &rarr;</span>
             </Link>
           ) : null}
-        </div>
+        </Reveal>
       </div>
     </article>
   )

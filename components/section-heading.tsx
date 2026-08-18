@@ -4,9 +4,11 @@ import { Reveal } from '@/components/reveal'
 /**
  * A section's heading block: optional eyebrow, an h2, optional lede.
  *
- * Wraps its own Reveal, which is how the "eight or so instances, heading blocks only"
- * budget stays honest — nothing else on the page needs to opt in, and nothing else
- * should.
+ * Wraps its own Reveal, so a heading never has to remember to opt in.
+ *
+ * This used to be the whole of the site's reveal budget. It is not any more: the concern
+ * pages reveal their major bands too, as of 2026-08-18. See the note in
+ * components/reveal.tsx for what widened and, more usefully, for what did not.
  */
 export function SectionHeading({
   id,

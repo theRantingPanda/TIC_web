@@ -5,6 +5,8 @@ import { ConcernCard } from '@/components/concern-card'
 import { ConcernPanel } from '@/components/concern-panel'
 import { Container } from '@/components/container'
 import { EmailField } from '@/components/email-field'
+import { EnquiryBridge } from '@/components/enquiry-bridge'
+import { Reveal } from '@/components/reveal'
 import { Section } from '@/components/section'
 import { SectionHeading } from '@/components/section-heading'
 import { concernByPath, concernsFor, type Concern } from '@/content/concerns'
@@ -123,28 +125,39 @@ export function ConcernPage({ path }: { path: string }) {
 
       <Section id="talk-to-us" tone="subtle" labelledBy="enquiry-heading">
         {/*
-          The lede counts the fields, so it has to follow the form. /beyond-employer-cover
-          swapped to the quote question set on 2026-08-18 and this line went on promising
-          "Four fields" above a form asking for dates of birth, nationality, residency and
-          an upload — the one place on the page where understating the ask is a broken
-          promise rather than a nicety, because the visitor has already committed by the
-          time they find out.
+          The lede describes the ask and NOTHING ELSE. It used to carry the promise as
+          well — "no obligation, and a reply the same working day" — and the bridge
+          immediately below now says both of those in full sentences, so keeping them here
+          put the same commitment on screen twice inside forty words.
 
-          Keyed off the same `enquiryFields` value that chooses the fields below, so the
-          two cannot drift apart. The second half of the sentence is unchanged and is a
-          real commitment: see the note on `successMessage` below.
+          It also has to follow the form. /beyond-employer-cover swapped to the quote
+          question set on 2026-08-18 and this line went on promising "Four fields" above a
+          form asking for dates of birth, nationality, residency and an upload. That is
+          the one place on the page where understating the ask is a broken promise rather
+          than a nicety, because the visitor has already committed by the time they find
+          out. It is keyed off the same `enquiryFields` value that chooses the fields
+          below, so the count and the form cannot drift apart again.
         */}
         <SectionHeading
           id="enquiry-heading"
           title="Tell us the situation"
           lede={
             concern.enquiryFields === 'top-up-quote'
-              ? 'A few details so we can price it properly, no obligation, and a reply the same working day.'
-              : 'Four fields, no obligation, and a reply the same working day.'
+              ? 'A few details so we can price it properly.'
+              : 'Four fields, and the last one is optional.'
           }
         />
 
-        <div className="mt-8 max-w-xl">
+        {/*
+          Between the heading and the form, not above the heading: the bridge answers
+          "what happens if I do this", which is only a question once the visitor has been
+          asked. See components/enquiry-bridge.tsx for why it carries no button.
+        */}
+        <div className="mt-10">
+          <EnquiryBridge audience={concern.audience} />
+        </div>
+
+        <Reveal className="mt-10 max-w-xl">
           {captureEnabled ? (
             <CaptureForm
               source="concern-enquiry"
@@ -250,7 +263,7 @@ export function ConcernPage({ path }: { path: string }) {
               .
             </p>
           ) : null}
-        </div>
+        </Reveal>
       </Section>
 
       {/*
@@ -263,13 +276,21 @@ export function ConcernPage({ path }: { path: string }) {
           id="siblings-heading"
           title={company ? 'Or something else entirely' : 'Or is it more like one of these'}
         />
-        <ul className="mt-8 grid gap-4 sm:grid-cols-3">
-          {siblings(concern).map((item) => (
-            <li key={item.key}>
-              <ConcernCard concern={item} />
-            </li>
-          ))}
-        </ul>
+        {/*
+          ONE Reveal around the whole grid, never one per card. Cards arriving in
+          sequence is the staggered-list effect that reveal.tsx warns about by name: it
+          reads as a product tour, and this grid is the one place on a concern page a
+          visitor is meant to scan quickly to find their actual situation.
+        */}
+        <Reveal>
+          <ul className="mt-8 grid gap-4 sm:grid-cols-3">
+            {siblings(concern).map((item) => (
+              <li key={item.key}>
+                <ConcernCard concern={item} />
+              </li>
+            ))}
+          </ul>
+        </Reveal>
       </Section>
     </>
   )

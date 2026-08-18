@@ -228,6 +228,47 @@ export type Concern = {
   meta: { title: string; description: string }
 }
 
+/** One step in the bridge that sits between the panel's ask and the form. */
+export type BridgeStep = {
+  /** `01`, `02`, `03`. A position, not a heading — it is set as a number, not as text. */
+  readonly step: string
+  readonly body: string
+}
+
+/**
+ * What happens after they press send.
+ *
+ * Three lines between the panel's call to action and the form. It exists because the
+ * form is the only place on this site where the visitor is asked to give rather than
+ * to read, and arriving at it cold reads as a wall of fields rather than as a next step.
+ *
+ * Keyed by AUDIENCE, not by concern. Nine variants of "we will get back to you" would be
+ * nine chances to promise something different, and the promise has to be one promise.
+ *
+ * ⚠ NO FIELD COUNT AND NO DURATION HERE, deliberately. The enquiry lede carried
+ * "Four fields" on every concern page and went on carrying it after
+ * /beyond-employer-cover swapped to the quote question set, so the site promised four
+ * fields above a form asking for dates of birth, nationality, residency and an upload.
+ * That lede is now keyed off `enquiryFields`; this copy avoids the trap entirely by not
+ * counting anything. If you add "takes two minutes" here, you have reopened it.
+ *
+ * The second and third lines are commitments the firm already makes in the enquiry lede
+ * on every concern page. They are restated here, more prominently, not invented — check
+ * components/concern-page.tsx before editing either of them.
+ */
+export const enquiryBridge: Record<ConcernAudience, readonly BridgeStep[]> = {
+  individual: [
+    { step: '01', body: 'You tell us where you are with it, in your own words.' },
+    { step: '02', body: 'We reply the same working day, by email or a short call.' },
+    { step: '03', body: 'No obligation, and no cost to talk it through.' },
+  ],
+  company: [
+    { step: '01', body: 'You tell us roughly where things stand. No deck required.' },
+    { step: '02', body: 'We reply the same working day to arrange a short call.' },
+    { step: '03', body: 'No obligation, and no cost to talk it through.' },
+  ],
+}
+
 export const concerns: readonly Concern[] = [
   {
     key: 'maternity',
