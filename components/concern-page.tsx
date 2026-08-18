@@ -8,6 +8,7 @@ import { EmailField } from '@/components/email-field'
 import { Section } from '@/components/section'
 import { SectionHeading } from '@/components/section-heading'
 import { concernByPath, concernsFor, type Concern } from '@/content/concerns'
+import { TopUpQuoteFields } from '@/components/enquiry/top-up-quote'
 import { captureEnabled } from '@/lib/capture'
 import { contact } from '@/lib/site'
 
@@ -148,6 +149,16 @@ export function ConcernPage({ path }: { path: string }) {
               <input type="hidden" name="path" value={concern.audience} />
               <input type="hidden" name="situation" value={concern.cardTitle} />
 
+              {/*
+                The concern chooses its questions. Absent `enquiryFields` means the four
+                below, which is right for a visitor who has read one panel and wants to
+                start a conversation. A concern that names a set gets that instead — see
+                ConcernEnquiryKey in the content module for when that is warranted.
+              */}
+              {concern.enquiryFields === 'top-up-quote' ? (
+                <TopUpQuoteFields />
+              ) : (
+                <>
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-ink">
                   Your name
@@ -190,7 +201,9 @@ export function ConcernPage({ path }: { path: string }) {
                   className="mt-1 w-full rounded-(--radius-card) border border-border bg-surface px-3 py-2 text-ink"
                 />
               </div>
-            </CaptureForm>
+                </>
+              )}
+              </CaptureForm>
           ) : (
             /*
               No webhook configured, so no form is rendered at all — decided here at

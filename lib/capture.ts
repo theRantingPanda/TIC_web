@@ -113,36 +113,72 @@ export type CapturePayload = {
   list: CaptureList
   /** Arbitrary per-form fields. Nested so one envelope serves every capture point. */
   fields: Record<string, string>
+  /** Attachments, when a form offers an upload. Empty for every other capture point. */
+  files?: readonly File[]
 }
+
+/**
+ * The largest attachment a form will send, per file.
+ *
+ * A cap belongs here rather than in a form, because the thing it protects is the webhook
+ * at the other end: n8n rejects an oversized body, and the visitor sees "something went
+ * wrong" for a reason nobody can act on. Refusing it in the browser gives them a message
+ * they can do something about.
+ */
+export const MAX_UPLOAD_BYTES = 8 * 1024 * 1024
 
 export async function postCapture({
   source,
   list,
   fields,
+  files = [],
 }: CapturePayload): Promise<void> {
   if (!CAPTURE_WEBHOOK_URL) {
     throw new Error('Capture webhook is not configured')
   }
 
-  const response = await fetch(CAPTURE_WEBHOOK_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      source,
-      list,
-      page: typeof window === 'undefined' ? null : window.location.pathname,
-      submittedAt: new Date().toISOString(),
-      /*
-        The consent record, sent on every submission rather than passed in by a caller so
-        no capture point can post a lead without one. `statement` is the literal wording
-        the visitor ticked; `submittedAt` above is when. Those two together are the thing
-        worth having — a bare `consent: true` records that a box existed, not what it
-        said, and the wording is what a question about consent would actually be about.
-      */
-      consent: { agreed: true, statement: CONSENT_STATEMENT },
-      fields,
-    }),
-  })
+  const envelope = {
+    source,
+    list,
+    page: typeof window === 'undefined' ? null : window.location.pathname,
+    submittedAt: new Date().toISOString(),
+    /*
+      The consent record, sent on every submission rather than passed in by a caller so
+      no capture point can post a lead without one. `statement` is the literal wording
+      the visitor ticked; `submittedAt` above is when. Those two together are the thing
+      worth having — a bare `consent: true` records that a box existed, not what it
+      said, and the wording is what a question about consent would actually be about.
+    */
+    consent: { agreed: true, statement: CONSENT_STATEMENT },
+    fields,
+  }
+
+  /*
+    Two transports, ONE envelope. A form with an attachment posts multipart, with the
+    identical JSON above as a `payload` part and the files beside it; everything else
+    posts that JSON directly, exactly as before.
+    
+    The envelope is built once and stringified either way on purpose. The consent record
+    is the reason: it must be identical whichever transport a form happens to use, and a
+    second construction site is how the two would drift.
+
+    ⚠ DO NOT SET Content-Type FOR THE MULTIPART CASE. The browser has to set it itself so
+    it can include the boundary; setting it by hand produces a body n8n cannot parse, and
+    the failure looks like a webhook problem rather than a header problem.
+  */
+  let response: Response
+  if (files.length > 0) {
+    const body = new FormData()
+    body.append('payload', JSON.stringify(envelope))
+    for (const file of files) body.append('files', file, file.name)
+    response = await fetch(CAPTURE_WEBHOOK_URL, { method: 'POST', body })
+  } else {
+    response = await fetch(CAPTURE_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(envelope),
+    })
+  }
 
   if (!response.ok) {
     throw new Error(`Webhook responded ${response.status}`)

@@ -105,6 +105,18 @@ function CaseChart({
 }
 
 /**
+ * The heading counts the list instead of asserting "Three".
+ *
+ * It was hard-coded until 2026-08-18, when `beyond-employer` dropped to two — a heading
+ * promising three above a list of two reads as a bug, and the alternative was inventing a
+ * third consideration to satisfy a string. Falls back to the digit above four, which no
+ * concern reaches; if one ever does, that is a copy decision, not a rendering one.
+ */
+function countWord(n: number): string {
+  return { 1: 'One', 2: 'Two', 3: 'Three', 4: 'Four' }[n] ?? String(n)
+}
+
+/**
  * Whether to render the parts of a panel that are not finished yet.
  *
  * ---- Unfinished content SHIPS HIDDEN, and opens itself when it is ready ----
@@ -321,25 +333,38 @@ export function ConcernPanel({
                     </tr>
                   </thead>
                   <tbody>
-                    {concern.numbers.table.rows.map((row) => (
-                      <tr key={row[0]}>
-                        {/* First cell is the row header; the rest are figures. */}
-                        <th
-                          scope="row"
-                          className="whitespace-nowrap border-b border-border py-2.5 pr-6 font-normal text-ink-muted"
-                        >
-                          {row[0]}
-                        </th>
-                        {row.slice(1).map((cell, index) => (
-                          <td
-                            key={`${row[0]}-${index}`}
-                            className="whitespace-nowrap border-b border-border py-2.5 pr-6 font-medium text-ink last:pr-0"
+                    {concern.numbers.table.rows.map((row) => {
+                      /*
+                        An attribute row is what the plan covers; the rest are what it
+                        costs. Bold on both made the table one undifferentiated block, so
+                        the attribute keeps regular weight and a heavier rule closes it off
+                        from the prices below. Named in `attributeRows`, never inferred
+                        from position — reordering rows must not restyle the wrong one.
+                      */
+                      const isAttribute =
+                        concern.numbers?.table?.attributeRows?.includes(row[0]) ?? false
+                      const rule = isAttribute ? 'border-b-2 border-ink/15' : 'border-b border-border'
+                      const weight = isAttribute ? 'font-normal' : 'font-medium'
+                      return (
+                        <tr key={row[0]}>
+                          {/* First cell is the row header; the rest are figures. */}
+                          <th
+                            scope="row"
+                            className={`whitespace-nowrap py-2.5 pr-6 font-normal text-ink-muted ${rule}`}
                           >
-                            {cell}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
+                            {row[0]}
+                          </th>
+                          {row.slice(1).map((cell, index) => (
+                            <td
+                              key={`${row[0]}-${index}`}
+                              className={`whitespace-nowrap py-2.5 pr-6 text-ink last:pr-0 ${rule} ${weight}`}
+                            >
+                              {cell}
+                            </td>
+                          ))}
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -360,7 +385,7 @@ export function ConcernPanel({
         {/* 4. Three things to consider. */}
         <div className="mt-10">
           <SubHeading className="text-display-xs text-ink">
-            Three things to consider
+            {countWord(concern.considerations.length)} things to consider
           </SubHeading>
           <dl className="mt-4 max-w-[42rem] space-y-4">
             {concern.considerations.map((item) => (

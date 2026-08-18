@@ -6,6 +6,7 @@ import { ctaClassName } from '@/components/cta-button'
 import {
   CAPTURE_WEBHOOK_URL,
   CONSENT,
+  MAX_UPLOAD_BYTES,
   CONSENT_FIELD,
   HONEYPOT_FIELD,
   postCapture,
@@ -93,11 +94,36 @@ export function CaptureForm({
     }
 
     const fields: Record<string, string> = {}
+    const files: File[] = []
     for (const [key, value] of data.entries()) {
       // Both are carried in the envelope rather than as lead data: the honeypot is
       // discarded outright, and consent is posted as a structured record by postCapture.
       if (key === HONEYPOT_FIELD || key === CONSENT_FIELD) continue
-      if (typeof value === 'string' && value.length > 0) fields[key] = value
+      if (typeof value === 'string') {
+        if (value.length > 0) fields[key] = value
+        continue
+      }
+      /*
+        An untouched file input still yields a File — empty, unnamed — so size is the
+        test, not presence. Without this every form with an optional upload would post an
+        empty attachment on every submission.
+      */
+      if (value instanceof File && value.size > 0) files.push(value)
+    }
+
+    /*
+      Refused here rather than at the webhook. n8n rejects an oversized body with a
+      status the visitor sees as "something went wrong", which tells them nothing they
+      can act on; this tells them which file and how big it may be.
+    */
+    const tooBig = files.find((file) => file.size > MAX_UPLOAD_BYTES)
+    if (tooBig) {
+      setStatus('error')
+      setError(
+        `${tooBig.name} is larger than ${Math.round(MAX_UPLOAD_BYTES / (1024 * 1024))}MB. ` +
+          'Please attach a smaller file, or send it to us by email instead.',
+      )
+      return
     }
 
     setStatus('submitting')
@@ -110,7 +136,7 @@ export function CaptureForm({
           : 'individual'
         : list
 
-      await postCapture({ source, list: resolvedList, fields })
+      await postCapture({ source, list: resolvedList, fields, files })
       // Carry the address to any later capture point on this page.
       if (capture && typeof fields.email === 'string') capture.setEmail(fields.email)
       setStatus('success')

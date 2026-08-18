@@ -37,6 +37,30 @@
 # path emits no artifact in out/, which is necessary but says nothing about whether
 # Render serves the redirect. Check the service's routes when changing this file.
 #
+# ✓ CONFIRMED NOT A RECREATE (2026-08-18). After the above was written the service was
+# reportedly recreated to clear this. The service ID is still srv-d9sogvijobas73fouu7g —
+# the same one recorded at the top of this file — so it is the same service and the publish
+# directory was never emptied. A genuine replacement must show a DIFFERENT id. Until it
+# does, assume nothing has been removed.
+#
+# ⚠⚠ REDIRECT RULES MATCH THE EXACT PATH. A rule on /blog does NOT cover /blog.html, and
+# where a stale artifact exists at the .html path it is served instead, bypassing the
+# redirect entirely. Proven live, not assumed:
+#
+#   /blog                    301 -> /services       /blog.html                   200
+#   /income-preservation-1   301 -> /services       /income-preservation-1.html  200
+#   /home-1                  301 -> /               /home-1.html                 404
+#
+# /home-1 is clean only because nothing was ever built at that path. THE OTHER TWO ARE
+# LEAKING: Wix-era pages still readable beside their own redirects, which the URL contract
+# reads as fully redirected. Both are collateral of the additive-publish problem above and
+# go when the publish directory is finally emptied.
+#
+# The consequence for any stopgap: rules are needed per path INCLUDING .html and .txt
+# variants, not one per logical page. /single-post/* collapses twelve; the rest are
+# individual. And test the first rule before writing thirty — if Render serves an existing
+# file before evaluating rules, the approach is void.
+#
 # ⚠⚠ RENDER'S STATIC PUBLISH IS ADDITIVE. DELETING A FILE DOES NOT UNPUBLISH IT.
 # (Established 2026-08-18, after an earlier version of this note got it wrong.)
 #
