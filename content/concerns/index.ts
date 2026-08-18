@@ -244,10 +244,9 @@ export const concerns: readonly Concern[] = [
      * advertising; one that names what it did not cover reads like someone telling you
      * the truth, and that is the whole positioning.
      *
-     * It belongs on this concern twice over: the panel's own situation copy already ends
-     * on "an emergency caesarean and a stay in neonatal intensive care", and the caesarean
-     * figures below are what the "Maternity limit" consideration is arguing about. Use it
-     * once — a case restated on a second page dilutes on both.
+     * It belongs on this concern because the panel's own situation copy already ends on
+     * "an emergency caesarean and a stay in neonatal intensive care", which is this case.
+     * Use it once — a case restated on a second page dilutes on both.
      *
      * Every S$ is written explicitly so no reader assumes USD. No names, no employer, no
      * hospital, no dates.
@@ -255,11 +254,11 @@ export const concerns: readonly Concern[] = [
     case: {
       kind: 'real',
       paragraphs: [
-        'His son had arrived 9 weeks early and was in neonatal intensive care at a private hospital in Singapore. Six days in, the bills were running at S$4,000 a day at least, and nobody could say how many more days the newborn would need to be warded. He wanted to know one thing, which was whether the insurer would stand behind it.',
-        'We had the newborn enrolled by the next working day, and the insurer agreed to guarantee the bills from birth rather than from the date the enrolment paperwork was completed. His policy covers a newborn from birth up to S$207,000. The final bill came to S$260,000, so the family still paid a share of it. The emergency caesarean was billed separately at S$19,000, and that sits on its own benefit, capped at S$26,000.',
+        'A client’s son arrived 9 weeks early and needed neonatal intensive care at around S$4,000 a day.',
+        'We arranged the newborn’s enrolment by the next working day and worked with the insurer to have cover recognised from birth, despite the paperwork being completed later. The final hospital bill reached S$260,000; the cover we recommended provided up to S$207,000 for the newborn, while the emergency caesarean was covered separately in full.',
       ],
       footer:
-        'Nobody would call that a perfect outcome. It was a very different one from the alternative.',
+        'It wasn’t a perfect outcome, but without the cover in place, the family could have faced a very different financial outcome.',
       /**
        * Every figure below is lifted from the paragraph above, not calculated for effect.
        * S$260,000 less S$207,000 is the S$53,000 the family paid, which is the single
@@ -268,9 +267,22 @@ export const concerns: readonly Concern[] = [
        * The gap is shown, not implied. A chart of this that stopped at "covered" would be
        * the advertising version of the same story.
        *
-       * The caesarean figures stay in the prose and out of the chart on purpose. This
-       * chart is about the newborn ceiling; a second pair of bars against a different
-       * benefit's cap would blur the one number it exists to show.
+       * ⚠ THE CHART IS NOW THE ONLY PLACE THE SHORTFALL IS STATED. The prose was
+       * rewritten on 2026-08-18 to Steven's supplied wording, which gives the bill and the
+       * limit but no longer says in words that the family paid the difference — the older
+       * copy ended that sentence "so the family still paid a share of it". The arithmetic
+       * is still there for a reader who does it, and this chart still names the S$53,000
+       * outright.
+       *
+       * That makes the chart load-bearing rather than decorative. Removing it would leave
+       * the case reading as though the cover met the whole bill, which is the advertising
+       * version of a story whose credibility rests on it not having. If the chart ever
+       * goes, the shortfall has to go back into the prose in the same commit.
+       *
+       * The same rewrite dropped the caesarean's figures — it was billed at S$19,000
+       * against a S$26,000 benefit — for "covered separately in full". Both numbers are
+       * accurate and were supplied by Steven a day earlier; they are recorded here in case
+       * the "Maternity limit" consideration ever wants them back.
        */
       chart: {
         heading: 'What the policy reached, and what it did not',
