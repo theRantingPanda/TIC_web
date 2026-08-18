@@ -20,6 +20,23 @@
  * Lead with the reader's situation, not the firm's expertise.
  */
 
+/**
+ * The mark beside each trust figure.
+ *
+ * A key, not a component. The copy module stays copy: it says which mark belongs to
+ * which figure and nothing about how one is drawn. app/page.tsx resolves these against
+ * components/icons.tsx through a Record keyed by this union, so adding a fifth stat
+ * without giving it a mark is a build error rather than a gap on the homepage.
+ */
+export type TrustStatIcon = 'members' | 'countries' | 'nationalities' | 'schemes'
+
+export type TrustStat = {
+  /** A string, not a number: `1,700+` and `50+` are copy decisions, including the `+`. */
+  figure: string
+  label: string
+  icon: TrustStatIcon
+}
+
 export const homeCopy = {
   /**
    * Move 1. Name and headline. There is no call to action in the hero and that is the
@@ -63,11 +80,11 @@ export const homeCopy = {
    */
   trust: {
     stats: [
-      { figure: '1,700+', label: 'members under our care' },
-      { figure: '39', label: 'countries our members live in' },
-      { figure: '62', label: 'nationalities on our books' },
-      { figure: '50+', label: 'corporate schemes serviced' },
-    ],
+      { figure: '1,700+', label: 'members under our care', icon: 'members' },
+      { figure: '39', label: 'countries our members live in', icon: 'countries' },
+      { figure: '62', label: 'nationalities on our books', icon: 'nationalities' },
+      { figure: '50+', label: 'corporate schemes serviced', icon: 'schemes' },
+    ] satisfies readonly TrustStat[],
     /**
      * One quiet line at footnote weight, never a fifth stat.
      *
