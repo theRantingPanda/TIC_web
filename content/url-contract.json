@@ -97,7 +97,7 @@
   "$pendingNote": "COMPLETE (2026-08-11), amended 2026-08-16 twice. Every path in https://www.asktic.com/sitemap.xml is classified. The second 2026-08-16 amendment added six concern pages for the homepage flow; they are new paths, not in the Wix sitemap, and each must emit an artifact. The first amendment moved /blog and /speciality-insurance from preserved to redirect-only and added their two destinations, then retired /income-preservation-1 the same way without a new destination. This file is authoritative. Rationale for each decision is in content/_inventory/STOP-REPORT.md and url-decisions.md.",
   "dropped": {
     "$comment": "Indexed on the Wix site but DELIBERATELY NOT preserved (decision 2026-08-11). These are an explicit, signed-off exception to the URL-preservation constraint - not an oversight. They must emit no artifact; `npm run verify:urls` enforces that. Do not re-add them because they appear in the old sitemap.",
-    "status": "404 (see note in STOP-REPORT.md on 410)",
+    "status": "404, deliberate and verified live 2026-08-18 (see the 2026-08-17 group below on why not 410)",
     "groups": [
       {
         "reason": "Wix store template that was enabled and never removed. Every product is placeholder demo content; preserving these URLs would carry 12 fake product pages onto the new site.",
@@ -156,7 +156,7 @@
         ]
       },
       {
-        "reason": "Retired from the public site on 2026-08-17. The knowledge base, the forms library and every blog article moved into the CRM, so none of this content is coming back to a public URL. Steven chose 410 Gone over a 301: there is no topically honest destination for 12 articles, and a mass redirect onto /services is the pattern search engines collapse into soft-404s. NOTE the site is a static export (next.config output: 'export'), which cannot emit a status for a path it does not build - these 404 unless a 410 rule is added at the hosting layer for exactly these paths.",
+        "reason": "Retired from the public site on 2026-08-17. The knowledge base, the forms library and every blog article moved into the CRM, so none of this content is coming back to a public URL. STATUS IS 404, AND THAT IS THE SETTLED ANSWER, NOT AN OUTSTANDING TASK. A 410 was asked for and is not achievable here, on two counts: this is a static export, which cannot emit a status for a path it does not build, and Render's static sites only offer route types `redirect` and `rewrite`, with no status-code option. Emitting a real 410 would mean putting a proxy in front or leaving static hosting, which is infrastructure work for a marginal gain - both signals de-index, 410 merely slightly sooner. Verified live on 2026-08-18: /knowledge, /forms and a sample /single-post/... article all return 404. Do not reopen this unless the site stops being a static export for some other reason.",
         "paths": [
           "/single-post/2018/04/30/travel-insurance-tips-i-wished-i-knew",
           "/single-post/2018/05/06/with-health-insurance-is-major-illness-insurance-necessary",

@@ -14,6 +14,11 @@
 # verified against the live site on 2026-08-17: each returns 301 to its documented
 # destination, as do /home-1, /file-access and /file. Six redirects, all serving.
 #
+# ⚠ AMENDED 2026-08-18: two of those six are now serving the WRONG THING. /file-access
+# and /file still 301 to /forms, which was retired the day before, so both land on a 404.
+# They have been removed from this file and must be deleted on the service. See the note
+# at the routes block. Four of the six remain correct.
+#
 # The warning is recorded as cleared rather than deleted, because the drift it describes
 # is permanent while this file and the service are maintained separately, and a future
 # addition here starts in exactly the same state. Check the live path before assuming a
@@ -107,16 +112,24 @@ services:
         source: /home-1
         destination: /
 
-      - type: redirect
-        source: /file-access
-        destination: /forms
-
-      # /file is the older file-access page (confirmed 2026-08-11). Same destination.
-      # Note it is a distinct path, not a prefix of /file-access — Render matches the
-      # full path, so this rule does not shadow the one above.
-      - type: redirect
-        source: /file
-        destination: /forms
+      # ⚠ /file-access AND /file ARE GONE FROM THIS FILE AND MUST BE DELETED ON THE
+      # SERVICE. Both used to 301 to /forms. /forms was retired on 2026-08-17 and its
+      # library moved into the CRM, so those rules now redirect into a 404.
+      #
+      # VERIFIED LIVE 2026-08-18, and still broken at the time of writing:
+      #
+      #   /file-access  ->  301  ->  /forms  ->  404
+      #   /file         ->  301  ->  /forms  ->  404
+      #
+      # Deleting them here does nothing on its own — see the header: the service's routes
+      # are configured in the dashboard and this file does not govern it. Delete both in
+      # the Render dashboard on `tic-web`. Until that is done the chain stays live.
+      #
+      # They are deleted rather than repointed on purpose. A 301 into a 404 costs a hop to
+      # deliver the same disappointment as a direct 404, and there is no honest destination
+      # for a file library that no longer exists publicly. /services was considered and
+      # rejected: a redirect to unrelated content is the soft-404 pattern this file warns
+      # about a few lines below.
 
       # ---- Copy-deck path changes, 2026-08-16 ----
       # These two are a deliberate, signed-off exception to URL preservation: both were
@@ -176,6 +189,16 @@ services:
   #
   # Attach `help.asktic.com` as a custom domain on THIS service (not on tic-web),
   # then point its DNS at Render.
+  #
+  # ⚠⚠ DO NOT CREATE THIS SERVICE. ITS DESTINATION IS A 404 (added 2026-08-18).
+  # It redirects to https://www.asktic.com/knowledge, and /knowledge was retired on
+  # 2026-08-17 — verified live as a 404 on 2026-08-18. A service whose entire purpose is
+  # pointing one hostname at a dead page is worse than no service.
+  #
+  # It is harmless TODAY only because two things are both true: the hostname does not
+  # exist, and this file is not applied as a Blueprint. Adopting the file would create it.
+  # If a public answers surface ever returns, repoint this at the new destination in the
+  # same change; if it does not, delete this service definition outright.
   #
   # READ THIS BEFORE SPENDING ANY TIME ON THIS SERVICE (2026-08-11):
   # `help.asktic.com` DOES NOT EXIST. It resolves NXDOMAIN today, and the zone
