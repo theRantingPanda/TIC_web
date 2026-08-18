@@ -37,6 +37,22 @@
 # path emits no artifact in out/, which is necessary but says nothing about whether
 # Render serves the redirect. Check the service's routes when changing this file.
 #
+# ⚠ THE SAME IS TRUE OF FILES, NOT JUST ROUTES (found 2026-08-18). /forms was retired and
+# its assets moved out of public/ the day before, and both were STILL SERVED from the
+# Render origin afterwards — verified with a cache-busted request that returned
+# `cf-cache-status: MISS` and a 200:
+#
+#   /forms/manifest.json                             200
+#   /forms/files/allianz-telehealth-user-guide.pdf   200
+#
+# The repo was correct throughout; the deployed copies simply outlived the commit that
+# removed them. Note the deleted HTML in the same deploy WAS pruned — /knowledge and all
+# 12 articles 404 correctly — so this is not a blanket "Render never deletes". The cause
+# is unknown from here: render.com is blocked by this environment's egress policy.
+#
+# Rule: retiring anything under public/ is finished when the live URL 404s to a
+# cache-busted request, not when the commit merges. See content/_retired/README.md.
+#
 # OUTSTANDING: the apex does not redirect to www. Both asktic.com and www.asktic.com
 # serve the site, so every page answers on two hostnames. Canonical tags in
 # app/layout.tsx point at www and make that harmless, but a 301 is better.
