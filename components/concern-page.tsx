@@ -122,10 +122,26 @@ export function ConcernPage({ path }: { path: string }) {
 
 
       <Section id="talk-to-us" tone="subtle" labelledBy="enquiry-heading">
+        {/*
+          The lede counts the fields, so it has to follow the form. /beyond-employer-cover
+          swapped to the quote question set on 2026-08-18 and this line went on promising
+          "Four fields" above a form asking for dates of birth, nationality, residency and
+          an upload — the one place on the page where understating the ask is a broken
+          promise rather than a nicety, because the visitor has already committed by the
+          time they find out.
+
+          Keyed off the same `enquiryFields` value that chooses the fields below, so the
+          two cannot drift apart. The second half of the sentence is unchanged and is a
+          real commitment: see the note on `successMessage` below.
+        */}
         <SectionHeading
           id="enquiry-heading"
           title="Tell us the situation"
-          lede="Four fields, no obligation, and a reply the same working day."
+          lede={
+            concern.enquiryFields === 'top-up-quote'
+              ? 'A few details so we can price it properly, no obligation, and a reply the same working day.'
+              : 'Four fields, no obligation, and a reply the same working day.'
+          }
         />
 
         <div className="mt-8 max-w-xl">
