@@ -333,25 +333,38 @@ export function ConcernPanel({
                     </tr>
                   </thead>
                   <tbody>
-                    {concern.numbers.table.rows.map((row) => (
-                      <tr key={row[0]}>
-                        {/* First cell is the row header; the rest are figures. */}
-                        <th
-                          scope="row"
-                          className="whitespace-nowrap border-b border-border py-2.5 pr-6 font-normal text-ink-muted"
-                        >
-                          {row[0]}
-                        </th>
-                        {row.slice(1).map((cell, index) => (
-                          <td
-                            key={`${row[0]}-${index}`}
-                            className="whitespace-nowrap border-b border-border py-2.5 pr-6 font-medium text-ink last:pr-0"
+                    {concern.numbers.table.rows.map((row) => {
+                      /*
+                        An attribute row is what the plan covers; the rest are what it
+                        costs. Bold on both made the table one undifferentiated block, so
+                        the attribute keeps regular weight and a heavier rule closes it off
+                        from the prices below. Named in `attributeRows`, never inferred
+                        from position — reordering rows must not restyle the wrong one.
+                      */
+                      const isAttribute =
+                        concern.numbers?.table?.attributeRows?.includes(row[0]) ?? false
+                      const rule = isAttribute ? 'border-b-2 border-ink/15' : 'border-b border-border'
+                      const weight = isAttribute ? 'font-normal' : 'font-medium'
+                      return (
+                        <tr key={row[0]}>
+                          {/* First cell is the row header; the rest are figures. */}
+                          <th
+                            scope="row"
+                            className={`whitespace-nowrap py-2.5 pr-6 font-normal text-ink-muted ${rule}`}
                           >
-                            {cell}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
+                            {row[0]}
+                          </th>
+                          {row.slice(1).map((cell, index) => (
+                            <td
+                              key={`${row[0]}-${index}`}
+                              className={`whitespace-nowrap py-2.5 pr-6 text-ink last:pr-0 ${rule} ${weight}`}
+                            >
+                              {cell}
+                            </td>
+                          ))}
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>

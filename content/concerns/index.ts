@@ -188,6 +188,8 @@ export type Concern = {
     table?: {
       columns: readonly string[]
       rows: readonly (readonly string[])[]
+      /** Row labels that are plan attributes rather than prices, styled apart from them. */
+      attributeRows?: readonly string[]
     }
     /** Configuration disclosure. Load-bearing wherever a figure appears. */
     footnote: string
@@ -527,9 +529,10 @@ export const concerns: readonly Concern[] = [
        * so it showed the mechanism and no number, and said: price this properly against
        * the current rate table and it can come back.
        *
-       * It was priced properly, and the two now agree. The first column here is the same
-       * insurer and the same USD 8,500 deductible as the relocating table, which quotes
-       * monthly. Annualised, they land within 0.3%:
+       * It was priced properly, and the two now agree. The INSURER B column here — second
+       * since the columns were reordered on 2026-08-18 — is the same insurer and the same
+       * USD 8,500 deductible as the relocating table, which quotes monthly. Annualised,
+       * they land within 0.3%:
        *
        *   age 30   relocating 138/month -> 1,656     here 1,661.52
        *   age 40   relocating 201/month -> 2,412     here 2,409.52
@@ -549,35 +552,47 @@ export const concerns: readonly Concern[] = [
        * would quietly turn a quoted premium into an estimate.
        */
       table: {
-        columns: ['', 'Insurer B, USD 8,500', 'Insurer A, USD 8,100', 'Insurer P, SGD 10,000'],
+        columns: ['', 'Insurer A, USD 8,100', 'Insurer B, USD 8,500', 'Insurer P, SGD 10,000'],
         rows: [
-          ['Annual limit', 'USD 2,890,000', 'USD 2,250,000', 'USD 1,562,500'],
-          ['Age 30', 'USD 1,661.52', 'USD 1,874.80', 'USD 1,398.27'],
-          ['Age 40', 'USD 2,409.52', 'USD 2,234.50', 'USD 1,789.98'],
-          ['Age 50', 'USD 4,273.90', 'USD 3,059.63', 'USD 2,662.84'],
+          ['Annual limit', 'USD 2,250,000', 'USD 2,890,000', 'USD 1,562,500'],
+          ['Age 30', 'USD 1,874.80', 'USD 1,661.52', 'USD 1,398.27'],
+          ['Age 40', 'USD 2,234.50', 'USD 2,409.52', 'USD 1,789.98'],
+          ['Age 50', 'USD 3,059.63', 'USD 4,273.90', 'USD 2,662.84'],
         ],
+        /*
+          The annual limit is a plan attribute, not a price, and reads as one block with
+          the premiums when both are bold. Named here rather than inferred from position,
+          so reordering the rows cannot silently restyle the wrong one.
+        */
+        attributeRows: ['Annual limit'],
       },
       /**
        * Kept short on Steven's instruction — the detail gets explained when a query comes
        * in rather than drafted into the page. What survives that trim is only what makes
        * the figures mean anything at all.
        *
-       * ⚠ THE FX LINE IS NOT OPTIONAL. Insurer P prices in SGD only, so its column is
-       * converted. A converted premium sitting in a USD row without saying so is the one
-       * omission here that actively misleads, because it invites a comparison the reader
-       * cannot know is rate-dependent. Trim anything else first.
+       * ⚠ INSURER P'S COLUMN IS CONVERTED, AND THE PAGE NO LONGER SAYS SO. It prices in
+       * SGD only and those figures are converted at 1.28. That sentence was in the footnote
+       * and Steven removed it on 2026-08-18, to be explained when a query comes in rather
+       * than carried on the page.
+       *
+       * Recorded rather than quietly dropped, because I argued the other way: a converted
+       * premium sitting in a USD row invites a comparison the reader cannot know is
+       * rate-dependent. It is his call and the rate is his to stand behind. What matters
+       * for anyone editing this later is that the conversion is REAL — if the rate moves
+       * materially, these figures move with it, footnote or no footnote.
        */
       footnote:
-        'In-patient cover only, for a single adult resident in Singapore, worldwide excluding the United States, on the deductible shown in each column. Insurer P prices in SGD only; those figures are converted at 1.28. Real rates from our current rate table, priced August 2026. Indicative and subject to underwriting.',
+        'In-patient cover only, for a single adult resident in Singapore, worldwide excluding the United States, on the deductible shown in each column. Real rates from our current rate table, priced August 2026. Indicative and subject to underwriting.',
     },
     considerations: [
       {
         term: 'The ceiling',
-        body: 'What your company plan actually caps out at, which most people have never checked.',
+        body: 'The number your plan stops at. Most people have never checked it.',
       },
       {
         term: 'Portability',
-        body: 'What happens to the cover if you change jobs, and whether your medical history goes with you when it ends.',
+        body: 'What happens when the job ends, and whether your medical history goes with you.',
       },
       /*
         "Overlap" stood here until 2026-08-18, and went on Steven's instruction: making sure
