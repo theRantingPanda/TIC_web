@@ -95,9 +95,9 @@ function CaseChart({
       </dl>
 
       {/*
-        Load-bearing. The limit is one scheme's, not a market figure, and a reader who
-        takes S$207,000 away as "what company plans cover" has been misled by a chart that
-        was trying to tell them the opposite. Never trim this to balance the layout.
+        Load-bearing. The limit is one policy's, not a market figure, and a reader who
+        takes S$207,000 away as "what a plan covers" has been misled by a chart that was
+        trying to tell them the opposite. Never trim this to balance the layout.
       */}
       <p className="mt-4 text-eyebrow text-ink-muted">{chart.footnote}</p>
     </figure>

@@ -4,11 +4,9 @@ import Link from 'next/link'
 import { CardGrid } from '@/components/card-grid'
 import { Container } from '@/components/container'
 import { CtaButton } from '@/components/cta-button'
-import { Faq, type FaqItem } from '@/components/faq'
 import { FeatureCard } from '@/components/feature-card'
 import { Section } from '@/components/section'
 import { SectionHeading } from '@/components/section-heading'
-import { readPost } from '@/lib/content'
 
 /**
  * International health insurance.
@@ -62,18 +60,10 @@ const settlement = [
   {
     title: 'Before planned treatment',
     body: 'Pre-authorisation is the step that turns a covered treatment into a settled bill. What it involves, and when it is worth doing even where the plan does not demand it.',
-    link: {
-      label: 'How pre-authorisation works',
-      href: '/single-post/how-do-i-get-pre-authorisation-for-a-planned-procedure',
-    },
   },
   {
     title: 'When you have paid up front',
     body: 'Direct settlement is not available everywhere. What to keep, what to send, and how long you have to send it.',
-    link: {
-      label: 'How a claim is made',
-      href: '/single-post/how-do-i-make-a-claim-with-my-international-health-insurance',
-    },
   },
 ] as const
 
@@ -92,23 +82,20 @@ const afterPlacement = [
   },
 ] as const
 
-/** Answers are each article's own summary frontmatter, never a rewrite. */
-const questionSlugs = [
-  'what-is-the-difference-between-international-and-local-health-insurance-in-singapore',
-  'will-my-pre-existing-conditions-be-covered',
-  'what-happens-if-my-claim-is-rejected',
-] as const
+/*
+  The "What people ask us" section stood here until 2026-08-17. It was three questions
+  drawn from blog articles, each linking to the article and then out to /knowledge.
+
+  It went with the articles rather than instead of them: the knowledge base and every
+  /single-post/… path were retired from the public site the same day, so both of the
+  things this section pointed at ceased to exist. Answers were the articles' own summary
+  frontmatter, so there was nothing here to keep once the articles went — rewriting them
+  as standalone copy would have been new content wearing an old section's clothes.
+
+  If questions come back, they need answers written to live on this page and no link out.
+*/
 
 export default function Page() {
-  const faqItems: FaqItem[] = questionSlugs.map((slug) => {
-    const post = readPost(slug)
-    return {
-      question: post.frontmatter.title,
-      answer: post.frontmatter.summary,
-      href: `/single-post/${post.frontmatter.slug}`,
-    }
-  })
-
   return (
     <>
       <section className="border-b border-border bg-surface-subtle">
@@ -264,7 +251,8 @@ export default function Page() {
           <CardGrid columns={2}>
             {settlement.map((card) => (
               <li key={card.title}>
-                <FeatureCard title={card.title} body={card.body} link={card.link} />
+                {/* No `link` since 2026-08-17: both cards linked to retired articles. */}
+                <FeatureCard title={card.title} body={card.body} />
               </li>
             ))}
           </CardGrid>
@@ -285,17 +273,6 @@ export default function Page() {
               </li>
             ))}
           </CardGrid>
-        </div>
-      </Section>
-
-      <Section labelledBy="questions-heading">
-        <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
-          <div className="lg:col-span-5">
-            <SectionHeading id="questions-heading" title="What people ask us" />
-          </div>
-          <div className="lg:col-span-7">
-            <Faq items={faqItems} allAnswersHref="/knowledge" allAnswersLabel="All answers" />
-          </div>
         </div>
       </Section>
 

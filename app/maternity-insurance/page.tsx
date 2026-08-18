@@ -23,7 +23,9 @@ import { ConcernPage, metadataFor } from '@/components/concern-page'
  *   - The timing segmentation was genuinely unique advice and has nowhere else to live.
  *     If it comes back, it belongs BELOW the form, not above it.
  *   - The company-scheme section is not really lost. That argument is the whole of
- *     /beyond-employer-cover, which also holds the real case it linked to.
+ *     /beyond-employer-cover. Note the real case it linked to is no longer there: it is
+ *     an individual policy, was wrongly written as a company scheme, and now sits on this
+ *     page as of 2026-08-17.
  *   - The newborn section elaborated the panel's "Newborn provisions" consideration.
  *   - The timeline magnet is still offered, from /services, and still reaches the same
  *     list. Only the second capture point went.

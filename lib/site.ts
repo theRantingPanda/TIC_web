@@ -86,7 +86,16 @@ export const primaryNav: readonly NavGroup[] = [
       { href: '/first-company-scheme', label: 'Setting up a first scheme' },
     ],
   },
-  { label: 'Answers', href: '/knowledge' },
+  /*
+    "Answers" stood here, pointing at /knowledge, until 2026-08-17. The knowledge base and
+    every /single-post/… article were retired from the public site that day and moved to
+    the CRM, so the destination stopped existing.
+
+    It was not repointed. The two candidates were a CRM login, which sends a visitor to a
+    wall most of them cannot pass, and /services, which would leave a nav item labelled
+    "Answers" landing on a page about what we arrange. Both are worse than two honest
+    groups. If a public answers surface returns, this is where it goes back.
+  */
 ] as const
 
 /**
@@ -153,18 +162,45 @@ export const flatNav: readonly NavItem[] = primaryNav.flatMap((group) => [
  * it is not reproduced — the header already links home.
  */
 /**
- * The footer's about block, verbatim from the live Wix footer — captured 2026-08-12 by
- * rendering the site in a browser, which is the only way it is visible: the footer is
- * client-rendered and absent from the server HTML the earlier capture archived.
+ * The footer's about block — cut down to a sign-off on 2026-08-17.
  *
- * One change: the original reads "since 2003". Corrected to 2014, the UEN registration
- * year, on Steven's instruction — the same correction applied to /income-preservation-1,
- * which said 2023. The live site carries both numbers for the same claim.
+ * It arrived verbatim from the live Wix footer, captured 2026-08-12 by rendering the site
+ * in a browser, which is the only way it is visible: the live footer is client-rendered and
+ * absent from the server HTML the earlier capture archived. The live wording, kept here so
+ * the edit is auditable:
+ *
+ *   "People often find insurance complex and finding the right one arduous. We agree it
+ *    should be easier and have taken up the challenge to simplify it for our client. We
+ *    have been at it since 2003; Listening, Understanding, ensuring their Peace of Mind."
+ *
+ * 43 words to 6. What went is a prose claim to simplicity sitting a screen below the trust
+ * stats and the concern fork, which demonstrate the same thing with numbers and with an
+ * interaction — it told the reader what the page had just finished showing them. Its
+ * grammar faults went with it: "our client" singular for a plural, a semicolon doing a
+ * colon's job, and three capitalised gerunds.
+ *
+ * The 2003 → 2014 correction survives the cut. 2014 is the UEN registration year, on
+ * Steven's instruction; the same correction was applied to /income-preservation-1, which
+ * said 2023. The live site carries all three numbers for the one claim.
+ *
+ * ⚠ THE TAGLINE HAS NO OTHER HOME. "Peace of Mind. Simplified!" appears nowhere else in
+ * this repo — before this cut it existed only as the fragment "ensuring their Peace of
+ * Mind" buried mid-sentence here, and the word "Simplified" did not appear on the site at
+ * all. This line is therefore the tagline's only appearance, standing as the footer
+ * sign-off. Shorten this further if you like; do not drop the second sentence.
+ *
+ * ⚠ THE EXCLAMATION MARK IS DELIBERATE, and it is the only one in this site's public copy.
+ * It is the tagline as supplied, not stray enthusiasm — leave it, and do not "fix" it to a
+ * full stop for consistency with the restrained voice everywhere else.
+ *
+ * ⚠ DO NOT PUT THE FIRM'S NAME BACK IN FRONT. The trim was first written as "The Insurance
+ * Concierge, since 2014. …", which screenshots killed: `SiteFooter` prints
+ * `siteConfig.name` as the heading immediately above this line and the copyright notice
+ * prints it again below, so the name landed three times in six lines and read as a bug. It
+ * also cost a line — at 390px "Simplified!" wrapped away from "Peace of Mind.", splitting
+ * the tagline. Naming the firm once, in the heading, fits one line at both 1280 and 390.
  */
-export const about =
-  'People often find insurance complex and finding the right one arduous. We agree it ' +
-  'should be easier and have taken up the challenge to simplify it for our client. We ' +
-  'have been at it since 2014; Listening, Understanding, ensuring their Peace of Mind.'
+export const about = 'Since 2014. Peace of Mind. Simplified!'
 
 /**
  * Regulatory disclosure — the live footer's, tightened on 2026-08-17.

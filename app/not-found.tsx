@@ -16,8 +16,17 @@ export default function NotFound() {
       <h1 className="mt-2 text-4xl font-semibold tracking-tight text-ink sm:text-5xl">
         We couldn&rsquo;t find that page
       </h1>
+      {/*
+        The second button pointed at /knowledge until 2026-08-17, when the knowledge base
+        and every article were retired from the public site. A 404 page offering a link to
+        a page that is also gone is the worst place in the site to leave a dead link, since
+        this is where people land precisely because something has already failed them.
+
+        What replaced it goes somewhere that will still exist: what we do. Do not put a
+        second destination here for the sake of symmetry.
+      */}
       <p className="mt-4 max-w-2xl text-lg text-ink-muted">
-        The page may have moved. Try the knowledge base, or head back to the homepage.
+        The page may have moved. Head back to the homepage, or see what we do.
       </p>
       <div className="mt-8 flex flex-wrap gap-3">
         <Link
@@ -27,10 +36,10 @@ export default function NotFound() {
           Back to home
         </Link>
         <Link
-          href="/knowledge"
+          href="/services"
           className={ctaClassName('secondary')}
         >
-          Knowledge base
+          What we do
         </Link>
       </div>
     </Container>

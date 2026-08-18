@@ -506,12 +506,25 @@ and the call to action.
 
 Nothing below is invented, but nothing below is finished either:
 
-- **Seven of the nine case studies.** Each renders bracketed and visibly unfinished, with
+- **Six of the nine case studies.** Each renders bracketed and visibly unfinished, with
   a brief describing what a real one needs. A case does **not** have to end in a win —
-  "we recommended staying put" is often the more credible story. The one real case is
-  anonymised and permission-cleared (both the family's and the employer's) and sits on
-  `/beyond-employer-cover`, because that panel's argument is a company scheme's ceiling
-  and the case is that ceiling being exceeded by S$53,000. Do not restate it elsewhere.
+  "we recommended staying put" is often the more credible story. **Two real cases** exist,
+  each anonymised and cleared by the family in it, and neither is to be restated elsewhere:
+
+  - `/maternity-insurance` — a newborn nine weeks early, covered from birth to S$207,000
+    against a S$260,000 bill. The S$53,000 the family paid stays in; a case where insurance
+    covered everything reads like advertising.
+  - `/beyond-employer-cover` — a company plan capped at S$100,000, a first year of cancer
+    treatment over S$200,000, and a top-up that took the family to S$3.8 million. It runs
+    four paragraphs where the others run two, because its fourth is the only thing on the
+    site that demonstrates the panel's own claim that you are insurable *today*: no new
+    insurer would take her now, and the plan renews anyway, across borders.
+
+  **The first was published in the wrong place, and wrongly described, until 2026-08-17.**
+  It ran on `/beyond-employer-cover` as a company scheme — an opening line about an HR
+  manager, and the S$207,000 newborn limit attributed to an employer's plan. It is an
+  *individual* policy and no employer was involved. It is not to be moved back to prop up
+  that panel; the case now there is a real company plan, which is what that argument needed.
 
   **A scenario is not a case.** `/cover-for-senior-hires` carries a written illustration
   rather than a client's story, typed as `kind: 'scenario'` so the panel labels it in
@@ -651,7 +664,7 @@ general:
 - **`verify:copy` cannot read them.** The guard that has caught every other copy problem
   here scans text. An image walks straight past it.
 - **That one contradicted the page it sat on.** The permission-cleared case printed three
-  inches below says the scheme covered to S$207,000 against a S$260,000 bill.
+  inches below says the policy covered to S$207,000 against a S$260,000 bill.
 
 `CaseChart` in `components/concern-panel.tsx` is the sanctioned alternative: the same
 comprehension, built as markup, from the concern's `case.chart`. Its constraint is that

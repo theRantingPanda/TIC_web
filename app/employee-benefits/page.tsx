@@ -5,13 +5,11 @@ import { CardGrid } from '@/components/card-grid'
 import { ConcernCard } from '@/components/concern-card'
 import { Container } from '@/components/container'
 import { CtaButton } from '@/components/cta-button'
-import { Faq, type FaqItem } from '@/components/faq'
 import { FeatureCard } from '@/components/feature-card'
 import { LeadMagnetPanel } from '@/components/lead-magnet-panel'
 import { Section } from '@/components/section'
 import { SectionHeading } from '@/components/section-heading'
 import { concernsFor, spansFullWidth } from '@/content/concerns'
-import { readPost } from '@/lib/content'
 import { contact } from '@/lib/site'
 
 /**
@@ -58,29 +56,20 @@ const mechanics = [
   {
     title: 'It costs you nothing extra',
     body: 'We are paid by commission built into the premium. The price is the same whether you come to us or go direct to the insurer, and what differs is who does the work afterwards.',
-    link: {
-      label: 'How we are paid',
-      href: '/single-post/how-does-the-insurance-concierge-get-paid',
-    },
   },
 ] as const
 
-const questionSlugs = [
-  'what-is-the-difference-between-international-and-local-health-insurance-in-singapore',
-  'will-my-pre-existing-conditions-be-covered',
-  'when-should-i-start-my-policy-renewal-process',
-] as const
+/*
+  The "What people ask us" section stood here until 2026-08-17, and went for the same
+  reason as its twin on /international-health-insurance: the knowledge base and every
+  /single-post/… article were retired from the public site that day, and this section was
+  three links into the articles plus one out to /knowledge. Its answers were the articles'
+  own summary frontmatter, so nothing survived the articles going.
+
+  If questions come back here, they need answers written for this page and no link out.
+*/
 
 export default function Page() {
-  const faqItems: FaqItem[] = questionSlugs.map((slug) => {
-    const post = readPost(slug)
-    return {
-      question: post.frontmatter.title,
-      answer: post.frontmatter.summary,
-      href: `/single-post/${post.frontmatter.slug}`,
-    }
-  })
-
   return (
     <>
       <section className="border-b border-border bg-surface-subtle">
@@ -251,11 +240,11 @@ export default function Page() {
           <CardGrid columns={2}>
             {mechanics.map((card) => (
               <li key={card.title}>
-                <FeatureCard
-                  title={card.title}
-                  body={card.body}
-                  link={'link' in card ? card.link : undefined}
-                />
+                {/*
+                  The `'link' in card` narrowing went with the link itself on 2026-08-17:
+                  the one card that carried it pointed at a retired article.
+                */}
+                <FeatureCard title={card.title} body={card.body} />
               </li>
             ))}
           </CardGrid>
@@ -316,21 +305,6 @@ export default function Page() {
             list="corporate"
             contactEmail={contact.email}
           />
-        </div>
-      </Section>
-
-      <Section labelledBy="questions-heading">
-        <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
-          <div className="lg:col-span-5">
-            <SectionHeading id="questions-heading" title="What people ask us" />
-          </div>
-          <div className="lg:col-span-7">
-            <Faq
-              items={faqItems}
-              allAnswersHref="/knowledge"
-              allAnswersLabel="All answers"
-            />
-          </div>
         </div>
       </Section>
 

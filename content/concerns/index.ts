@@ -57,8 +57,11 @@
  * legitimate and often more credible case, because it says the job is advice rather than
  * moving policies. Do not let these fill up with generic testimonial language.
  *
- * The one real case is on `beyond-employer`. See the note there for why it sits on that
- * concern rather than on maternity, and why it must not be restated on a second page.
+ * Two real cases, one on `maternity` and one on `beyond-employer`. The maternity one ran on
+ * `beyond-employer` until 2026-08-17, described as a company scheme it never was; the
+ * beyond-employer one is a genuine company plan whose ceiling was run past, and replaced it
+ * there. See the notes on both concerns for what was wrong, and why neither may be restated
+ * on a second page.
  *
  * NEVER SHOW A NUMBER THAT DOES NOT ANSWER THE QUESTION ASKED. Only `relocating` carries
  * figures, because "what does cover cost" is the question that page is actually
@@ -103,10 +106,13 @@ export type ConcernImage =
  * source, so nobody mistakes it for copy. Replace it with a `real` case or a `scenario`;
  * never delete the section, and never quietly fill it with generic testimonial language.
  *
- * `real` means a real client. Exactly one exists at the time of writing. It is anonymised
- * and permission-cleared, and BOTH permissions were needed rather than one: the family's,
- * and the employer's, since the story opens on their HR function and describes their
- * scheme's limits. Do not add a second `real` case without the same clearance.
+ * `real` means a real client. Two exist at the time of writing, each anonymised and each
+ * cleared by the family whose case it is. An earlier version of this note claimed an
+ * employer's clearance was needed for the first, because it was then written as a company
+ * scheme — it is an individual policy and no employer was ever involved. Do not add a
+ * third `real` case without that same clearance from the family in it, and note that
+ * clearance is needed from everyone whose medical history appears, not only the person who
+ * happened to call us.
  *
  * `scenario` is written to illustrate a situation the firm sees, and nobody's permission
  * is involved because nobody real is in it. It exists as a separate variant rather than
@@ -129,7 +135,7 @@ export type ConcernCase =
       paragraphs: readonly string[]
       footer: string
       /**
-       * An optional chart of the case's own figures: what the scheme covered, what the
+       * An optional chart of the case's own figures: what the policy covered, what the
        * bill came to, and the gap between them.
        *
        * EVERY NUMBER HERE MUST ALREADY APPEAR IN `paragraphs`. This visualises the case,
@@ -220,10 +226,64 @@ export const concerns: readonly Concern[] = [
       'Plans usually make you wait before maternity benefits begin, so the cover has to be in place long before there is anything to claim for. Once a pregnancy has started it is usually excluded from a new plan. That is the whole argument here, and it is why this is worth a conversation early rather than late.',
       'There is a second reason timing matters more here than almost anywhere else. As an expat you sit outside the subsidised system Singapore residents fall back on, so a maternity bill arrives with nothing taken off it. A straightforward delivery is manageable. An emergency caesarean and a stay in neonatal intensive care is a different number altogether, and it arrives with no notice.',
     ],
+    /**
+     * The one real case on the site. It sits here from 2026-08-17; before that it ran on
+     * `beyond-employer`, described as a company scheme.
+     *
+     * ⚠ IT WAS PUBLISHED WRONG, AND THE CORRECTION IS THE REASON IT MOVED. This is an
+     * INDIVIDUAL policy. There was no employer, no HR function and no company scheme in
+     * it. The earlier version opened "An HR manager called us about one of the team" and
+     * attributed the S$207,000 newborn limit to "the company scheme the family were on",
+     * none of which happened — and it was the sole evidence under a panel arguing that a
+     * company plan has a ceiling you can run past. Do not reintroduce an employer here,
+     * and do not move this back to make that panel's argument land; that panel needs a
+     * real company-scheme case of its own.
+     *
+     * THE SHORTFALL STAYS IN. The S$53,000 the family still paid is the single most
+     * credible line in the story. A case where insurance covered everything reads like
+     * advertising; one that names what it did not cover reads like someone telling you
+     * the truth, and that is the whole positioning.
+     *
+     * It belongs on this concern twice over: the panel's own situation copy already ends
+     * on "an emergency caesarean and a stay in neonatal intensive care", and the caesarean
+     * figures below are what the "Maternity limit" consideration is arguing about. Use it
+     * once — a case restated on a second page dilutes on both.
+     *
+     * Every S$ is written explicitly so no reader assumes USD. No names, no employer, no
+     * hospital, no dates.
+     */
     case: {
-      kind: 'placeholder',
-      brief:
-        '[Real case needed. Be concrete: ages, timeline, what their existing cover was missing, what we actually did, the real outcome. It does not need to be a win. "We recommended staying put" is often the more credible case.]',
+      kind: 'real',
+      paragraphs: [
+        'His son had arrived 9 weeks early and was in neonatal intensive care at a private hospital in Singapore. Six days in, the bills were running at S$4,000 a day at least, and nobody could say how many more days the newborn would need to be warded. He wanted to know one thing, which was whether the insurer would stand behind it.',
+        'We had the newborn enrolled by the next working day, and the insurer agreed to guarantee the bills from birth rather than from the date the enrolment paperwork was completed. His policy covers a newborn from birth up to S$207,000. The final bill came to S$260,000, so the family still paid a share of it. The emergency caesarean was billed separately at S$19,000, and that sits on its own benefit, capped at S$26,000.',
+      ],
+      footer:
+        'Nobody would call that a perfect outcome. It was a very different one from the alternative.',
+      /**
+       * Every figure below is lifted from the paragraph above, not calculated for effect.
+       * S$260,000 less S$207,000 is the S$53,000 the family paid, which is the single
+       * most credible line on the site and the reason this concern gets a chart at all.
+       *
+       * The gap is shown, not implied. A chart of this that stopped at "covered" would be
+       * the advertising version of the same story.
+       *
+       * The caesarean figures stay in the prose and out of the chart on purpose. This
+       * chart is about the newborn ceiling; a second pair of bars against a different
+       * benefit's cap would blur the one number it exists to show.
+       */
+      chart: {
+        heading: 'What the policy reached, and what it did not',
+        total: { label: 'Final bill', display: 'S$260,000', amount: 260_000 },
+        covered: {
+          label: 'Covered by his policy',
+          display: 'S$207,000',
+          amount: 207_000,
+        },
+        gap: { label: 'The family paid', display: 'S$53,000' },
+        footnote:
+          'One real case, anonymised and permission-cleared. A newborn limit of S$207,000 is that policy’s, not a market figure, and yours will differ. It is here to show that a ceiling is a real number with a real edge, not to predict where yours sits.',
+      },
     },
     considerations: [
       {
@@ -246,10 +306,8 @@ export const concerns: readonly Concern[] = [
       'Handle the enrolment when the baby arrives, including putting the case for cover to run from the date of birth rather than from the date the form landed.',
     ],
     ctaLabel: 'Tell us where you are on the clock',
-    furtherReading: {
-      href: '/single-post/does-my-plan-cover-maternity-and-newborn-care',
-      label: 'Does my plan cover maternity and newborn care?',
-    },
+    // furtherReading removed 2026-08-17 with the article it pointed at. See the note on
+    // the field's declaration: no link beats a link to a page that no longer exists.
     meta: {
       title: 'Maternity and newborn cover in Singapore',
       description:
@@ -361,50 +419,76 @@ export const concerns: readonly Concern[] = [
       'The other half of it is that the cover belongs to the job rather than to you. It ends when the job does, and if something is diagnosed along the way it may be excluded or loaded when you come to buy your own. You are insurable today, and that is the part people miss.',
     ],
     /**
-     * The one real case on the site, moved here from the old homepage on 2026-08-16.
+     * The second real case, added 2026-08-17. Anonymised and cleared by the family.
      *
-     * It sits on THIS concern rather than on maternity, where it also fits, because this
-     * panel's whole argument is that a company plan has a ceiling and you can run past
-     * it — and the case is that ceiling being exceeded by S$53,000. It is the site's
-     * strongest evidence placed against the claim it actually proves. Use it once: a
-     * case restated on a second page dilutes on both.
+     * It replaced a placeholder that stood here for a few hours, after the neonatal case
+     * left for `maternity` — that one is an individual policy that had been written as a
+     * company scheme, and this panel was left arguing a company plan's ceiling with no
+     * case under it. This is the case that argument was always waiting for: the ceiling is
+     * the whole story, and it was genuinely run past.
      *
-     * THE SHORTFALL STAYS IN. The S$53,000 the family still paid is the single most
-     * credible line in the story. A case where insurance covered everything reads like
-     * advertising; one that names what it did not cover reads like someone telling you
-     * the truth, and that is the whole positioning.
+     * ⚠ DO NOT BRING THE NEONATAL CASE BACK, here or as a second case alongside this one.
+     * It belongs to maternity, and it would have to be mis-described again to fit.
      *
-     * Every S$ is written explicitly so no reader assumes USD. The HR manager is
-     * deliberately ungendered — the detail adds nothing and narrows identifiability. No
-     * names, no employer, no hospital, no dates.
+     * FOUR PARAGRAPHS, NOT TWO, and the fourth is the one that earns the panel. The other
+     * eight concerns run two. This one runs the problem, what we built, what happened, and
+     * what it means now — because the `considerations` on this concern are "The ceiling"
+     * AND "Portability", and the situation copy above ends on "you are insurable today,
+     * and that is the part people miss". Nothing on this site demonstrated that sentence
+     * until now. The renewal paragraph is not an epilogue. Do not trim it as one.
+     *
+     * ⚠ THE RENEWAL IS THIS POLICY'S TERMS, NOT THE MARKET'S. "It goes on renewing even if
+     * they move to another country" is true of what he holds and is the most valuable
+     * sentence here, which is exactly why it must never drift into a general promise about
+     * what plans do. It is a sentence a reader could act on. If it is ever generalised,
+     * cut it instead.
+     *
+     * ⚠ THE 70% IS A COMPARISON, NOT A PRICE, and it is deliberately allowed to stand on
+     * the one panel whose `numbers` block below publishes no figures at all. That rule is
+     * about the cost of a top-up, where two sources disagree; this is one client's own
+     * quote against itself. The rule has not lapsed — do not read this as licence to put a
+     * premium figure in `numbers`.
+     *
+     * Written in plain words on Steven's instruction: no "scoped", no "deductible
+     * liability", nothing "sitting underneath" anything. The excess is explained as money
+     * — whose it is and who actually pays it — because a reader who thinks a high excess
+     * means a free one has been misled by the very sentence meant to reassure them.
+     *
+     * No names, no employer, no insurer, no hospital, no dates. The industry he works in
+     * was in the source and is deliberately out: seniority explains the cover level, and
+     * naming the sector alongside a spouse's diagnosis narrows him to a small community.
      */
     case: {
       kind: 'real',
       paragraphs: [
-        'An HR manager called us about one of the team. His son had arrived 9 weeks early and was in neonatal intensive care at a private hospital in Singapore. The unit was running at S$4,000 a day at least, and nobody could say how many days there would be. We were put straight on the phone with him. He wanted to know one thing, which was whether the insurer would stand behind it.',
-        'We had the newborn enrolled by the next working day. The administration landed about a week after he was born, but the insurer agreed to guarantee the bills from birth rather than from the date the paperwork caught up. The company scheme the family were on covers a newborn from birth up to S$207,000. The final bill came to S$260,000, so they still paid a share of it. The emergency caesarean was a separate bill, and that one was covered in full.',
+        'An expat in a top corporate role came to us about a number he had gone and checked. His company plan paid up to S$100,000 for a stay in hospital. For a serious illness in a private hospital here that does not go far, and it was the only cover his family had.',
+        'We built a top-up to sit above it. Two decisions kept it affordable: it pays only for treatment in hospital, and it only starts once a bill passes S$10,000. Without those two it would have cost about 70% more. He never has to find that first S$10,000 himself, because his company plan pays that part. Between them, his family went from S$100,000 of cover to S$3.8 million.',
+        'A few years in, his wife was diagnosed with stage 3 cancer. The first year of treatment came to over S$200,000.',
+        'No new insurer would take her on now. This plan renews anyway, and it goes on renewing even if they move to another country.',
       ],
       footer:
-        'Nobody would call that a perfect outcome. It was a very different one from the alternative.',
+        'The company plan alone would have run out inside the first year. The rest was bought while she was still insurable, which is the part nobody can buy back later.',
       /**
-       * Every figure below is lifted from the paragraph above, not calculated for effect.
-       * S$260,000 less S$207,000 is the S$53,000 the family paid, which is the single
-       * most credible line on the site and the reason this concern gets a chart at all.
+       * Both figures are lifted from the paragraphs above. The gap is S$200,000 less
+       * S$100,000, and it inherits the "over" from the treatment figure rather than
+       * claiming a precision the case does not have.
        *
-       * The gap is shown, not implied. A chart of this that stopped at "covered" would be
-       * the advertising version of the same story.
+       * ⚠ THE GAP MEANS THE OPPOSITE OF THE ONE ON MATERNITY. There it is what the family
+       * paid, and it is credible because it admits a shortfall. Here nobody paid it — the
+       * top-up did — and the bar is what the company plan did NOT reach. Same three bars,
+       * reversed meaning. Do not copy that label across, in either direction.
        */
       chart: {
-        heading: 'What the scheme reached, and what it did not',
-        total: { label: 'Final bill', display: 'S$260,000', amount: 260_000 },
-        covered: {
-          label: 'Covered by the company scheme',
-          display: 'S$207,000',
-          amount: 207_000,
+        heading: 'Where the company plan stopped',
+        total: {
+          label: 'First year of treatment',
+          display: 'Over S$200,000',
+          amount: 200_000,
         },
-        gap: { label: 'The family paid', display: 'S$53,000' },
+        covered: { label: 'The company plan’s cap', display: 'S$100,000', amount: 100_000 },
+        gap: { label: 'Past the cap, met by the top-up', display: 'Over S$100,000' },
         footnote:
-          'One real case, anonymised and permission-cleared. A newborn limit of S$207,000 is that scheme’s, not a market figure, and yours will differ. It is here to show that a ceiling is a real number with a real edge, not to predict where yours sits.',
+          'One real case, anonymised and permission-cleared. A cap of S$100,000 is that employer’s, and the terms of the top-up are that policy’s — including its renewal. Both will differ from yours. It is here to show that a ceiling is a real number with a real edge, not to predict where yours sits.',
       },
     },
     numbers: {
@@ -508,10 +592,7 @@ export const concerns: readonly Concern[] = [
       'Tell you plainly if moving would cost you more in lost history than it saves in premium.',
     ],
     ctaLabel: 'Ask about your condition, confidentially',
-    furtherReading: {
-      href: '/single-post/will-my-pre-existing-conditions-be-covered',
-      label: 'Will my pre-existing conditions be covered?',
-    },
+    // furtherReading removed 2026-08-17 with the article it pointed at.
     meta: {
       title: 'Pre-existing conditions and international health cover',
       description:
@@ -647,10 +728,7 @@ export const concerns: readonly Concern[] = [
       'Say plainly whether moving is worth it, including when the answer is that it is not.',
     ],
     ctaLabel: 'Tell us about your renewal',
-    furtherReading: {
-      href: '/single-post/why-has-my-renewal-premium-increased',
-      label: 'Why has my renewal premium increased?',
-    },
+    // furtherReading removed 2026-08-17 with the article it pointed at.
     meta: {
       title: 'Group medical renewal: why the premium increased',
       description:
@@ -662,7 +740,7 @@ export const concerns: readonly Concern[] = [
     key: 'retention',
     path: '/cover-for-senior-hires',
     audience: 'company',
-    cardTitle: 'Retaining senior and regional hires',
+    cardTitle: 'Retaining talent',
     hook: 'Benefits matter more when someone is relocating their family.',
     icon: 'briefcase',
     /*
@@ -675,11 +753,18 @@ export const concerns: readonly Concern[] = [
       would be the overclaim this project already cut once — see the superlatives rule at
       the top of this file. Keep any rewrite on this side of that line.
 
-      Only the heading changed. The nav label stays "Cover for senior hires" and the meta
+      The cardTitle followed on 2026-08-17, from "Retaining senior and regional hires" to
+      "Retaining talent" — sentence case, matching the other eight, and "talent" uncountable
+      in this sense, so never "Retaining Talents".
+
+      ⚠ THE NAV LABEL AND META TITLE STILL DO NOT FOLLOW, and that is the decision, not an
+      oversight anyone should tidy up. The nav stays "Cover for senior hires" and the meta
       title stays "Medical cover for senior and regional hires", because those two fields
       have a different job: they have to match what a buyer types, and "cover" language
       reaches the right person where "talent retention" would not. A heading's job starts
-      after the click, which is why it can afford to make the argument instead.
+      after the click, which is why it can afford to make the argument instead. Renaming
+      them to match is an SEO trade, not a consistency fix — make it deliberately or not at
+      all.
 
       ⚠ It is the only panelTitle of the nine ending in a full stop, and used as supplied.
       "Maternity cover runs on a clock" is the other sentence-shaped one and carries none.
