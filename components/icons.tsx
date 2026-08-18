@@ -235,3 +235,51 @@ export function ChevronDownIcon(props: SVGProps<SVGSVGElement>) {
     </Icon>
   )
 }
+
+/* ---- Trust band marks ----
+ *
+ * The four figures under the hero, resolved from each stat's `icon` key in app/page.tsx.
+ * Added 2026-08-18: the band was four numbers in a row on a plain rule and read as a
+ * table of contents rather than as proof.
+ *
+ * Only two are new. The marks supplied for "countries" and "corporate schemes" were, on
+ * inspection, the globe and the briefcase this file already draws — same circle and
+ * meridian, same case with a handle and a divider, at a slightly different scale. They
+ * are reused rather than added a second time under a second name, which is the whole
+ * reason this file exists in one piece.
+ */
+
+/**
+ * Members under our care. A group, not a single figure.
+ *
+ * Note this is the deliberate opposite of PersonIcon above, and the reasoning there does
+ * not transfer: the fork asks the visitor which door is theirs, so a crowd would exclude
+ * the person buying for one. This is a count of everyone on the book, where a lone
+ * figure would undersell the only stat on the band that is about volume.
+ */
+export function MembersIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <circle cx="9" cy="7.5" r="3" />
+      <path d="M3.5 20c0-3.6 2.46-6.2 5.5-6.2s5.5 2.6 5.5 6.2" />
+      <circle cx="17" cy="9" r="2.2" />
+      <path d="M15 20c0-2.9 1.53-5.3 3.6-6" />
+    </Icon>
+  )
+}
+
+/**
+ * Nationalities on our books. One flag, and one is the point.
+ *
+ * Not a cluster of flags and not a flag of anywhere: the glyph is blank on purpose, so
+ * it reads as "nationality" rather than as any particular nationality. A recognisable
+ * flag on a band that claims 62 of them would pick a favourite.
+ */
+export function FlagIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <path d="M6 21V3" />
+      <path d="M6 4.2c2-1.3 4-1.3 6 0s4 1.3 6 0v8.4c-2 1.3-4 1.3-6 0s-4-1.3-6 0V4.2z" />
+    </Icon>
+  )
+}

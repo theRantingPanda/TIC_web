@@ -17,10 +17,15 @@ export type Stat = {
  * specifies as "same visual treatment as section 02". Keeping them one component is
  * what makes that instruction hold as the page is edited.
  *
- * No count-up animation. The odometer treatment in the reference design stacks each
- * digit as its own element, which breaks text selection, reads badly to a screen reader,
- * and would need a matchMedia guard to respect reduced motion. A number is more credible
- * standing still.
+ * No count-up animation HERE, and note that is now a narrower claim than it was. The
+ * homepage trust band does count up, from components/count-up.tsx, added 2026-08-18.
+ *
+ * The objection this note originally recorded was to the odometer in the reference
+ * design, which stacks each digit as its own element: that breaks text selection, reads
+ * badly to a screen reader, and needs a matchMedia guard for reduced motion. Those were
+ * objections to a technique, not to the idea, and CountUp answers all three — one text
+ * node, an sr-only final figure while it rolls, and a reduced-motion guard. If this
+ * component ever gets a call site again, it can use CountUp too.
  */
 export function StatBand({
   stats,

@@ -3,10 +3,18 @@ import Image from 'next/image'
 import { ConcernCard } from '@/components/concern-card'
 import { ConcernPanel } from '@/components/concern-panel'
 import { Container } from '@/components/container'
+import { CountUp } from '@/components/count-up'
 import { HomeFlow } from '@/components/home-flow'
-import { BuildingIcon, PersonIcon } from '@/components/icons'
+import {
+  BriefcaseIcon,
+  BuildingIcon,
+  FlagIcon,
+  GlobeIcon,
+  MembersIcon,
+  PersonIcon,
+} from '@/components/icons'
 import { concerns, concernsFor, paths, spansFullWidth } from '@/content/concerns'
-import { homeCopy } from '@/content/home/copy'
+import { homeCopy, type TrustStatIcon } from '@/content/home/copy'
 import { contact, siteConfig } from '@/lib/site'
 
 /**
@@ -44,6 +52,24 @@ import { contact, siteConfig } from '@/lib/site'
  * Also tried and reverted. Selection steps stay lean; feeling is earned at the
  * drill-down, where the lead image finally appears. See components/concern-panel.tsx.
  */
+/**
+ * Each trust figure's mark, resolved from the `icon` key in content/home/copy.ts.
+ *
+ * Typed as a Record over the union, so a fifth stat added to the copy without a mark
+ * here fails the build rather than rendering an undefined component.
+ *
+ * Two of these are shared with the concern cards on purpose. The mark supplied for
+ * "countries our members live in" was the globe already drawn for international health,
+ * and the one for "corporate schemes serviced" was the briefcase already drawn for
+ * senior hires — same glyph, same argument, so they are one icon each and not two.
+ */
+const TRUST_ICONS: Record<TrustStatIcon, typeof MembersIcon> = {
+  members: MembersIcon,
+  countries: GlobeIcon,
+  nationalities: FlagIcon,
+  schemes: BriefcaseIcon,
+}
+
 export const metadata: Metadata = {
   // `absolute` because app/layout.tsx templates titles as "%s | TIC", which would render
   // this as "... | The Insurance Concierge | TIC".
@@ -167,16 +193,28 @@ export default function Page() {
       <section className="border-y border-border bg-surface">
         <Container className="py-10">
           <dl className="grid grid-cols-2 gap-x-6 gap-y-8 text-center md:grid-cols-4">
-            {homeCopy.trust.stats.map((stat) => (
-              /*
-               * flex-col-reverse so the figure reads above its label while the DOM keeps
-               * <dt> before <dd>, which is what a description list requires.
-               */
-              <div key={stat.label} className="flex flex-col-reverse gap-1">
-                <dt className="text-sm text-ink-muted">{stat.label}</dt>
-                <dd className="text-display-sm font-medium text-ink">{stat.figure}</dd>
-              </div>
-            ))}
+            {homeCopy.trust.stats.map((stat) => {
+              const Mark = TRUST_ICONS[stat.icon]
+              return (
+                /*
+                 * flex-col-reverse so the figure reads above its label while the DOM keeps
+                 * <dt> before <dd>, which is what a description list requires.
+                 */
+                <div key={stat.label} className="flex flex-col-reverse gap-1">
+                  <dt className="text-sm text-ink-muted">{stat.label}</dt>
+                  {/*
+                    The mark lives INSIDE the <dd> rather than as a third child of the
+                    wrapper. A <dl>'s div grouping may contain only <dt> and <dd>, so a
+                    loose <svg> beside them is invalid markup; nesting it keeps the list
+                    valid and keeps the icon in the same reversed column as its figure.
+                  */}
+                  <dd className="flex flex-col items-center gap-2.5 text-display-sm font-medium text-ink">
+                    <Mark className="size-6 text-ink-muted" />
+                    <CountUp value={stat.figure} />
+                  </dd>
+                </div>
+              )
+            })}
           </dl>
           {/*
             Footnote weight, deliberately, not a fifth stat.
