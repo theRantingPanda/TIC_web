@@ -19,14 +19,20 @@
  * ⚠ AND THE BUILD STAMP WILL NOT CHANGE WHEN YOU DO, which is what makes this hard to
  * spot: /.build-stamp.json carries an identical inputHash before and after the redeploy,
  * so the usual "did my deploy land" check says yes while the form is still missing. This
- * happened on 2026-08-18 — the variable was set just after a merge's auto-deploy had
- * already built without it, and the site served the mailto fallback with a current-looking
- * stamp. Check the published HTML instead, where a set variable is inlined:
+ * happened on 2026-08-18 — the variable was set on the wrong service, three redeploys
+ * changed nothing, and the site served the mailto fallback with a current-looking stamp.
+ * Check whether a FORM was built instead:
  *
- *   curl -s "https://www.asktic.com/beyond-employer-cover?bust=1" | grep -c asktic-website-lead
+ *   curl -s "https://www.asktic.com/beyond-employer-cover?bust=1" | grep -c '<form'
  *
- * Non-zero means the webhook is baked in and the form renders. Zero means it is not, no
- * matter what the stamp says.
+ * Non-zero means `captureEnabled` was true at build, which is the question being asked.
+ *
+ * ⚠ DO NOT GREP THE HTML FOR THE WEBHOOK URL. It is not there even when everything is
+ * correct. `CAPTURE_WEBHOOK_URL` is consumed by components/capture-form.tsx, a CLIENT
+ * component, so the value is bundled into a /_next/static/chunks/*.js file rather than
+ * inlined into the document. That grep was written into this file on 2026-08-18, returned
+ * 0 against a correctly configured site, and sent an hour of debugging in the wrong
+ * direction. If you want to see the URL itself, grep the chunks the page references.
  *
  * ⚠ TWO DIFFERENT QUESTIONS, TWO DIFFERENT CHECKS. Do not use one for the other:
  *
