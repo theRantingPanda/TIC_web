@@ -15,6 +15,37 @@
  * ⚠ Setting the variable does NOT trigger a deploy. scripts/lib/build-stamp.ts hashes
  * source files, not environment, so an unchanged repo produces an identical hash and
  * Render's auto-deploy will not fire. Trigger a manual redeploy after setting it.
+ *
+ * ⚠ AND THE BUILD STAMP WILL NOT CHANGE WHEN YOU DO, which is what makes this hard to
+ * spot: /.build-stamp.json carries an identical inputHash before and after the redeploy,
+ * so the usual "did my deploy land" check says yes while the form is still missing. This
+ * happened on 2026-08-18 — the variable was set on the wrong service, three redeploys
+ * changed nothing, and the site served the mailto fallback with a current-looking stamp.
+ * Check whether a FORM was built instead:
+ *
+ *   curl -s "https://www.asktic.com/beyond-employer-cover?bust=1" | grep -c '<form'
+ *
+ * Non-zero means `captureEnabled` was true at build, which is the question being asked.
+ *
+ * ⚠ DO NOT GREP THE HTML FOR THE WEBHOOK URL. It is not there even when everything is
+ * correct. `CAPTURE_WEBHOOK_URL` is consumed by components/capture-form.tsx, a CLIENT
+ * component, so the value is bundled into a /_next/static/chunks/*.js file rather than
+ * inlined into the document. That grep was written into this file on 2026-08-18, returned
+ * 0 against a correctly configured site, and sent an hour of debugging in the wrong
+ * direction. If you want to see the URL itself, grep the chunks the page references.
+ *
+ * ⚠ TWO DIFFERENT QUESTIONS, TWO DIFFERENT CHECKS. Do not use one for the other:
+ *
+ *   DID A BUILD RUN?        `builtAt` in /.build-stamp.json. It is
+ *                           `new Date().toISOString()` per build, so two builds cannot
+ *                           share a value. An unchanged builtAt means NO new build was
+ *                           published, whatever the dashboard says.
+ *   DID IT SEE THE VAR?     the grep above. `inputHash` cannot answer this — it hashes
+ *                           source, so it is identical whether the variable was set or not.
+ *
+ * Both were needed on 2026-08-18. A redeploy reported as done left builtAt untouched,
+ * which said the deploy never produced output — a fact no amount of grepping the HTML
+ * would have explained, because the HTML was simply the old build.
  */
 
 export const CAPTURE_WEBHOOK_URL = process.env.NEXT_PUBLIC_N8N_CONTACT_WEBHOOK
