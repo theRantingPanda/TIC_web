@@ -27,6 +27,19 @@
  *
  * Non-zero means the webhook is baked in and the form renders. Zero means it is not, no
  * matter what the stamp says.
+ *
+ * ⚠ TWO DIFFERENT QUESTIONS, TWO DIFFERENT CHECKS. Do not use one for the other:
+ *
+ *   DID A BUILD RUN?        `builtAt` in /.build-stamp.json. It is
+ *                           `new Date().toISOString()` per build, so two builds cannot
+ *                           share a value. An unchanged builtAt means NO new build was
+ *                           published, whatever the dashboard says.
+ *   DID IT SEE THE VAR?     the grep above. `inputHash` cannot answer this — it hashes
+ *                           source, so it is identical whether the variable was set or not.
+ *
+ * Both were needed on 2026-08-18. A redeploy reported as done left builtAt untouched,
+ * which said the deploy never produced output — a fact no amount of grepping the HTML
+ * would have explained, because the HTML was simply the old build.
  */
 
 export const CAPTURE_WEBHOOK_URL = process.env.NEXT_PUBLIC_N8N_CONTACT_WEBHOOK
