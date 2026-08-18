@@ -37,21 +37,36 @@
 # path emits no artifact in out/, which is necessary but says nothing about whether
 # Render serves the redirect. Check the service's routes when changing this file.
 #
-# ⚠ THE SAME IS TRUE OF FILES, NOT JUST ROUTES (found 2026-08-18). /forms was retired and
-# its assets moved out of public/ the day before, and both were STILL SERVED from the
-# Render origin afterwards — verified with a cache-busted request that returned
-# `cf-cache-status: MISS` and a 200:
+# ⚠⚠ RENDER'S STATIC PUBLISH IS ADDITIVE. DELETING A FILE DOES NOT UNPUBLISH IT.
+# (Established 2026-08-18, after an earlier version of this note got it wrong.)
 #
-#   /forms/manifest.json                             200
-#   /forms/files/allianz-telehealth-user-guide.pdf   200
+# Files absent from a new deploy are NOT removed — everything ever published stays
+# published. Every page and asset retired on 2026-08-17 was still live the next day:
 #
-# The repo was correct throughout; the deployed copies simply outlived the commit that
-# removed them. Note the deleted HTML in the same deploy WAS pruned — /knowledge and all
-# 12 articles 404 correctly — so this is not a blanket "Render never deletes". The cause
-# is unknown from here: render.com is blocked by this environment's egress policy.
+#   /knowledge.html                    200   the full page, 43KB
+#   /forms.html                        200   and it names an insurer 6 times
+#   /single-post/<12 articles>.html    200
+#   /forms/manifest.json, the PDF      200
 #
-# Rule: retiring anything under public/ is finished when the live URL 404s to a
-# cache-busted request, not when the commit merges. See content/_retired/README.md.
+# The proof it is the platform and not the build: the live /.build-stamp.json carries an
+# inputHash and inputFileCount IDENTICAL to a local build of the same commit, stamped
+# minutes after the merge. Render built the right thing and serves the leftovers beside it.
+# Not a cache either — cache-busted requests return cf-cache-status: MISS and still 200.
+#
+# "Clear build cache & deploy" DOES NOT FIX THIS, and was tried. The build cache concerns
+# build inputs, not the published output directory.
+#
+# ⚠ AN EXTENSIONLESS 404 IS NOT EVIDENCE. /knowledge returns 404 while /knowledge.html
+# serves 43KB — Render resolves clean URLs against the current deploy's manifest but serves
+# any file that physically exists at an explicit path. The first check on this made exactly
+# that mistake and reported the pages pruned when they were not. Always ask for the file.
+#
+# To actually remove something: empty the published directory, which means recreating the
+# static site (or a Render support ticket). Recreating is also the moment to fix the apex
+# redirect noted above — add www.asktic.com FIRST and Render creates the apex as its
+# redirect. Then verify each retired URL 404s to a cache-busted request WITH its extension.
+#
+# See content/_retired/README.md for the full account.
 #
 # OUTSTANDING: the apex does not redirect to www. Both asktic.com and www.asktic.com
 # serve the site, so every page answers on two hostnames. Canonical tags in
