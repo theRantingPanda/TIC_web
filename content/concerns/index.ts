@@ -11,7 +11,7 @@
  *   1. their situation   — reflect back what they told you, in their words
  *   2. a real TIC case   — the specific story, not a testimonial
  *   3. useful numbers    — only where a real, on-topic figure exists
- *   4. three things to consider
+ *   4. things to consider — three on eight of the nine, two on `beyond-employer`
  *   5. what we do
  *   6. one call to action
  *
@@ -579,10 +579,16 @@ export const concerns: readonly Concern[] = [
         term: 'Portability',
         body: 'What happens to the cover if you change jobs, and whether your medical history goes with you when it ends.',
       },
-      {
-        term: 'Overlap',
-        body: 'Making sure a top-up genuinely fills the gap rather than duplicating what you already have.',
-      },
+      /*
+        "Overlap" stood here until 2026-08-18, and went on Steven's instruction: making sure
+        a top-up fills the gap rather than duplicating cover is something WE do when we size
+        it, not something the reader is being asked to weigh. It belongs to `whatWeDo` in
+        spirit, and the list is stronger at two real considerations than three where one is
+        our own process wearing the reader's hat.
+
+        This is the only concern of the nine with fewer than three. The panel heading counts
+        the list rather than asserting a number, so nothing has to be invented to fill it.
+      */
     ],
     whatWeDo: [
       'Read your scheme’s actual limits with you, rather than working from what the benefits summary implies.',

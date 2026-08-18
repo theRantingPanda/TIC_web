@@ -105,6 +105,18 @@ function CaseChart({
 }
 
 /**
+ * The heading counts the list instead of asserting "Three".
+ *
+ * It was hard-coded until 2026-08-18, when `beyond-employer` dropped to two — a heading
+ * promising three above a list of two reads as a bug, and the alternative was inventing a
+ * third consideration to satisfy a string. Falls back to the digit above four, which no
+ * concern reaches; if one ever does, that is a copy decision, not a rendering one.
+ */
+function countWord(n: number): string {
+  return { 1: 'One', 2: 'Two', 3: 'Three', 4: 'Four' }[n] ?? String(n)
+}
+
+/**
  * Whether to render the parts of a panel that are not finished yet.
  *
  * ---- Unfinished content SHIPS HIDDEN, and opens itself when it is ready ----
@@ -360,7 +372,7 @@ export function ConcernPanel({
         {/* 4. Three things to consider. */}
         <div className="mt-10">
           <SubHeading className="text-display-xs text-ink">
-            Three things to consider
+            {countWord(concern.considerations.length)} things to consider
           </SubHeading>
           <dl className="mt-4 max-w-[42rem] space-y-4">
             {concern.considerations.map((item) => (
