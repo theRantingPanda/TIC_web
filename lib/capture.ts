@@ -15,6 +15,18 @@
  * ⚠ Setting the variable does NOT trigger a deploy. scripts/lib/build-stamp.ts hashes
  * source files, not environment, so an unchanged repo produces an identical hash and
  * Render's auto-deploy will not fire. Trigger a manual redeploy after setting it.
+ *
+ * ⚠ AND THE BUILD STAMP WILL NOT CHANGE WHEN YOU DO, which is what makes this hard to
+ * spot: /.build-stamp.json carries an identical inputHash before and after the redeploy,
+ * so the usual "did my deploy land" check says yes while the form is still missing. This
+ * happened on 2026-08-18 — the variable was set just after a merge's auto-deploy had
+ * already built without it, and the site served the mailto fallback with a current-looking
+ * stamp. Check the published HTML instead, where a set variable is inlined:
+ *
+ *   curl -s "https://www.asktic.com/beyond-employer-cover?bust=1" | grep -c asktic-website-lead
+ *
+ * Non-zero means the webhook is baked in and the form renders. Zero means it is not, no
+ * matter what the stamp says.
  */
 
 export const CAPTURE_WEBHOOK_URL = process.env.NEXT_PUBLIC_N8N_CONTACT_WEBHOOK
