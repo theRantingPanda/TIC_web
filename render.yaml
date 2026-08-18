@@ -14,10 +14,12 @@
 # verified against the live site on 2026-08-17: each returns 301 to its documented
 # destination, as do /home-1, /file-access and /file. Six redirects, all serving.
 #
-# ⚠ AMENDED 2026-08-18: two of those six are now serving the WRONG THING. /file-access
-# and /file still 301 to /forms, which was retired the day before, so both land on a 404.
-# They have been removed from this file and must be deleted on the service. See the note
-# at the routes block. Four of the six remain correct.
+# ⚠ AMENDED, THEN ✓ CLEARED, both 2026-08-18. Two of those six briefly served the wrong
+# thing: /file-access and /file still 301'd to /forms, retired the day before, so both
+# landed on a 404. They were removed from this file and deleted on the service, and both
+# were re-checked live afterwards — each now returns a direct 404 with no redirect. The
+# other four were re-checked in the same pass and still serve their documented
+# destinations. Four routes here, four serving: this file and the service agree again.
 #
 # The warning is recorded as cleared rather than deleted, because the drift it describes
 # is permanent while this file and the service are maintained separately, and a future
@@ -112,20 +114,19 @@ services:
         source: /home-1
         destination: /
 
-      # ⚠ /file-access AND /file ARE GONE FROM THIS FILE AND MUST BE DELETED ON THE
-      # SERVICE. Both used to 301 to /forms. /forms was retired on 2026-08-17 and its
-      # library moved into the CRM, so those rules now redirect into a 404.
+      # ✓ /file-access AND /file ARE GONE, from this file and from the service. Both used
+      # to 301 to /forms; /forms was retired on 2026-08-17 and its library moved into the
+      # CRM, which left each of them redirecting into a 404. Removed here and deleted in
+      # the Render dashboard on the same day. Verified live 2026-08-18 after the deletion:
+      # both now return a direct 404 and send no Location header.
       #
-      # VERIFIED LIVE 2026-08-18, and still broken at the time of writing:
+      # Kept as a note rather than deleted, for the one lesson in it: removing them here
+      # did nothing by itself. The service's routes are configured in the dashboard and
+      # this file does not govern it, so a route change is two changes. `verify:urls`
+      # cannot catch the gap either — it asserts a redirect-only path emits no artifact in
+      # out/, which says nothing about what Render serves.
       #
-      #   /file-access  ->  301  ->  /forms  ->  404
-      #   /file         ->  301  ->  /forms  ->  404
-      #
-      # Deleting them here does nothing on its own — see the header: the service's routes
-      # are configured in the dashboard and this file does not govern it. Delete both in
-      # the Render dashboard on `tic-web`. Until that is done the chain stays live.
-      #
-      # They are deleted rather than repointed on purpose. A 301 into a 404 costs a hop to
+      # They were deleted rather than repointed on purpose. A 301 into a 404 costs a hop to
       # deliver the same disappointment as a direct 404, and there is no honest destination
       # for a file library that no longer exists publicly. /services was considered and
       # rejected: a redirect to unrelated content is the soft-404 pattern this file warns
