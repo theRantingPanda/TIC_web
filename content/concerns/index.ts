@@ -96,6 +96,18 @@ export type ConcernIconKey =
   | 'hard-hat'
   | 'sprout'
 
+/**
+ * Which question set the concern's call to action leads to.
+ *
+ * A KEY, NOT A COMPONENT, for the same reason as `ConcernIconKey`: this module is `.ts`
+ * and cannot hold JSX. components/concern-page.tsx maps it to the real fields.
+ *
+ * Absent means the shared four-field enquiry, which is right for most concerns. Add a key
+ * only where the concern genuinely needs more — a quote-shaped form in front of someone
+ * who came to read about maternity timing costs enquiries rather than gathering them.
+ */
+export type ConcernEnquiryKey = 'top-up-quote'
+
 /** A lead image. Either a real photograph, or the brief for the one still to be shot. */
 export type ConcernImage =
   | { kind: 'photo'; src: string; alt: string; width: number; height: number }
@@ -211,6 +223,8 @@ export type Concern = {
    * than a link that answers a different question.
    */
   furtherReading?: { href: string; label: string }
+  /** Optional. Absent means the shared four-field enquiry form. */
+  enquiryFields?: ConcernEnquiryKey
   meta: { title: string; description: string }
 }
 
@@ -611,6 +625,13 @@ export const concerns: readonly Concern[] = [
       'Tell you when the scheme is already enough. That answer costs us the sale and it is still the right one.',
     ],
     ctaLabel: 'Find out what you could buy today',
+    /*
+      The one concern with its own question set, added 2026-08-18. Someone reading this
+      panel has already been shown three priced options, so they are further along than a
+      visitor on any other concern — asking for dates of birth and a schedule here is
+      proportionate, where it would not be elsewhere. See ConcernEnquiryKey.
+    */
+    enquiryFields: 'top-up-quote',
     meta: {
       title: 'Cover beyond your employer’s scheme',
       description:
