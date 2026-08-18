@@ -4,11 +4,17 @@ import { useState } from 'react'
 import { MAX_UPLOAD_BYTES } from '@/lib/capture'
 
 /**
- * The question set behind the `beyond-employer` call to action.
+ * The question set behind the `beyond-employer` call to action, in two screens.
  *
- * Rendered as children of `CaptureForm`, which owns the state machine, the honeypot, the
- * consent tickbox and the submit. Everything here is fields and the conditional logic
- * between them — nothing about how a submission is sent.
+ * `TopUpQuoteContact` is step one and `TopUpQuoteDetails` is step two; CaptureForm owns
+ * the stepping, the state machine, the honeypot, the consent tickbox and the submit.
+ * Everything here is fields and the conditional logic between them — nothing about how a
+ * submission is sent, and nothing about which screen is showing.
+ *
+ * ⚠ THE SPLIT IS PRESENTATION ONLY. Both halves stay mounted, so the submission is the
+ * same single POST with the same envelope and the same attachment as when this was one
+ * screen. If you ever make step two conditional on `step === 2`, you have moved step
+ * one's answers out of the form and into React state, and the upload with them.
  *
  * ⚠ IT IS A CLIENT COMPONENT BECAUSE THE CONDITIONS ARE, not because it wants to be. Two
  * answers change what is on screen: a country of residence outside the licensed set
@@ -34,22 +40,17 @@ const optional = <span className="font-normal text-ink-muted">(optional)</span>
 
 type Applicant = { id: number; relationship: string }
 
-export function TopUpQuoteFields() {
-  // The first applicant is the enquirer and carries no relationship. The rest do.
-  const [dependants, setDependants] = useState<Applicant[]>([])
-  const [nextId, setNextId] = useState(1)
-  const [residence, setResidence] = useState('')
-  const [portable, setPortable] = useState('')
-
-  /*
-    Trimmed and case-insensitive, because "singapore " with a trailing space is a real
-    thing people type and showing them a licensing warning for it would be wrong.
-  */
-  const normalised = residence.trim().toLowerCase()
-  const outsideLicence =
-    normalised.length > 0 &&
-    !LICENSED_RESIDENCE.some((country) => country.toLowerCase() === normalised)
-
+/**
+ * Step one: how to reach them. Three fields, and nothing that needs thinking about.
+ *
+ * Deliberately the short screen. The point of the split is that the first thing a
+ * visitor sees after deciding to enquire is answerable from memory — putting dates of
+ * birth and an upload here would defeat it.
+ *
+ * No state, so this stays a plain function. CaptureForm keeps it mounted when it moves
+ * to step two, which is what lets one FormData see these three alongside everything else.
+ */
+export function TopUpQuoteContact() {
   return (
     <>
       <div>
@@ -73,7 +74,34 @@ export function TopUpQuoteFields() {
           <input id="mobile" name="mobile" type="tel" required autoComplete="tel" className={fieldClass} />
         </div>
       </div>
+    </>
+  )
+}
 
+/**
+ * Step two: what is actually needed to price it.
+ *
+ * Everything conditional lives here, which is why this half is the client component and
+ * step one is not.
+ */
+export function TopUpQuoteDetails() {
+  // The first applicant is the enquirer and carries no relationship. The rest do.
+  const [dependants, setDependants] = useState<Applicant[]>([])
+  const [nextId, setNextId] = useState(1)
+  const [residence, setResidence] = useState('')
+  const [portable, setPortable] = useState('')
+
+  /*
+    Trimmed and case-insensitive, because "singapore " with a trailing space is a real
+    thing people type and showing them a licensing warning for it would be wrong.
+  */
+  const normalised = residence.trim().toLowerCase()
+  const outsideLicence =
+    normalised.length > 0 &&
+    !LICENSED_RESIDENCE.some((country) => country.toLowerCase() === normalised)
+
+  return (
+    <>
       {/*
         Date of birth rather than age: age is what a rate table needs, but it goes stale
         between the enquiry and the quote, and someone reading the lead a fortnight later

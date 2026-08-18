@@ -10,7 +10,7 @@ import { Reveal } from '@/components/reveal'
 import { Section } from '@/components/section'
 import { SectionHeading } from '@/components/section-heading'
 import { concernByPath, concernsFor, type Concern } from '@/content/concerns'
-import { TopUpQuoteFields } from '@/components/enquiry/top-up-quote'
+import { TopUpQuoteContact, TopUpQuoteDetails } from '@/components/enquiry/top-up-quote'
 import { captureEnabled } from '@/lib/capture'
 import { contact } from '@/lib/site'
 
@@ -75,6 +75,12 @@ function siblings(concern: Concern): readonly Concern[] {
 export function ConcernPage({ path }: { path: string }) {
   const concern = concernByPath(path)
   const company = concern.audience === 'company'
+  /*
+    The quote set is long enough to read as a wall, so it is the one concern that asks in
+    two screens. The four-field enquiry is not: splitting four fields would add a click
+    and a page of chrome to save nobody from anything.
+  */
+  const quote = concern.enquiryFields === 'top-up-quote'
 
 
 
@@ -166,8 +172,10 @@ export function ConcernPage({ path }: { path: string }) {
               // file. The two lists stay separate.
               list={company ? 'corporate' : 'individual'}
               submitLabel="Send this"
+              continueLabel="Next: who needs cover"
               successMessage="Got it. We will come back to you today or tomorrow morning."
               className="space-y-5"
+              secondStep={quote ? <TopUpQuoteDetails /> : undefined}
             >
               {/*
                 The lead tagging. Hidden fields rather than a query string, so the tag
@@ -184,8 +192,8 @@ export function ConcernPage({ path }: { path: string }) {
                 start a conversation. A concern that names a set gets that instead — see
                 ConcernEnquiryKey in the content module for when that is warranted.
               */}
-              {concern.enquiryFields === 'top-up-quote' ? (
-                <TopUpQuoteFields />
+              {quote ? (
+                <TopUpQuoteContact />
               ) : (
                 <>
               <div>
