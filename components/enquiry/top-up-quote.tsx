@@ -25,8 +25,8 @@ import { MAX_UPLOAD_BYTES } from "@/lib/capture";
  * Step one looked like three easy fields and step two was a fact-find.
  *
  * So the line moved. STEP ONE IS NOW EVERYTHING NEEDED TO GIVE A MEANINGFUL ANSWER —
- * who you are, one way to reach you, your age and where you live. STEP TWO IS ENTIRELY
- * OPTIONAL and says so: family, nationality, portability, pre-existing, a schedule, a
+ * who you are, one way to reach you, your age, your nationality and where you live. STEP
+ * TWO IS ENTIRELY OPTIONAL and says so: family, portability, pre-existing, a schedule, a
  * note. Someone who fills in step one and clicks straight through has sent us a real
  * enquiry, and that is the point.
  *
@@ -259,22 +259,48 @@ export function TopUpQuoteContact() {
         <input type="hidden" name="dob" value={dob} />
       </fieldset>
 
-      <div className="sm:max-w-[calc(50%-0.625rem)]">
-        <label htmlFor="residence" className={labelClass}>
-          Country of residence
-        </label>
-        <input
-          id="residence"
-          name="residence"
-          type="text"
-          required
-          list={COUNTRY_LIST_ID}
-          autoComplete="country-name"
-          value={residence}
-          onChange={(event) => setResidence(event.target.value)}
-          aria-describedby={outsideLicence ? "residence-warning" : undefined}
-          className={fieldClass}
-        />
+      <div className="grid gap-5 sm:grid-cols-2">
+        {/*
+          Nationality sits in step one and is required, moved there 2026-08-19 on Steven's
+          instruction. It is a rating and eligibility question rather than a detail, so it
+          belongs with the answers that make a reply meaningful, not with the optional
+          extras — and it was doing neither good nor harm sitting optional in step two.
+
+          THE MAIN ENQUIRER ONLY. Dependants have a date of birth and a relationship and
+          deliberately no nationality: it is not needed to say anything useful about them,
+          and every field on a repeater is paid for once per person added.
+        */}
+        <div>
+          <label htmlFor="nationality" className={labelClass}>
+            Nationality
+          </label>
+          <input
+            id="nationality"
+            name="nationality"
+            type="text"
+            required
+            list={COUNTRY_LIST_ID}
+            className={fieldClass}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="residence" className={labelClass}>
+            Country of residence
+          </label>
+          <input
+            id="residence"
+            name="residence"
+            type="text"
+            required
+            list={COUNTRY_LIST_ID}
+            autoComplete="country-name"
+            value={residence}
+            onChange={(event) => setResidence(event.target.value)}
+            aria-describedby={outsideLicence ? "residence-warning" : undefined}
+            className={fieldClass}
+          />
+        </div>
       </div>
 
       {/*
@@ -378,19 +404,6 @@ export function TopUpQuoteDetails() {
           Add someone else
         </button>
       </fieldset>
-
-      <div>
-        <label htmlFor="nationality" className={labelClass}>
-          Nationality {optional}
-        </label>
-        <input
-          id="nationality"
-          name="nationality"
-          type="text"
-          list={COUNTRY_LIST_ID}
-          className={fieldClass}
-        />
-      </div>
 
       <fieldset>
         <legend className={labelClass}>
