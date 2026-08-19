@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useCapture } from '@/components/capture-context'
 import { ctaClassName } from '@/components/cta-button'
 import {
@@ -30,6 +30,31 @@ import {
  * accepts input and then apologises. The runtime guard below is a second line of
  * defence for any future client-side mount.
  */
+/**
+ * Lift `required` off the step that is not on screen, and put it back when it returns.
+ *
+ * `data-was-required` is the memory. Without it, restoring would have to guess, and every
+ * optional field on the form would come back required the second time a visitor stepped
+ * forward and back.
+ */
+function syncRequired(container: HTMLElement | null, active: boolean) {
+  if (!container) return
+  const controls = container.querySelectorAll<
+    HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+  >('input, select, textarea')
+  for (const control of controls) {
+    if (active) {
+      if (control.dataset.wasRequired !== undefined) {
+        control.required = true
+        delete control.dataset.wasRequired
+      }
+    } else if (control.required) {
+      control.required = false
+      control.dataset.wasRequired = ''
+    }
+  }
+}
+
 export function CaptureForm({
   source,
   list,
@@ -37,6 +62,8 @@ export function CaptureForm({
   submitLabel,
   successMessage,
   listRule,
+  secondStep,
+  continueLabel = 'Continue',
   className = '',
 }: {
   source: CaptureSource
@@ -56,14 +83,67 @@ export function CaptureForm({
    * production.
    */
   listRule?: { field: string; corporateWhen: readonly string[] }
+  /**
+   * A second screen of fields, for a form long enough that showing it all at once reads
+   * as a wall. `children` becomes step one; this becomes step two.
+   *
+   * ⚠ BOTH STEPS STAY MOUNTED. Only their visibility changes, so one `FormData(form)` at
+   * submit still sees every field including the file input, and the submission path is
+   * byte-for-byte the one-step path. Unmounting the inactive step would have meant
+   * carrying its values in React state and re-emitting them as hidden inputs, which is a
+   * second copy of the truth and a new way for a field to go missing.
+   *
+   * The cost of keeping both mounted is that the hidden step's `required` controls would
+   * block submission — the browser refuses to validate a control it cannot focus, and
+   * does it silently. `syncRequired` below is the answer, and is the only reason this
+   * component touches the DOM directly.
+   */
+  secondStep?: ReactNode
+  /** Step one's button. Ignored without `secondStep`. */
+  continueLabel?: string
   className?: string
 }) {
   const [status, setStatus] = useState<CaptureStatus>('idle')
   const [error, setError] = useState<string | null>(null)
+  const [step, setStep] = useState<1 | 2>(1)
+  const stepOneRef = useRef<HTMLDivElement>(null)
+  const stepTwoRef = useRef<HTMLDivElement>(null)
   const capture = useCapture()
+  const stepped = Boolean(secondStep)
+  const onFinalStep = !stepped || step === 2
+
+  /*
+    Native validation, minus the trap.
+
+    A `required` control inside a hidden container cannot be focused, so the browser
+    refuses the submit and reports nothing the visitor can see. Rather than hand-rolling
+    validation for the whole site — which would lose the browser's own messages, in the
+    visitor's own language — the inactive step's controls have `required` lifted and
+    restored with the step. `data-was-required` remembers which ones to put back, so a
+    control that was never required does not acquire it on the way through.
+
+    Runs on every step change and after the dependants repeater adds a row, which is why
+    it reads the DOM rather than a list of field names.
+  */
+  useEffect(() => {
+    if (!stepped) return
+    syncRequired(stepOneRef.current, step === 1)
+    syncRequired(stepTwoRef.current, step === 2)
+  }, [step, stepped, secondStep])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
+
+    /*
+      On step one this handler is a "next", not a send. It is reached by the Continue
+      button and by Enter in a text field, and both should do the same thing. Native
+      validation has already passed by the time a submit event fires, so step one's own
+      required fields are filled before this advances.
+    */
+    if (stepped && step === 1) {
+      setStep(2)
+      return
+    }
 
     if (!CAPTURE_WEBHOOK_URL) {
       setStatus('error')
@@ -78,6 +158,7 @@ export function CaptureForm({
     if (data.get(HONEYPOT_FIELD)) {
       setStatus('success')
       form.reset()
+      setStep(1)
       return
     }
 
@@ -160,7 +241,25 @@ export function CaptureForm({
 
   return (
     <form onSubmit={handleSubmit} className={className}>
-      {children}
+      {stepped ? (
+        <>
+          <p className="text-eyebrow uppercase text-ink-muted">
+            Step {step} of 2
+          </p>
+          {/*
+            `hidden` rather than a class, so the inactive step leaves the accessibility
+            tree as well as the layout. It stays in the DOM: see the note on `secondStep`.
+          */}
+          <div ref={stepOneRef} hidden={step === 2} className={className}>
+            {children}
+          </div>
+          <div ref={stepTwoRef} hidden={step === 1} className={className}>
+            {secondStep}
+          </div>
+        </>
+      ) : (
+        children
+      )}
 
       {/* Visually and programmatically hidden from real users. */}
       <div aria-hidden="true" className="hidden">
@@ -199,12 +298,26 @@ export function CaptureForm({
         there for why it agrees to the policy rather than to a narrower purpose, and why a
         marketing consent would be a second tickbox rather than a rewrite of this one.
       */}
-      <div className="mt-6 flex items-start gap-3">
+      <div className="mt-6 flex items-start gap-3" hidden={!onFinalStep}>
+        {/*
+          `required={onFinalStep}`, not a bare `required`.
+
+          This control sits outside both step containers, so `syncRequired` never sees
+          it — and on step one it is hidden and empty, which is the exact combination the
+          browser refuses to validate and refuses to explain: "an invalid form control
+          with name='consent' is not focusable", in the console, and nothing at all on
+          screen. The Continue button simply stopped working.
+
+          Declarative here because this one is rendered by this component, so it does not
+          need the DOM walk the step containers do. handleSubmit still checks consent
+          independently before posting, so lifting the attribute cannot let an unconsented
+          submission through.
+        */}
         <input
           id={`${source}-${CONSENT_FIELD}`}
           name={CONSENT_FIELD}
           type="checkbox"
-          required
+          required={onFinalStep}
           className="mt-0.5 h-4 w-4 shrink-0 accent-brand-blue"
         />
         <label htmlFor={`${source}-${CONSENT_FIELD}`} className="text-xs/5 text-ink-muted">
@@ -216,13 +329,38 @@ export function CaptureForm({
         </label>
       </div>
 
+      {/*
+        ONE submit button, relabelled, rather than a Continue button beside a hidden one.
+        A second submit control in the same form is the classic way an incomplete lead
+        gets posted, and Enter in a text field would have had to pick between them.
+      */}
       <button
         type="submit"
         disabled={status === 'submitting'}
         className={`mt-4 ${ctaClassName()}`}
       >
-        {status === 'submitting' ? 'Sending…' : submitLabel}
+        {onFinalStep
+          ? status === 'submitting'
+            ? 'Sending…'
+            : submitLabel
+          : continueLabel}
       </button>
+
+      {/*
+        Back is a button, not a link, and it never validates: someone who mistyped their
+        email on step one has to be able to get back to it without first satisfying step
+        two. Step one's values are all still in the DOM, so nothing is restored — it was
+        never lost.
+      */}
+      {stepped && step === 2 ? (
+        <button
+          type="button"
+          onClick={() => setStep(1)}
+          className="mt-4 ml-4 text-sm font-medium text-ink-muted underline hover:text-ink"
+        >
+          Back
+        </button>
+      ) : null}
     </form>
   )
 }

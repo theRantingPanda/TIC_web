@@ -15,9 +15,23 @@ import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
  * Reduced motion is handled by returning before arming, so the element is never hidden
  * at all. The rules live in app/globals.css.
  *
- * Use it on section heading blocks and nothing else — eight or so on the homepage. Not
- * cards, not list items, and never staggered by index: that is what makes a page feel
- * like a product tour rather than something to read.
+ * ---- The budget widened on 2026-08-18, and here is exactly how far ----
+ *
+ * It used to say "section heading blocks and nothing else". Steven asked for the concern
+ * pages to be paced rather than arriving as one block, so the major BANDS now reveal
+ * too: the case, the numbers, the considerations, what we do, the call to action, the
+ * bridge, the form, and the sibling grid as a single unit.
+ *
+ * WHAT DID NOT CHANGE, and is the part that was actually load-bearing: not cards, not
+ * list items, and NEVER staggered by index. Nine things arriving one after another is
+ * what makes a page feel like a product tour rather than something to read. The sibling
+ * grid gets ONE Reveal around the whole grid for exactly this reason — see the note at
+ * its call site in components/concern-page.tsx.
+ *
+ * Two things are deliberately still at rest. The panel's title and opening paragraphs,
+ * because on a concern page that is the <h1> and the LCP element, and fading in the
+ * thing the visitor came for is a cost with no benefit. And the trust band's figures,
+ * which have their own motion from components/count-up.tsx and do not need two.
  */
 export function Reveal({
   children,

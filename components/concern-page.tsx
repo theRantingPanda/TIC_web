@@ -5,10 +5,12 @@ import { ConcernCard } from '@/components/concern-card'
 import { ConcernPanel } from '@/components/concern-panel'
 import { Container } from '@/components/container'
 import { EmailField } from '@/components/email-field'
+import { EnquiryBridge } from '@/components/enquiry-bridge'
+import { Reveal } from '@/components/reveal'
 import { Section } from '@/components/section'
 import { SectionHeading } from '@/components/section-heading'
 import { concernByPath, concernsFor, type Concern } from '@/content/concerns'
-import { TopUpQuoteFields } from '@/components/enquiry/top-up-quote'
+import { TopUpQuoteContact, TopUpQuoteDetails } from '@/components/enquiry/top-up-quote'
 import { captureEnabled } from '@/lib/capture'
 import { contact } from '@/lib/site'
 
@@ -73,6 +75,12 @@ function siblings(concern: Concern): readonly Concern[] {
 export function ConcernPage({ path }: { path: string }) {
   const concern = concernByPath(path)
   const company = concern.audience === 'company'
+  /*
+    The quote set is long enough to read as a wall, so it is the one concern that asks in
+    two screens. The four-field enquiry is not: splitting four fields would add a click
+    and a page of chrome to save nobody from anything.
+  */
+  const quote = concern.enquiryFields === 'top-up-quote'
 
 
 
@@ -122,13 +130,40 @@ export function ConcernPage({ path }: { path: string }) {
 
 
       <Section id="talk-to-us" tone="subtle" labelledBy="enquiry-heading">
+        {/*
+          The lede describes the ask and NOTHING ELSE. It used to carry the promise as
+          well — "no obligation, and a reply the same working day" — and the bridge
+          immediately below now says both of those in full sentences, so keeping them here
+          put the same commitment on screen twice inside forty words.
+
+          It also has to follow the form. /beyond-employer-cover swapped to the quote
+          question set on 2026-08-18 and this line went on promising "Four fields" above a
+          form asking for dates of birth, nationality, residency and an upload. That is
+          the one place on the page where understating the ask is a broken promise rather
+          than a nicety, because the visitor has already committed by the time they find
+          out. It is keyed off the same `enquiryFields` value that chooses the fields
+          below, so the count and the form cannot drift apart again.
+        */}
         <SectionHeading
           id="enquiry-heading"
           title="Tell us the situation"
-          lede="Four fields, no obligation, and a reply the same working day."
+          lede={
+            concern.enquiryFields === 'top-up-quote'
+              ? 'A few details so we can price it properly.'
+              : 'Four fields, and the last one is optional.'
+          }
         />
 
-        <div className="mt-8 max-w-xl">
+        {/*
+          Between the heading and the form, not above the heading: the bridge answers
+          "what happens if I do this", which is only a question once the visitor has been
+          asked. See components/enquiry-bridge.tsx for why it carries no button.
+        */}
+        <div className="mt-10">
+          <EnquiryBridge audience={concern.audience} />
+        </div>
+
+        <Reveal className="mt-10 max-w-xl">
           {captureEnabled ? (
             <CaptureForm
               source="concern-enquiry"
@@ -137,8 +172,10 @@ export function ConcernPage({ path }: { path: string }) {
               // file. The two lists stay separate.
               list={company ? 'corporate' : 'individual'}
               submitLabel="Send this"
+              continueLabel="Next: who needs cover"
               successMessage="Got it. We will come back to you today or tomorrow morning."
               className="space-y-5"
+              secondStep={quote ? <TopUpQuoteDetails /> : undefined}
             >
               {/*
                 The lead tagging. Hidden fields rather than a query string, so the tag
@@ -155,8 +192,8 @@ export function ConcernPage({ path }: { path: string }) {
                 start a conversation. A concern that names a set gets that instead — see
                 ConcernEnquiryKey in the content module for when that is warranted.
               */}
-              {concern.enquiryFields === 'top-up-quote' ? (
-                <TopUpQuoteFields />
+              {quote ? (
+                <TopUpQuoteContact />
               ) : (
                 <>
               <div>
@@ -234,7 +271,7 @@ export function ConcernPage({ path }: { path: string }) {
               .
             </p>
           ) : null}
-        </div>
+        </Reveal>
       </Section>
 
       {/*
@@ -247,13 +284,21 @@ export function ConcernPage({ path }: { path: string }) {
           id="siblings-heading"
           title={company ? 'Or something else entirely' : 'Or is it more like one of these'}
         />
-        <ul className="mt-8 grid gap-4 sm:grid-cols-3">
-          {siblings(concern).map((item) => (
-            <li key={item.key}>
-              <ConcernCard concern={item} />
-            </li>
-          ))}
-        </ul>
+        {/*
+          ONE Reveal around the whole grid, never one per card. Cards arriving in
+          sequence is the staggered-list effect that reveal.tsx warns about by name: it
+          reads as a product tour, and this grid is the one place on a concern page a
+          visitor is meant to scan quickly to find their actual situation.
+        */}
+        <Reveal>
+          <ul className="mt-8 grid gap-4 sm:grid-cols-3">
+            {siblings(concern).map((item) => (
+              <li key={item.key}>
+                <ConcernCard concern={item} />
+              </li>
+            ))}
+          </ul>
+        </Reveal>
       </Section>
     </>
   )
