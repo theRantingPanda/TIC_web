@@ -89,12 +89,23 @@ export const primaryNav: readonly NavGroup[] = [
   /*
     "Answers" stood here, pointing at /knowledge, until 2026-08-17. The knowledge base and
     every /single-post/… article were retired from the public site that day and moved to
-    the CRM, so the destination stopped existing.
+    the CRM, so the destination stopped existing. It was not repointed: the two candidates
+    were a CRM login, which sends a visitor to a wall most of them cannot pass, and
+    /services, which would leave a nav item labelled "Answers" landing on a page about what
+    we arrange. Both are worse than two honest groups.
 
-    It was not repointed. The two candidates were a CRM login, which sends a visitor to a
-    wall most of them cannot pass, and /services, which would leave a nav item labelled
-    "Answers" landing on a page about what we arrange. Both are worse than two honest
-    groups. If a public answers surface returns, this is where it goes back.
+    ⚠ THE CONDITION THIS NOTE SET IS NOW MET (2026-08-19). A public answers surface DID
+    return: the CRM's knowledge base went live at www.asktic.com/kb on 2026-08-18, served
+    here by rewrite, and it is public and indexable. This is where the nav item goes back.
+
+    It has NOT been added, because the label is a copy decision and this file should not
+    make it. Two things a future editor needs. The surface calls itself "Member resources"
+    in its own brand lockup — the owner's word, chosen on 2026-08-18 over "Help centre" —
+    so a nav item named anything else would contradict the page it opens. And /kb is a
+    `proxied` path in content/url-contract.json, not a `preserved` one, so `verify:urls`
+    check 4 — every nav href resolves to a preserved path — must be widened to accept
+    proxied paths in the same change, or the build fails. That guard firing is correct:
+    it is asking whether linking off-origin was deliberate.
   */
 ] as const
 
@@ -141,14 +152,17 @@ export const flatNav: readonly NavItem[] = primaryNav.flatMap((group) => [
  *                 footer's legal line, because `captureEnabled` is false until
  *                 NEXT_PUBLIC_N8N_CONTACT_WEBHOOK is set and no form renders today, so
  *                 the form link alone would have meant no privacy link anywhere.
- *   /forms     -> sent to members directly by email or WhatsApp when they need a
- *                 specific document. Nobody hunts for a claim form on a marketing site.
+ *   /forms     -> retired 2026-08-17; its documents moved to the CRM and are attached to
+ *                 knowledge-base articles, downloaded from /kb/_forms/{slug}. Members are
+ *                 still sent a specific document directly by email or WhatsApp when they
+ *                 need one. Nobody hunts for a claim form on a marketing site.
  *   /projects  -> nowhere. It was redundant — its page content was derived from
  *                 `primaryNav`, so the footer linked to a page that re-listed the nav.
  *                 Retired entirely on 2026-08-17 as a legacy mistake from the old site.
  *                 The page is gone and the path is `dropped`, so it 404s on purpose.
  *
- * /privacy and /forms still build and are still preserved paths; only their links moved.
+ * /privacy still builds and is still a preserved path; only its link moved. /forms is
+ * now a tombstone pointing at /kb — see content/url-contract.json.
  *
  * ⚠ IF YOU ARE ABOUT TO ADD A FOOTER SITEMAP BACK, count first. The test is not whether
  * a footer conventionally has one, it is how many of its links the sticky header already

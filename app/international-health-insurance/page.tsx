@@ -85,6 +85,7 @@ const afterPlacement = [
 /*
   The "What people ask us" section stood here until 2026-08-17. It was three questions
   drawn from blog articles, each linking to the article and then out to /knowledge.
+  Both destinations were retired on 2026-08-17; the knowledge base is now the CRM's, at /kb.
 
   It went with the articles rather than instead of them: the knowledge base and every
   /single-post/… path were retired from the public site the same day, so both of the

@@ -62,8 +62,8 @@ if (map.articles.length === 0) {
     `${INDENT}# ${map.articles.length} article(s), generated ${map.generatedAt ?? 'unknown'}`,
   )
   for (const article of map.articles) {
-    // Draft and archived articles have no public destination — they are excluded from
-    // the build by lib/content.ts, so redirecting to them would 404.
+    // Draft and archived articles have no public destination — nothing publishes them,
+    // so redirecting to them would 404.
     const note = article.status === 'published' ? '' : `  # ${article.status}: skipped`
     if (article.status !== 'published') {
       lines.push(`${INDENT}# ${article.sourcePath} -> not published${note}`)

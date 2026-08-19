@@ -63,7 +63,8 @@ const mechanics = [
   The "What people ask us" section stood here until 2026-08-17, and went for the same
   reason as its twin on /international-health-insurance: the knowledge base and every
   /single-post/… article were retired from the public site that day, and this section was
-  three links into the articles plus one out to /knowledge. Its answers were the articles'
+  three links into the articles plus one out to /knowledge (both retired 2026-08-17; the
+  knowledge base is now the CRM's, at /kb). Its answers were the articles'
   own summary frontmatter, so nothing survived the articles going.
 
   If questions come back here, they need answers written for this page and no link out.

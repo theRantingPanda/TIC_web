@@ -20,7 +20,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import * as cheerio from 'cheerio'
 import { FRESHDESK_DIR, ROOT, ensureDir, writeJson } from './lib/paths.ts'
-import { freshdeskStatusToKbStatus } from '../lib/kb-schema.ts'
+import { freshdeskStatusToKbStatus } from './lib/freshdesk-status.ts'
 
 const PUBLIC_HOST = process.env.FRESHDESK_PUBLIC_HOST ?? 'support.asktic.com'
 const RAW_PATH = path.join(FRESHDESK_DIR, '_raw.json')

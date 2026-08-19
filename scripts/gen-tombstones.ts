@@ -92,8 +92,31 @@ function stubJson(asset: StrandedAsset): string {
   return `${JSON.stringify({ version: 1, retired: true, note: RETIRED_LINE, forms: [] }, null, 2)}\n`
 }
 
+/*
+  Two pages, chosen by the destination.
+
+  A tombstone whose destination is `/` has no replacement — the page is gone and the
+  homepage is only somewhere to stand. But nine of the fifteen point at a page that
+  genuinely covers what the visitor came for, and /knowledge and /forms now point at the
+  knowledge base itself. Telling that visitor we retired the articles, above a link to
+  the articles, is false and reads as a dead end.
+
+  So the copy branches on the same condition the button already did, rather than one
+  wording covering both. The heading carries it: a person who has landed somewhere
+  unexpected reads that first and often nothing else.
+*/
 function page({ destination }: Tombstone): string {
   const home = destination === '/'
+  const title = home ? 'This page is no longer here' : 'This page has moved'
+  const lead = home
+    ? `We retired this page. If you were sent this link, the answer you were after has
+    probably moved, and we are happy to give it to you directly.`
+    : `The page you followed is not at this address any more. What it covered is here:`
+  const tail = home
+    ? `Email <a href="mailto:hello@asktic.com">hello@asktic.com</a> and tell us what you were
+    looking for.`
+    : `If that is not what you were after, email
+    <a href="mailto:hello@asktic.com">hello@asktic.com</a> and tell us what you were looking for.`
   return `<!DOCTYPE html>
 <html lang="en-SG" ${TOMBSTONE_MARKER}>
 <head>
@@ -101,7 +124,7 @@ function page({ destination }: Tombstone): string {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <link rel="canonical" href="https://www.asktic.com${destination}">
-<title>This page is no longer here | The Insurance Concierge</title>
+<title>${title} | The Insurance Concierge</title>
 <style>
   :root { color-scheme: light }
   body {
@@ -120,16 +143,10 @@ function page({ destination }: Tombstone): string {
 </head>
 <body>
 <main>
-  <h1>This page is no longer here</h1>
-  <p>
-    We retired our public articles and forms. If you were sent this link, the answer you
-    were after has probably moved, and we are happy to give it to you directly.
-  </p>
-  <p>
-    Email <a href="mailto:hello@asktic.com">hello@asktic.com</a> and tell us what you were
-    looking for.
-  </p>
-  <a class="go" href="${destination}">${home ? 'Go to the homepage' : 'See the page that covers this'}</a>
+  <h1>${title}</h1>
+  <p>${lead}</p>
+  <a class="go" href="${destination}">${home ? 'Go to the homepage' : 'Continue'}</a>
+  <p style="margin-top:1.5rem">${tail}</p>
 </main>
 </body>
 </html>

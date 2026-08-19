@@ -8,6 +8,10 @@
  *   1. every path in content/url-contract.json -> preserved emits an artifact in out/
  *   2. every path in -> redirectOnly emits NO artifact (those are render.yaml redirects;
  *      shipping a real page at /file-access would silently shadow the redirect)
+ *   2b. every path in -> proxied emits NO artifact either. Those are served by the CRM
+ *      through a Render rewrite; an artifact here would be published at the same path and,
+ *      because Render's publish is additive, would shadow the rewrite and take the
+ *      knowledge base off this host with nothing failing.
  *   3. every path in -> tombstoned emits a TOMBSTONE, and every other dropped path emits
  *      nothing. The two are opposite requirements on the same list, which is the point:
  *      a tombstoned path is one the live disk is still serving, so the only way to retire
@@ -29,6 +33,7 @@ const OUT_DIR = path.join(ROOT, 'out')
 type Contract = {
   preserved: { path: string; note?: string }[]
   redirectOnly: { path: string; destination: string; status: number }[]
+  proxied?: { paths: { path: string; destination: string; note?: string }[] }
   dropped?: { groups: { reason: string; paths: string[] }[] }
   tombstoned?: { paths: { path: string; destination: string; note?: string }[] }
 }
@@ -121,6 +126,36 @@ for (const entry of contract.redirectOnly) {
     console.error(`  ✗ ${entry.path.padEnd(36)} UNEXPECTED out/${artifact}`)
   } else {
     console.log(`  ✓ ${entry.path.padEnd(36)} -> ${entry.status} ${entry.destination}`)
+  }
+}
+
+/*
+  Proxied paths are served by another origin. The assertion is the redirect-only one for
+  the same reason — a file published here wins over the rule that forwards the path — but
+  the consequence is worse: a redirect that stops working 404s visibly, while a shadowed
+  rewrite serves a plausible page of ours in place of the whole knowledge base.
+
+  A bare /kb and /kb/* are separate rules on the service. Only the literal paths are
+  checked here; a wildcard has no artifact to test.
+*/
+const proxied = contract.proxied?.paths ?? []
+if (proxied.length > 0) {
+  console.log('\nChecking proxied paths emit nothing…')
+  for (const entry of proxied) {
+    if (entry.path.includes('*')) {
+      console.log(`  - ${entry.path.padEnd(36)} wildcard, nothing to check`)
+      continue
+    }
+    const artifact = artifactFor(entry.path)
+    if (artifact) {
+      failures.push(
+        `Proxied path ${entry.path} emitted out/${artifact} — Render's publish is additive, ` +
+          `so that file would shadow the rewrite to ${entry.destination}.`,
+      )
+      console.error(`  ✗ ${entry.path.padEnd(36)} UNEXPECTED out/${artifact}`)
+    } else {
+      console.log(`  ✓ ${entry.path.padEnd(36)} -> ${entry.destination}`)
+    }
   }
 }
 

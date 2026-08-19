@@ -24,6 +24,11 @@ export default function NotFound() {
 
         What replaced it goes somewhere that will still exist: what we do. Do not put a
         second destination here for the sake of symmetry.
+
+        The knowledge base has since returned at /kb (2026-08-18), so there IS a live
+        answers destination again. Whether a 404 should offer it is the same copy decision
+        as the nav item — see the note beside `primaryNav` in lib/site.ts, which is where
+        that call gets made once, not twice.
       */}
       <p className="mt-4 max-w-2xl text-lg text-ink-muted">
         The page may have moved. Head back to the homepage, or see what we do.

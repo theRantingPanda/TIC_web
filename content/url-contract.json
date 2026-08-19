@@ -93,6 +93,23 @@
       "note": "Preserved until 2026-08-16. NOT redirected to /services. The marine and oil and gas specialty product was dropped but its audience was not, so the search equity follows the audience. /offshore-and-energy is a new page and deliberately not the old copy renamed - it must never imply a separate marine policy."
     }
   ],
+  "proxied": {
+    "$comment": "Paths this domain SERVES but this repo does not BUILD. A Render rewrite on the tic-web service forwards them to rainmaker.asktic.com, where the CRM renders them. They are neither `preserved` (nothing here emits them) nor `redirectOnly` (the visitor is not redirected and never sees the other host) - hence a class of their own, so that `npm run verify:urls` asserting no artifact in out/ is read as correct rather than as a missing page.",
+    "$twoRulesNotOne": "A bare /kb is NOT matched by /kb/*, so both rules must exist. And the destination must REPEAT the prefix - /kb/* -> https://rainmaker.asktic.com/kb/* - because the splat substitutes only the captured segment; the shorthand .../* would strip /kb and 404 every article. Both cost a round on 2026-08-18.",
+    "$theHostIsNotForwarded": "The CRM receives Host: rainmaker.asktic.com, so it cannot tell a proxied request from a direct one. Everything follows from that: the CRM builds absolute public URLs from its own config rather than the request, links within the KB are relative, and the noindex for the CRM host is a Disallow in ITS robots.txt - which works only because /robots.txt is deliberately not proxied. Do not add a /robots.txt rule here.",
+    "paths": [
+      {
+        "path": "/kb",
+        "destination": "https://rainmaker.asktic.com/kb",
+        "note": "The knowledge-base index. Live 2026-08-18."
+      },
+      {
+        "path": "/kb/*",
+        "destination": "https://rainmaker.asktic.com/kb/*",
+        "note": "Articles, topic pages, /kb/sitemap.xml, the stylesheet at /kb/_assets/*, and member documents at /kb/_forms/{slug}."
+      }
+    ]
+  },
   "pendingSitemapConfirmation": false,
   "$pendingNote": "COMPLETE (2026-08-11), amended 2026-08-16 twice. Every path in https://www.asktic.com/sitemap.xml is classified. The second 2026-08-16 amendment added six concern pages for the homepage flow; they are new paths, not in the Wix sitemap, and each must emit an artifact. The first amendment moved /blog and /speciality-insurance from preserved to redirect-only and added their two destinations, then retired /income-preservation-1 the same way without a new destination. This file is authoritative. Rationale for each decision is in content/_inventory/STOP-REPORT.md and url-decisions.md.",
   "dropped": {
@@ -187,13 +204,13 @@
     "paths": [
       {
         "path": "/knowledge",
-        "destination": "/",
-        "note": "The public KB index. Moved to the CRM."
+        "destination": "/kb",
+        "note": "The public KB index. The knowledge base moved to the CRM and is served at /kb through a Render rewrite, so this is the one tombstone whose destination is the thing the visitor actually came for. Retargeted from / on 2026-08-19."
       },
       {
         "path": "/forms",
-        "destination": "/",
-        "note": "The forms library. Moved to the CRM."
+        "destination": "/kb",
+        "note": "The forms library. Its documents moved to the CRM as knowledge-base attachments, downloaded from /kb/_forms/{slug}; there is no forms index any more, so /kb is where they are found. Retargeted from / on 2026-08-19."
       },
       {
         "path": "/projects",

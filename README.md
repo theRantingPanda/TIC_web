@@ -83,9 +83,11 @@ Images are pulled at **2000px on the long edge**, not at Wix's original resoluti
 `images.unoptimized: true` the committed file is what every visitor downloads, and the
 largest original is 7133x4800 / 18 MB (513 KB at the cap).
 
-**Freshdesk — stopped by decision.** Solutions content is stale; KB copy will be written
-by hand into `content/kb/` rather than ported. Do not restart the article pull. The
-4 captured Allianz articles are an archive only and must not be ported — see
+**Freshdesk — stopped by decision.** Solutions content is stale; do not restart the
+article pull. The knowledge base is now written in the CRM and served at
+`www.asktic.com/kb` through a Render rewrite, so nothing lands in this repo either way.
+The 4 captured Allianz articles are an archive — one of them has since been reworked by
+hand into a CRM article, which is the only route by which any of them may be used. See
 [`_capture-status.md`](content/_inventory/_capture-status.md).
 
 The tooling remains for one specific future case: if `support.asktic.com` is ever
@@ -295,13 +297,12 @@ components/
   concern-page        a concern's whole route: panel + questions + tagged form
   cta-button          the one button. Ink, because green fails contrast
   capture-form        the form state machine, honeypot included
-lib/            site.ts (nav + contract), capture.ts (lead tagging), kb-schema.ts (zod),
+lib/            site.ts (nav + contract), capture.ts (lead tagging),
                 content.ts (MDX reader)
 content/
   url-contract.json          canonical preserved paths — the hard constraint
   concerns/index.ts          the eight concerns — one source, two surfaces
   home/copy.ts               homepage strings only; the flow's copy is in concerns/
-  kb/                        KB articles (MDX) — empty by decision
   _inventory/                capture archive — see its own README
 public/
   forms/manifest.json        file library — scaffolded empty, not populated
@@ -478,8 +479,12 @@ each is assembled from material the site already publishes:
 | --- | --- | --- |
 | `/services` | Client-rendered on Wix at `/blog`; never captured. That path was the **Services** landing page, not a blog index, and it now 301s here. | The two product pages, all eight concerns in one flat list, the individual lead magnet, and the 12 posts — which also gives the posts an index, since the Wix category pages were dropped. |
 | the six new concern pages | New paths, added with the flow. | The shared panel, a questions band, and a lead-tagged enquiry form. |
-| `/knowledge` | New path. `content/kb/` is empty and stays empty — KB copy is being written by hand, not ported from Freshdesk. | The posts, and a link to the live help centre at `support.asktic.com`, which Freshdesk still serves. |
-| `/forms` | New path. The Wix `/file-access` original was an unconfigured template. | The member file library from `public/forms/manifest.json`, **grouped by insurer** — the one route on this site that names them. Empty manifest renders an empty state that invites contact rather than a blank list. |
+
+`/knowledge` and `/forms` were also built here and are now **tombstoned** — the
+knowledge base moved to the CRM at `/kb`, and the member file library moved with it as
+attachable documents. Both paths still answer on the live disk because Render's publish
+is additive; see `tombstoned` in `content/url-contract.json`, which is the account of
+that and the only place it should be maintained.
 
 ### Unfinished sections ship hidden, and open themselves
 
@@ -762,20 +767,22 @@ auto-deploy will not fire. Trigger a manual redeploy after setting it.
 Everything now goes through `components/capture-form.tsx`, which owns the honeypot and
 the four states in one place.
 
-### Knowledge-base frontmatter
+### The knowledge base is not here
 
-Validated by `lib/kb-schema.ts` (zod). Invalid frontmatter fails the build.
+It ships from the CRM, served at `www.asktic.com/kb` by a Render rewrite to
+`rainmaker.asktic.com`. This repo had a frontmatter schema and a `content/kb` directory
+for a version that was never built; both are gone, and the sitemap `app/robots.ts`
+announces is the CRM's.
 
-```yaml
-slug, title, summary, carrier, productLine, audience, topic,
-jurisdiction, lastReviewed, reviewDue, status, sourceUrl
-```
+The decisions that schema encoded were carried over, not dropped: the two-field public
+gate (`audience` + `status`) is `visibility` + `status` in the CRM's `KbVisibility`, and
+the review dates are `last_reviewed_at` / `review_due_at` on `kb_articles`. One was
+deliberately left behind — insurer neutrality is a rule for *this* site only, so a CRM
+article may name a carrier.
 
-Two fields gate the public build, filtered in one place (`getPublicKbArticles`):
-
-- `audience: 'public'` — `'operator'` articles belong to the CRM-side KB, never here.
-- `status: 'published'` — Freshdesk drafts must not ship. Unknown Freshdesk status
-  values map to `draft`: fail closed.
+What stays here is the Freshdesk capture and its redirect obligation: those URLs are
+indexed, and each published article owes a 301 wherever it lands. See
+`content/_inventory/README.md`.
 
 ---
 

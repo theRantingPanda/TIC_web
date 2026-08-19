@@ -6,7 +6,8 @@
 #
 #   branch          main          autoDeploy    yes, on commit
 #   buildCommand    npm run build publishPath   out
-#   env vars        none          routes        the six redirects below
+#   env vars        none          routes        EIGHT: the six redirects below, plus the
+#                                               two /kb rewrites (see the block below)
 #
 # ✓ CLEARED (2026-08-17). This block used to warn that the /blog, /speciality-insurance
 # and /income-preservation-1 redirects were not yet on the service and that those three
@@ -14,12 +15,24 @@
 # verified against the live site on 2026-08-17: each returns 301 to its documented
 # destination, as do /home-1, /file-access and /file. Six redirects, all serving.
 #
-# ⚠ AMENDED, THEN ✓ CLEARED, both 2026-08-18. Two of those six briefly served the wrong
-# thing: /file-access and /file still 301'd to /forms, retired the day before, so both
-# landed on a 404. They were removed from this file and deleted on the service, and both
-# were re-checked live afterwards — each now returns a direct 404 with no redirect. The
-# other four were re-checked in the same pass and still serve their documented
-# destinations. Four routes here, four serving: this file and the service agree again.
+# ⚠ AMENDED, CLEARED, THEN REVERSED — all within 2026-08-18. /file-access and /file still
+# 301'd to /forms, retired the day before, so both landed on a 404; they were removed here
+# and deleted on the service. The operator then ruled the same day that both should exist,
+# and they were restored on the service in their original position after /home-1. So the
+# live redirect count is SIX, not four, and this file is correct again only as of the
+# restoration of those two entries below (2026-08-19).
+#
+# The destination they were restored to is /forms, which is no longer a 404: it is a
+# tombstone this repo emits, and since 2026-08-19 it points onward at /kb, where the
+# member documents now live as knowledge-base attachments. So the chain is
+# /file-access → 301 /forms → 200 "This page has moved" → /kb. That is honest and it
+# works, but it is a hop longer than it needs to be. If a rule is ever confirmed to beat
+# a published file (see `tombstoned.$whenToDeleteThis` in content/url-contract.json),
+# point these two straight at /kb and drop the middle step.
+#
+# NOT RE-VERIFIED HERE. www.asktic.com and render.com are both egress-blocked from the
+# session that wrote this; the restoration is taken from the record in CLAUDE.md, not
+# from a live read. Check the live routes before relying on it.
 #
 # The warning is recorded as cleared rather than deleted, because the drift it describes
 # is permanent while this file and the service are maintained separately, and a future
@@ -208,23 +221,22 @@ services:
         source: /home-1
         destination: /
 
-      # ✓ /file-access AND /file ARE GONE, from this file and from the service. Both used
-      # to 301 to /forms; /forms was retired on 2026-08-17 and its library moved into the
-      # CRM, which left each of them redirecting into a 404. Removed here and deleted in
-      # the Render dashboard on the same day. Verified live 2026-08-18 after the deletion:
-      # both now return a direct 404 and send no Location header.
+      # /file-access and /file were deleted on 2026-08-18 and RESTORED the same day on the
+      # operator's ruling. Both are Wix-era paths for the member file library. They 301 to
+      # /forms, which is now a tombstone pointing onward at /kb — see the header for why
+      # that hop is tolerated rather than collapsed.
       #
-      # Kept as a note rather than deleted, for the one lesson in it: removing them here
-      # did nothing by itself. The service's routes are configured in the dashboard and
-      # this file does not govern it, so a route change is two changes. `verify:urls`
-      # cannot catch the gap either — it asserts a redirect-only path emits no artifact in
-      # out/, which says nothing about what Render serves.
-      #
-      # They were deleted rather than repointed on purpose. A 301 into a 404 costs a hop to
-      # deliver the same disappointment as a direct 404, and there is no honest destination
-      # for a file library that no longer exists publicly. /services was considered and
-      # rejected: a redirect to unrelated content is the soft-404 pattern this file warns
-      # about a few lines below.
+      # The lesson in the round trip is worth more than the routes: removing them from this
+      # file did nothing by itself. The service's routes are configured in the dashboard and
+      # this file does not govern it, so a route change is two changes. `verify:urls` cannot
+      # catch the gap either — it asserts a redirect-only path emits no artifact in out/,
+      # which says nothing about what Render serves.
+      - type: redirect
+        source: /file-access
+        destination: /forms
+      - type: redirect
+        source: /file
+        destination: /forms
 
       # ---- Copy-deck path changes, 2026-08-16 ----
       # These two are a deliberate, signed-off exception to URL preservation: both were
@@ -251,6 +263,30 @@ services:
         source: /income-preservation-1
         destination: /services
 
+      # ---- The knowledge base, 2026-08-18 ----
+      # REWRITES, not redirects: the visitor stays on www.asktic.com and never learns
+      # another host is involved. The CRM renders these at rainmaker.asktic.com.
+      #
+      # TWO RULES, because a bare /kb is not matched by /kb/*. And the destination REPEATS
+      # the prefix — the splat substitutes only the captured segment, so `.../*` would
+      # strip /kb and 404 every article. Both facts cost a round on 2026-08-18.
+      #
+      # /robots.txt is deliberately NOT proxied. The CRM host bans crawlers in its own
+      # robots.txt, which is fetched per host; forwarding this site's /robots.txt there
+      # would serve that ban to crawlers of www.asktic.com.
+      #
+      # Recorded in content/url-contract.json -> proxied, where `verify:urls` asserts the
+      # build emits nothing at these paths. That check matters more than it looks: an
+      # artifact here would be published at the same path and, because Render's publish is
+      # additive, would shadow the rewrite and take the knowledge base off this host with
+      # nothing failing.
+      - type: rewrite
+        source: /kb
+        destination: https://rainmaker.asktic.com/kb
+      - type: rewrite
+        source: /kb/*
+        destination: https://rainmaker.asktic.com/kb/*
+
       # /projects is NOT here, and its absence is the decision. It was briefly given a 301
       # to /services on the assumption that an indexed path is always worth preserving.
       # It is not: the Wix original was an unfinished template with no original content,
@@ -276,7 +312,7 @@ services:
       # END GENERATED freshdesk-article-map
 
   # ---------------------------------------------------------------------------
-  # help.asktic.com -> https://www.asktic.com/knowledge
+  # help.asktic.com -> https://www.asktic.com/kb
   #
   # A standalone service whose only job is to redirect one hostname. It exists
   # because Render's redirect rules cannot match on host: putting this rule on the
@@ -285,15 +321,16 @@ services:
   # Attach `help.asktic.com` as a custom domain on THIS service (not on tic-web),
   # then point its DNS at Render.
   #
-  # ⚠⚠ DO NOT CREATE THIS SERVICE. ITS DESTINATION IS A 404 (added 2026-08-18).
-  # It redirects to https://www.asktic.com/knowledge, and /knowledge was retired on
-  # 2026-08-17 — verified live as a 404 on 2026-08-18. A service whose entire purpose is
-  # pointing one hostname at a dead page is worse than no service.
+  # ⚠ STILL DO NOT CREATE THIS SERVICE — but the reason has changed (2026-08-19).
   #
-  # It is harmless TODAY only because two things are both true: the hostname does not
-  # exist, and this file is not applied as a Blueprint. Adopting the file would create it.
-  # If a public answers surface ever returns, repoint this at the new destination in the
-  # same change; if it does not, delete this service definition outright.
+  # The old warning was that its destination was a 404: it pointed at /knowledge, retired
+  # on 2026-08-17. That is fixed — a public answers surface DID return, at /kb, and this
+  # definition is repointed there in the same change, exactly as the old note asked.
+  #
+  # What remains is the older and more basic objection below: `help.asktic.com` does not
+  # exist. There is no record to move and nothing to serve. It is harmless today only
+  # because that is true AND this file is not applied as a Blueprint; adopting the file
+  # would create a service for a hostname nobody can reach.
   #
   # READ THIS BEFORE SPENDING ANY TIME ON THIS SERVICE (2026-08-11):
   # `help.asktic.com` DOES NOT EXIST. It resolves NXDOMAIN today, and the zone
@@ -304,8 +341,10 @@ services:
   #
   # So this service is not "waiting on DNS" — there is no record to move. It only
   # becomes useful if someone decides to CREATE help.asktic.com and point it here.
-  # Nothing in the rebuild depends on that: this site's own nav links to /knowledge
-  # directly. Left in place because it costs nothing and the decision is not ours.
+  # Nothing in the rebuild depends on that. The site's own nav no longer links to a
+  # knowledge path at all — /knowledge was retired and the knowledge base is reached at
+  # /kb, which this site serves by rewrite. Left in place because it costs nothing and
+  # the decision is not ours.
   #
   # Separately (decision 2026-08-11): the domain is NOT moving to Vodien. Wix stays
   # authoritative for the zone, so cutover is record surgery in Wix's DNS rather than a
@@ -322,10 +361,13 @@ services:
     runtime: static
     # No build: the service only ever answers with a redirect. The placeholder page
     # is what gets served if a request somehow misses the rule below.
-    buildCommand: mkdir -p out && printf '<!doctype html><meta http-equiv="refresh" content="0;url=https://www.asktic.com/knowledge">' > out/index.html
+    buildCommand: mkdir -p out && printf '<!doctype html><meta http-equiv="refresh" content="0;url=https://www.asktic.com/kb">' > out/index.html
     staticPublishPath: ./out
     pullRequestPreviewsEnabled: false
     routes:
       - type: redirect
         source: /*
-        destination: https://www.asktic.com/knowledge
+        destination: https://www.asktic.com/kb
+        # Repointed from /knowledge on 2026-08-19. That path is now a tombstone, so a
+        # help hostname would have landed visitors on a page saying the page had moved.
+        # /kb is the knowledge base itself.
