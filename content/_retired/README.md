@@ -6,7 +6,8 @@ the public site on 2026-08-17 is not lost from the repository before it lands in
 ## `forms/`
 
 The member file library that served `/forms`: `manifest.json`, its schema, and the PDFs
-under `files/`.
+under `files/`. All of it now 404s on the live site (2026-08-19); the stub manifest and
+stub PDF that briefly stood in for them have been dropped from the URL contract.
 
 It was moved out of `public/` rather than deleted, and the distinction matters. Anything
 under `public/` is served at its own URL, so leaving it there would have kept
@@ -14,59 +15,72 @@ under `public/` is served at its own URL, so leaving it there would have kept
 `/forms/manifest.json` publicly readable — naming an insurer — after the page linking to
 them had gone. Retiring a page does not retire the files it pointed at.
 
-### ⚠⚠ NONE OF THIS WAS ACTUALLY REMOVED FROM THE LIVE SITE
+### ✓ REMOVED FROM THE LIVE SITE 2026-08-19 — after a day and a half of not being
 
-Establish this before reading anything else here: as of 2026-08-18, **every page and file
-retired on 2026-08-17 is still publicly readable on www.asktic.com.** The commits are
-correct, the build is correct, and the site still serves all of it.
+Read this before anything else here, because it reverses what this file said for a day.
+
+Everything retired on 2026-08-17 was still publicly readable on www.asktic.com through
+2026-08-18 and most of 2026-08-19:
 
     /knowledge.html                        200   43,695 bytes, the full page
     /forms.html                            200   32,879 bytes, NAMES AN INSURER 6 TIMES
     /single-post/<each of 12>.html         200   full articles
     /forms/manifest.json                   200
-    /forms/manifest.schema.json            200
     /forms/files/…-telehealth-….pdf        200
     …plus a .txt twin and __next.*.txt payload dump for each
 
-#### Why the first check missed it
+Those files are gone now. A **clear-cache deploy** removed them —
+`POST /v1/services/{id}/deploys` with `{"clearCache": "clear"}`, or *Clear build cache &
+deploy* in the dashboard.
 
-`/knowledge` — no extension — returns 404, and that was read as proof the page had gone. It
-is not. Render resolves a clean URL against the CURRENT deploy's manifest, so the
-extensionless path 404s, while an explicit path is served from disk if the file physically
-exists. `/knowledge` 404s and `/knowledge.html` serves 43KB of it. **Never accept an
-extensionless 404 as evidence a page is gone. Ask for the file.**
+#### Two reading errors, and the second is the expensive one
 
-#### The cause, established rather than guessed
+**The extensionless 404.** `/knowledge` — no extension — returns 404, and that was read as
+proof the page had gone. It is not. Render resolves a clean URL against the CURRENT
+deploy's manifest, so the extensionless path 404s while an explicit path is served from
+disk if the file physically exists. `/knowledge` 404s and `/knowledge.html` served 43KB of
+it. **Never accept an extensionless 404 as evidence a page is gone. Ask for the file.**
 
-Render's static publish is ADDITIVE. New files overwrite, files absent from the new deploy
-are never deleted. Everything ever published stays published.
+**The cause, asserted rather than measured.** This file said Render's static publish was
+ADDITIVE — new files overwrite, absent files are never deleted, everything ever published
+stays published — and that *"Clear build cache & deploy does NOT fix it, and was tried."*
 
-The proof is the build stamp. The live `/.build-stamp.json` carries an `inputHash` and
-`inputFileCount` identical to a local build of the same commit, stamped minutes after the
-merge — so Render built exactly the right thing and is *additionally* serving the leftovers.
-Not a cache either: cache-busted requests return `cf-cache-status: MISS` and still 200, with
-`last-modified` frozen at the original upload.
+The symptom was real and carefully measured. The cause was inferred, and the "was tried"
+was not true. The deploy history shows exactly one non-`new_commit` deploy in the relevant
+window, a `manual` redeploy on 18 August at 14:50 to pick up an env var, eight hours AFTER
+that sentence was written and thirteen minutes after the commit calling the purge "a Render
+dashboard action … not part of this merge". There was nothing for it to refer to.
 
-"Clear build cache & deploy" does NOT fix it, and was tried. The build cache is about build
-inputs; it has nothing to do with the published output directory.
+The experiment, run 2026-08-19: `/blog.html` — stranded since a 16 August publish, not
+emitted by the build — served **200, 45,940 bytes, `last-modified: 16 Aug 05:06:34`**
+straight through an ordinary auto-deploy at 14:35, then **404** after a clear-cache deploy
+at 14:53. Both ran commit `5dd7805` and published an identical `.build-stamp.json`
+`inputHash` and `inputFileCount`, so the cache clear was the only variable. Nine of nine
+stranded paths went with it, cache-busted, `cf-cache-status: MISS`.
 
-#### The rule
+So the stale files were being re-copied into each publish from the retained build cache.
 
-**On a static host, deleting a file from the repo is not a deletion. It is an omission from
-the next upload.** The old copy stays served until the publish directory is emptied, which
-means recreating the service — or getting the host to purge it.
+#### The rules that survive
 
-So a retirement has three steps, and the repo can only do the first:
+**Removing a file from the repo is still not, by itself, a removal from the site.** It is
+an omission from the next upload, and the old copy keeps being served until the cache is
+cleared. The three-step retirement stands — only step 2 got much cheaper:
 
 1. Remove it from the repo, so it is not republished.
-2. Empty the published directory — recreate the static site, or open a support ticket.
+2. **Clear the build cache and deploy.** (Not: recreate the service, or open a support
+   ticket. Both were on this list and neither is needed.)
 3. Verify each retired URL returns 404 **to a cache-busted request, with its extension**:
 
        curl -sI "https://www.asktic.com/knowledge.html?bust=1"
 
-Until step 3 passes, the content is public and the retirement is not done, however clean the
-diff looks. This is the asset twin of the redirect lesson in `render.yaml`: a repo change
-that is necessary and not sufficient, because something outside the repo also holds state.
+Until step 3 passes, the content is public and the retirement is not done, however clean
+the diff looks.
+
+**And write "was tried" only with the artefact.** A deploy id, a timestamp, a response.
+On Render the artefact is the deploy record's `trigger` field, because the API does not
+expose `clearCache` on a deploy — a non-`new_commit` trigger is the only trace such a run
+leaves. When inheriting a claim like that one, go and look for the artefact before
+building anything around it.
 
 ## What is NOT here
 

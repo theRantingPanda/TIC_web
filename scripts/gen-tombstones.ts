@@ -1,18 +1,26 @@
 /**
- * Overwrite the stale files still being served from the 17 August export.
+ * Emit a short "this page has moved" page at each retired path that has somewhere to send
+ * people.
  *
- * ---- Why this script exists at all ----
+ * ---- Why this script exists ----
  *
- * Render's static publish is ADDITIVE. It writes whatever the build emits and leaves
- * everything else in place, forever. When /knowledge, /forms and the twelve articles were
- * retired from this repo they stopped being emitted — so they stopped being updated, and
- * carried on being served exactly as they were on 17 August: complete, readable, with
- * navigation pointing at /knowledge. The retirement never reached anyone holding a link.
+ * It was born as a workaround and is now a deliberate choice, which is worth keeping
+ * straight because the two want different lists.
  *
- * Nothing in this repo can delete a published file. But the same additive publish that
- * stranded them will overwrite a file the build DOES emit, and that is the entire
- * mechanism here: emit a small page at each stale path and the retired article is gone on
- * the next deploy.
+ * THE WORKAROUND (2026-08-19, superseded): the 17 August export was still being served at
+ * these paths after the build stopped emitting them, and nothing in the repo appeared able
+ * to delete a published file — so overwriting one was the only way to retire it. That
+ * diagnosis was wrong. A clear-cache deploy DOES remove files the build no longer emits
+ * (measured the same day: /blog.html went 200 to 404 across one, same commit, identical
+ * build inputs), so a path can now be genuinely emptied and a missing artifact really is
+ * a 404.
+ *
+ * THE CHOICE (what the list means now): a 404 tells a visitor the page is gone. A
+ * tombstone tells them where its subject went. So a path earns a tombstone when there is
+ * a SPECIFIC page that covers what they came for — and does not when the only thing on
+ * offer is the homepage, because app/not-found.tsx already says that, in the site's own
+ * design, with the right status code. Five paths were dropped from this list on that
+ * test.
  *
  * ---- What it deliberately does not do ----
  *
@@ -95,15 +103,14 @@ function stubJson(asset: StrandedAsset): string {
 /*
   Two pages, chosen by the destination.
 
-  A tombstone whose destination is `/` has no replacement — the page is gone and the
-  homepage is only somewhere to stand. But nine of the fifteen point at a page that
-  genuinely covers what the visitor came for, and /knowledge and /forms now point at the
-  knowledge base itself. Telling that visitor we retired the articles, above a link to
-  the articles, is false and reads as a dead end.
+  Every path on the list now points at a real replacement, so in practice only the second
+  wording is reachable. The `/`-destination branch is kept anyway: it costs nothing, and
+  it is what makes adding a homepage-destination entry safe rather than silently wrong.
+  Prefer dropping such a path from the contract entirely — see the header.
 
-  So the copy branches on the same condition the button already did, rather than one
-  wording covering both. The heading carries it: a person who has landed somewhere
-  unexpected reads that first and often nothing else.
+  The copy branches on the same condition the button already did, rather than one wording
+  covering both. The heading carries it: a person who has landed somewhere unexpected
+  reads that first and often nothing else.
 */
 function page({ destination }: Tombstone): string {
   const home = destination === '/'
@@ -184,9 +191,14 @@ for (const entry of entries) {
 }
 
 /*
-  Stranded non-HTML files. Same mechanism, different payload: a JSON index and a PDF
-  cannot carry a noindex or a link, so each is replaced by the smallest valid file of its
-  own type that says the same thing.
+  Stranded non-HTML files. The list is EMPTY as of 2026-08-19 and the machinery is kept
+  for the shape of the problem, not for a current case: a JSON index and a PDF cannot
+  carry a noindex or a link, so if one ever has to be neutralised in place, each is
+  replaced by the smallest valid file of its own type that says so.
+
+  The two original entries were removed once a clear-cache deploy was proven to empty a
+  path. A 404 beats a stub for both: nothing "moves onward" from a manifest, and a
+  617-byte PDF reading "retired" is a worse answer than the file not being there.
 */
 if (assets.length > 0) {
   console.log(`\nOverwriting ${assets.length} stranded asset(s)…`)
