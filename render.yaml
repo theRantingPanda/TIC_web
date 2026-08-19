@@ -6,8 +6,12 @@
 #
 #   branch          main          autoDeploy    yes, on commit
 #   buildCommand    npm run build publishPath   out
-#   env vars        none          routes        EIGHT: the six redirects below, plus the
-#                                               two /kb rewrites (see the block below)
+#   env vars        none          routes        TEN, over TWO dashboard screens —
+#                                               Redirects/Rewrites holds the six redirects
+#                                               below plus the two /kb rewrites; Headers
+#                                               holds two noindex rules (see the answered
+#                                               question further down). Editing either
+#                                               screen can disturb the other.
 #
 # ✓ CLEARED (2026-08-17). This block used to warn that the /blog, /speciality-insurance
 # and /income-preservation-1 redirects were not yet on the service and that those three
@@ -226,6 +230,11 @@ services:
       # /forms, which is now a tombstone pointing onward at /kb — see the header for why
       # that hop is tolerated rather than collapsed.
       #
+      # ⚠ These two are among the four to re-check after ANY change on the Headers or
+      # Redirects screen — see the command in the answered-question block above. Both were
+      # lost once already by an unrelated edit, and a leading space in a re-typed field
+      # fails silently.
+      #
       # The lesson in the round trip is worth more than the routes: removing them from this
       # file did nothing by itself. The service's routes are configured in the dashboard and
       # this file does not govern it, so a route change is two changes. `verify:urls` cannot
@@ -270,6 +279,12 @@ services:
       # TWO RULES, because a bare /kb is not matched by /kb/*. And the destination REPEATS
       # the prefix — the splat substitutes only the captured segment, so `.../*` would
       # strip /kb and 404 every article. Both facts cost a round on 2026-08-18.
+      #
+      # NOT a job for a header rule, though headers are now proven to beat a stranded file
+      # (see above). Headers are the tool for a file we CANNOT overwrite from the build.
+      # /knowledge and /forms are files this build DOES emit — tombstones — so overwriting
+      # them is both available and better: a header could only hide them from search, and
+      # what a member following an old link needs is to be sent on to /kb.
       #
       # /robots.txt is deliberately NOT proxied. The CRM host bans crawlers in its own
       # robots.txt, which is fetched per host; forwarding this site's /robots.txt there
