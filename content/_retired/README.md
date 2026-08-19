@@ -64,11 +64,19 @@ So the stale files were being re-copied into each publish from the retained buil
 
 **Removing a file from the repo is still not, by itself, a removal from the site.** It is
 an omission from the next upload, and the old copy keeps being served until the cache is
-cleared. The three-step retirement stands — only step 2 got much cheaper:
+cleared. The three-step retirement stands — only step 2 got much cheaper.
+
+**And step 2 is per-deploy, not a one-off repair.** Measured on 2026-08-19: seven paths
+dropped from the build in the very next ordinary deploy after a purge stranded again
+immediately, each serving its previous artifact. The build cache is repopulated on every
+build, so an ordinary deploy still cannot remove anything, however clean the disk was an
+hour earlier. Treat a clear-cache deploy as part of the removal, not as a recovery from
+one that went wrong.
 
 1. Remove it from the repo, so it is not republished.
-2. **Clear the build cache and deploy.** (Not: recreate the service, or open a support
-   ticket. Both were on this list and neither is needed.)
+2. **Clear the build cache and deploy** — *not* an ordinary deploy, and not once. (Also
+   not: recreate the service, or open a support ticket. Both were on this list and
+   neither is needed.)
 3. Verify each retired URL returns 404 **to a cache-busted request, with its extension**:
 
        curl -sI "https://www.asktic.com/knowledge.html?bust=1"

@@ -180,6 +180,12 @@
 # Recreating the service is NOT required and was never the answer — which also decouples
 # the apex-redirect fix below, previously bundled with it as "the moment to do both".
 #
+# ⚠ AND IT IS NOT A ONE-OFF REPAIR. Measured 2026-08-19: seven paths dropped from the build
+# in the very NEXT ordinary deploy after a purge stranded again immediately, each serving
+# its previous artifact. The cache is repopulated every build, so an ordinary deploy still
+# cannot remove anything. A deploy that drops a file is a clear-cache deploy, every time —
+# and the check afterwards is the same one: cache-busted, WITH the extension.
+#
 # See content/_retired/README.md for the full account.
 #
 # OUTSTANDING: the apex does not redirect to www. Both asktic.com and www.asktic.com
