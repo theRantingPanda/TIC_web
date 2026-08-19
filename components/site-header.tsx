@@ -1,9 +1,10 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Container } from '@/components/container'
-import { CtaButton } from '@/components/cta-button'
+import { ctaClassName } from '@/components/cta-button'
+import { HeaderCta } from '@/components/cta-link'
 import { SiteNav } from '@/components/site-nav'
-import { ctaLink, siteConfig } from '@/lib/site'
+import { siteConfig } from '@/lib/site'
 
 export function SiteHeader() {
   return (
@@ -49,13 +50,12 @@ export function SiteHeader() {
             Hidden below md because the small-screen disclosure in SiteNav carries it as
             its last entry — two CTAs on a 375px header is one too many.
           */}
-          <CtaButton
-            href={ctaLink.href}
-            size="compact"
-            className="hidden md:inline-block"
-          >
-            {ctaLink.label}
-          </CtaButton>
+          {/*
+            HeaderCta rather than a plain CtaButton: on a concern page this has to point
+            at that page's own form, not back at the homepage fork. See the note in
+            components/cta-link.tsx for what it was doing before.
+          */}
+          <HeaderCta className={`hidden md:inline-block ${ctaClassName('primary', 'compact')}`} />
         </div>
       </Container>
     </header>

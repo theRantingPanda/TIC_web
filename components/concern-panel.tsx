@@ -242,6 +242,34 @@ export function ConcernPanel({
         </div>
 
         {/*
+          An early way out, for the reader who is already convinced.
+          Added 2026-08-19 after a review pointed out that the first action on this page
+          arrived only after the case, the premium table and several explanatory sections.
+          Someone who reads the opening and thinks "yes, that is me" had no way to act on
+          it without finishing the whole argument first.
+
+          ⚠ IT IS A QUIET LINK, NOT A SECOND BUTTON, and that is the point. The panel ends
+          on one primary call to action and a page with two identical buttons has none —
+          the second one just takes weight off the first. This reads as an offer to skip
+          ahead, which is what it is: same destination, same form, no new promise.
+
+          Only where the concern names an early label. Eight of the nine do not, because
+          their opening argument is two paragraphs and the case is directly beneath it;
+          there is nothing to skip. See `earlyCtaLabel` in the content module.
+        */}
+        {concern.earlyCtaLabel ? (
+          <p className="mt-6">
+            <Link
+              href={ctaHref}
+              className="text-sm font-medium text-brand-blue no-underline hover:text-brand-blue-700"
+            >
+              {concern.earlyCtaLabel}
+              <span aria-hidden="true"> &rarr;</span>
+            </Link>
+          </p>
+        ) : null}
+
+        {/*
           2. The case.
 
           Rendered when it is finished — a real case or a written scenario — and in
