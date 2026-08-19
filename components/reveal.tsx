@@ -33,6 +33,72 @@ import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
  * thing the visitor came for is a cost with no benefit. And the trust band's figures,
  * which have their own motion from components/count-up.tsx and do not need two.
  */
+/**
+ * Following an in-page link settles every reveal at once.
+ *
+ * WHY THIS EXISTS. The reveal budget widened on 2026-08-18 from heading blocks to the
+ * major bands, and that turned the concern pages' own call to action into a bad
+ * experience: clicking "Find out what you could buy today" scrolls about 680px, and on
+ * the way it passes five blocks that have never been on screen. Each one starts a 500ms
+ * fade and lift as the page flies past it, and the form the visitor was actually sent to
+ * is still mid-animation when they arrive. Steven reported it as the form not flowing
+ * smoothly, and he was right — the scroll was fine, the contents of the scroll were not.
+ *
+ * A visitor who has ASKED to be taken somewhere has stopped browsing. Reveal is there to
+ * pace reading, and there is no reading happening during a 400ms jump. So an in-page
+ * click flushes every outstanding reveal before the scroll starts, and the whole journey
+ * is over settled content.
+ *
+ * Blunt on purpose: it settles the whole page, not just the destination. Anything the
+ * visitor scrolls back up to afterwards would have been revealed on the way down
+ * regardless, so there is nothing left to stage.
+ *
+ * ONE listener for the page, installed by whichever Reveal mounts first, in capture phase
+ * so it runs before any framework handler that might preventDefault. Also flushes on
+ * `hashchange` and on arriving with a hash already in the URL, which is the same
+ * situation reached from a different page.
+ */
+let flushInstalled = false
+
+function settleAll() {
+  for (const el of document.querySelectorAll<HTMLElement>('[data-reveal]:not([data-revealed])')) {
+    // `settled` before `revealed`: it kills the transition, so the element arrives
+    // finished instead of starting a 500ms fade the visitor scrolls straight past.
+    el.dataset.settled = ''
+    el.dataset.revealed = ''
+  }
+}
+
+function installSettleOnAnchor() {
+  if (flushInstalled) return
+  flushInstalled = true
+
+  document.addEventListener(
+    'click',
+    (event) => {
+      const target = event.target
+      if (!(target instanceof Element)) return
+      // Same-document links only. An href of "#" alone is a placeholder, not a
+      // destination, so it is left to whatever handler owns it.
+      const link = target.closest('a[href^="#"]')
+      if (!link || link.getAttribute('href') === '#') return
+      settleAll()
+    },
+    true,
+  )
+
+  window.addEventListener('hashchange', settleAll)
+
+  /*
+    Arriving with a hash already in the URL is the same situation reached from another
+    page, so it settles too — but a frame later. This installer runs inside the FIRST
+    Reveal's effect, and the ones further down the page have not armed themselves yet, so
+    settling synchronously here would miss exactly the blocks the visitor is being scrolled
+    towards.
+  */
+  if (window.location.hash.length > 1) requestAnimationFrame(settleAll)
+}
+
 export function Reveal({
   children,
   delay = 0,
@@ -52,6 +118,7 @@ export function Reveal({
 
     // Arm only now. Before this line the element has no [data-reveal] and is at rest.
     el.dataset.reveal = ''
+    installSettleOnAnchor()
 
     const observer = new IntersectionObserver(
       (entries) => {

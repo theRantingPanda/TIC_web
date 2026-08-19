@@ -261,6 +261,18 @@
     transform: none;
   }
 
+  /*
+   * Settled, not revealed: arrive finished rather than animate into place.
+   *
+   * Set together with [data-revealed] when the visitor follows an in-page link. Without
+   * `transition: none` the flush only starts the fade earlier — the destination still
+   * ramps 0 to 1 across the scroll, which is the thing it was meant to stop. See
+   * `settleAll` in components/reveal.tsx.
+   */
+  [data-reveal][data-settled] {
+    transition: none;
+  }
+
   a {
     color: var(--color-brand-blue);
   }
