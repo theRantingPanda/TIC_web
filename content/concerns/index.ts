@@ -210,6 +210,19 @@ export type Concern = {
   whatWeDo: readonly string[]
   ctaLabel: string
   /**
+   * An optional early link to the same form, shown directly under the opening argument.
+   *
+   * Only for a concern whose panel is long enough that a convinced reader would otherwise
+   * have to scroll past a case, a table and several sections before being offered
+   * anything. `beyond-employer` is the only one of the nine that qualifies today.
+   *
+   * ⚠ IT IS NOT A SECOND CALL TO ACTION FOR PAGES THAT ALREADY WORK. Adding it everywhere
+   * would put two asks on every panel and weaken the one at the end, which is the one the
+   * whole panel is built to earn. If you are adding it to a third concern, check first
+   * that the panel is actually long, not just that the label sounds good.
+   */
+  earlyCtaLabel?: string
+  /**
    * One link out, when a genuinely on-topic page or article exists.
    *
    * This is the ONLY route from a concern to further reading, by design. A three-question
@@ -252,19 +265,24 @@ export type BridgeStep = {
  * That lede is now keyed off `enquiryFields`; this copy avoids the trap entirely by not
  * counting anything. If you add "takes two minutes" here, you have reopened it.
  *
- * The second and third lines are commitments the firm already makes in the enquiry lede
- * on every concern page. They are restated here, more prominently, not invented — check
- * components/concern-page.tsx before editing either of them.
+ * The second and third lines are commitments the firm makes. They are restated here from
+ * the enquiry lede, not invented — check components/concern-page.tsx before editing either.
+ *
+ * ⚠ THE REPLY WINDOW IS TWO BUSINESS DAYS, changed from "the same working day" on
+ * 2026-08-19 on Steven's instruction. It is a promise the firm has to keep on its worst
+ * week, not its best one, and a missed same-day reply does more damage than a two-day one
+ * kept. If you tighten it, tighten it because the firm decided to, not because it reads
+ * better.
  */
 export const enquiryBridge: Record<ConcernAudience, readonly BridgeStep[]> = {
   individual: [
     { step: '01', body: 'You tell us where you are with it, in your own words.' },
-    { step: '02', body: 'We reply the same working day, by email or a short call.' },
+    { step: '02', body: 'We reply within two business days, by email or a short call.' },
     { step: '03', body: 'No obligation, and no cost to talk it through.' },
   ],
   company: [
     { step: '01', body: 'You tell us roughly where things stand. No deck required.' },
-    { step: '02', body: 'We reply the same working day to arrange a short call.' },
+    { step: '02', body: 'We reply within two business days to arrange a short call.' },
     { step: '03', body: 'No obligation, and no cost to talk it through.' },
   ],
 }
@@ -479,7 +497,16 @@ export const concerns: readonly Concern[] = [
     cardTitle: 'Looking beyond my employer’s cover',
     hook: 'Most group plans have a ceiling, worth knowing where yours sits.',
     icon: 'ceiling',
-    panelTitle: 'Looking beyond your employer’s cover',
+    /*
+      A question, not a description, since 2026-08-19. "Looking beyond your employer's
+      cover" was elegant and indirect: it describes a posture the reader has to already
+      hold, where this names the thing they actually type into a search box.
+
+      The CARD still says "Looking beyond my employer's cover" and must keep doing so.
+      The standing rule is customer language on the card and the plainer framing after
+      the click; the card is the visitor's own words, this is the answer to them.
+    */
+    panelTitle: 'Is your employer health insurance enough?',
     /*
       On brief: a desk, and an expression that is considered rather than worried. The
       brief ruled out both a hospital and a look of distress, because this panel is about
@@ -493,6 +520,12 @@ export const concerns: readonly Concern[] = [
       height: 949,
     },
     situation: [
+      /*
+        Steven's line, moved to the top on 2026-08-19. It was the sharpest thing on the
+        page and it sat three sections down, inside the case footer, where only a reader
+        who had finished the whole argument reached it. It is the argument.
+      */
+      'You’ve got to have it when you don’t need it, so it’s there when you do.',
       'A company plan is built to a budget, and that budget was not set with your family in mind. A serious illness in a private hospital here can run past the limit faster than most people expect.',
       'The other half of it is that the cover belongs to the job rather than to you. It ends when the job does, and if something is diagnosed along the way it may be excluded or loaded when you come to buy your own. You are insurable today, and that is the part people miss.',
     ],
@@ -665,7 +698,8 @@ export const concerns: readonly Concern[] = [
       'Size a plan that sits above it instead of alongside it, so you are not paying twice for the first layer.',
       'Tell you when the scheme is already enough. That answer costs us the sale and it is still the right one.',
     ],
-    ctaLabel: 'Find out what you could buy today',
+    ctaLabel: 'Talk to us',
+    earlyCtaLabel: 'Check whether your employer limit is enough',
     /*
       The one concern with its own question set, added 2026-08-18. Someone reading this
       panel has already been shown three priced options, so they are further along than a
@@ -674,7 +708,7 @@ export const concerns: readonly Concern[] = [
     */
     enquiryFields: 'top-up-quote',
     meta: {
-      title: 'Cover beyond your employer’s scheme',
+      title: 'Is your employer health insurance enough?',
       description:
         'A company plan is built to a budget, and it ends when the job does. Where the ceiling sits, what a top-up involves, and when you do not need one.',
     },
