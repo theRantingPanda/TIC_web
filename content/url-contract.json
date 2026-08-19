@@ -97,7 +97,7 @@
   "$pendingNote": "COMPLETE (2026-08-11), amended 2026-08-16 twice. Every path in https://www.asktic.com/sitemap.xml is classified. The second 2026-08-16 amendment added six concern pages for the homepage flow; they are new paths, not in the Wix sitemap, and each must emit an artifact. The first amendment moved /blog and /speciality-insurance from preserved to redirect-only and added their two destinations, then retired /income-preservation-1 the same way without a new destination. This file is authoritative. Rationale for each decision is in content/_inventory/STOP-REPORT.md and url-decisions.md.",
   "dropped": {
     "$comment": "Indexed on the Wix site but DELIBERATELY NOT preserved (decision 2026-08-11). These are an explicit, signed-off exception to the URL-preservation constraint - not an oversight. They must emit no artifact; `npm run verify:urls` enforces that. Do not re-add them because they appear in the old sitemap.",
-    "status": "404 intended and settled as the right status; NOT yet true in production - see the 2026-08-17 group below, the files are still served at their .html paths",
+    "status": "404 intended and settled as the right status; NOT true in production for 15 of these paths, which are still served at their .html locations from the 17 Aug export. Those 15 are listed under `tombstoned` above and now emit a small noindex page to overwrite what is on the disk. The remaining paths emit nothing, as intended, and verify:urls enforces that split.",
     "groups": [
       {
         "reason": "Wix store template that was enabled and never removed. Every product is placeholder demo content; preserving these URLs would carry 12 fake product pages onto the new site.",
@@ -175,6 +175,82 @@
           "/file-access",
           "/file"
         ]
+      }
+    ]
+  },
+  "tombstoned": {
+    "$comment": "STALE FILES ON THE LIVE DISK, overwritten rather than removed (decision 2026-08-19). These 15 paths are also in `dropped` below and the intent there is unchanged: they should not exist. They do. Render's publish is additive - it writes whatever the build emits and leaves everything else alone - so the 17 Aug export of this site is still being served at these .html paths, complete and readable, with navigation pointing at /knowledge. The KB retirement has not actually taken effect for anyone holding an old link. Nothing in this repo can delete them. But the same additive publish that stranded them WILL overwrite a file the build does emit, which is the whole mechanism here.",
+    "$howItWorks": "scripts/gen-tombstones.ts writes one small noindex page per path into out/ after `next build`. Do not put these in public/ - they are generated from this list so the list stays the single source, and so nobody edits fifteen near-identical files by hand.",
+    "$whenToDeleteThis": "When 301s exist. A tombstone returns 200, which is worse for search than a redirect and much better than serving a retired article. If Render redirect rules are found to take precedence over an existing static file, move these to `redirectOnly`, ship the rules, and delete this block - but only after confirming the rule actually wins, because if it does not, deleting the tombstones does not restore a 404, it restores the 17 Aug page.",
+    "$doNotAddRobotsDisallow": "A Disallow for these paths would stop crawlers fetching them, which stops them seeing the noindex, which is what gets them out of the index. Leave them crawlable.",
+    "verifiedStaleOn": "2026-08-19",
+    "paths": [
+      {
+        "path": "/knowledge",
+        "destination": "/",
+        "note": "The public KB index. Moved to the CRM."
+      },
+      {
+        "path": "/forms",
+        "destination": "/",
+        "note": "The forms library. Moved to the CRM."
+      },
+      {
+        "path": "/projects",
+        "destination": "/",
+        "note": "Wix template page, never real content."
+      },
+      {
+        "path": "/single-post/2018/04/30/travel-insurance-tips-i-wished-i-knew",
+        "destination": "/",
+        "note": "Travel, not health. No concern page covers it."
+      },
+      {
+        "path": "/single-post/2018/05/06/with-health-insurance-is-major-illness-insurance-necessary",
+        "destination": "/international-health-insurance"
+      },
+      {
+        "path": "/single-post/am-i-covered-for-dental-and-optical-treatment",
+        "destination": "/international-health-insurance"
+      },
+      {
+        "path": "/single-post/does-my-plan-cover-maternity-and-newborn-care",
+        "destination": "/maternity-insurance"
+      },
+      {
+        "path": "/single-post/how-do-i-get-pre-authorisation-for-a-planned-procedure",
+        "destination": "/",
+        "note": "Claims administration. No concern page owns it."
+      },
+      {
+        "path": "/single-post/how-do-i-make-a-claim-with-my-international-health-insurance",
+        "destination": "/",
+        "note": "Claims administration. No concern page owns it."
+      },
+      {
+        "path": "/single-post/how-does-the-insurance-concierge-get-paid",
+        "destination": "/services"
+      },
+      {
+        "path": "/single-post/what-happens-if-my-claim-is-rejected",
+        "destination": "/",
+        "note": "Claims administration. No concern page owns it."
+      },
+      {
+        "path": "/single-post/what-is-the-difference-between-international-and-local-health-insurance-in-singapore",
+        "destination": "/international-health-insurance"
+      },
+      {
+        "path": "/single-post/when-should-i-start-my-policy-renewal-process",
+        "destination": "/renewal-premium-increase"
+      },
+      {
+        "path": "/single-post/why-has-my-renewal-premium-increased",
+        "destination": "/renewal-premium-increase"
+      },
+      {
+        "path": "/single-post/will-my-pre-existing-conditions-be-covered",
+        "destination": "/pre-existing-conditions"
       }
     ]
   }
