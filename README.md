@@ -481,10 +481,11 @@ each is assembled from material the site already publishes:
 | the six new concern pages | New paths, added with the flow. | The shared panel, a questions band, and a lead-tagged enquiry form. |
 
 `/knowledge` and `/forms` were also built here and are now **tombstoned** — the
-knowledge base moved to the CRM at `/kb`, and the member file library moved with it as
-attachable documents. Both paths still answer on the live disk because Render's publish
-is additive; see `tombstoned` in `content/url-contract.json`, which is the account of
-that and the only place it should be maintained.
+knowledge base moved to the CRM at `/member-resources`, and the member file library moved
+with it as attachable documents. Both paths still answer 200 — deliberately, as tombstones
+naming where their subject went, not because anything is stuck. See `tombstoned` in
+`content/url-contract.json`, which is the account of that and the only place it should be
+maintained.
 
 ### Unfinished sections ship hidden, and open themselves
 

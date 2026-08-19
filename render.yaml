@@ -28,12 +28,16 @@
 # restoration of those two entries below (2026-08-19).
 #
 # The destination they were restored to is /forms, which is no longer a 404: it is a
-# tombstone this repo emits, and since 2026-08-19 it points onward at /kb, where the
-# member documents now live as knowledge-base attachments. So the chain is
-# /file-access → 301 /forms → 200 "This page has moved" → /kb. That is honest and it
-# works, but it is a hop longer than it needs to be. If a rule is ever confirmed to beat
-# a published file (see `tombstoned.$whenToDeleteThis` in content/url-contract.json),
-# point these two straight at /kb and drop the middle step.
+# tombstone this repo emits, and since 2026-08-19 it points onward at /member-resources,
+# where the member documents now live as knowledge-base attachments. So the chain is
+# /file-access → 301 /forms → 200 "This page has moved" → /member-resources. Honest at
+# each hop, one longer than it needs to be.
+#
+# COLLAPSING IT IS NOW AVAILABLE and is a routes-screen change, not a repo one: point both
+# straight at /member-resources. /forms keeps its own tombstone either way, for anyone who
+# follows that path directly. Not done on 2026-08-19 because that screen has silently
+# deleted neighbouring rules twice and the chain works; if you do it, use the read-merge-
+# write path and re-check all six redirects afterwards.
 #
 # NOT RE-VERIFIED HERE. www.asktic.com and render.com are both egress-blocked from the
 # session that wrote this; the restoration is taken from the record in CLAUDE.md, not
@@ -55,11 +59,12 @@
 # path emits no artifact in out/, which is necessary but says nothing about whether
 # Render serves the redirect. Check the service's routes when changing this file.
 #
-# ✓ CONFIRMED NOT A RECREATE (2026-08-18). After the above was written the service was
-# reportedly recreated to clear this. The service ID is still srv-d9sogvijobas73fouu7g —
-# the same one recorded at the top of this file — so it is the same service and the publish
-# directory was never emptied. A genuine replacement must show a DIFFERENT id. Until it
-# does, assume nothing has been removed.
+# ✓ CONFIRMED NOT A RECREATE (2026-08-18), AND NO RECREATE IS NEEDED (2026-08-19). The
+# service ID is still srv-d9sogvijobas73fouu7g — the same one recorded at the top of this
+# file — so nothing was ever replaced. That mattered while recreating the service was
+# believed to be the only way to empty the publish directory; a clear-cache deploy does it,
+# so the id is now just an identity check. A genuine replacement would still show a
+# DIFFERENT id.
 #
 # ⚠⚠ REDIRECT RULES MATCH THE EXACT PATH. A rule on /blog does NOT cover /blog.html, and
 # where a stale artifact exists at the .html path it is served instead, bypassing the
@@ -69,15 +74,15 @@
 #   /income-preservation-1   301 -> /services       /income-preservation-1.html  200
 #   /home-1                  301 -> /               /home-1.html                 404
 #
-# /home-1 is clean only because nothing was ever built at that path. THE OTHER TWO ARE
-# LEAKING: Wix-era pages still readable beside their own redirects, which the URL contract
-# reads as fully redirected. Both are collateral of the additive-publish problem above and
-# go when the publish directory is finally emptied.
+# /home-1 was clean only because nothing was ever built at that path. ✓ THE OTHER TWO ARE
+# FIXED (2026-08-19): a clear-cache deploy removed both stale artifacts, so /blog.html and
+# /income-preservation-1.html now 404 and each redirect is the only thing answering on its
+# path. The rule above still holds — a redirect matches the exact path — it just no longer
+# has a leak to hide.
 #
-# The consequence for any stopgap: rules are needed per path INCLUDING .html and .txt
-# variants, not one per logical page. /single-post/* collapses twelve; the rest are
-# individual. And test the first rule before writing thirty — if Render serves an existing
-# file before evaluating rules, the approach is void.
+# The stopgap that was being sized here (a rule per path INCLUDING .html and .txt variants,
+# thirty-odd of them) is UNNECESSARY. Where a stale file shadows a rule, empty the path
+# instead of routing around it.
 #
 # ✓ CONFIRMED BY RENDER'S DOCS 2026-08-19 (render.com/docs/redirects-rewrites, via their
 # docs AI): "redirect/rewrite rules don't apply if a resource exists at that path". So the
@@ -91,14 +96,14 @@
 # must therefore repeat the prefix. Whether a bare `/a` is matched by `/a/*` is NOT
 # documented; observation says no, and both rules are cheap, so ship both.
 #
-# ⚠ WHAT RENDER'S DOCS AI DID NOT FIND, asked from their FAQ page: what causes a stale file
-# to keep being served, whether "Clear build cache & deploy" removes previously published
-# output, and whether ANY supported removal exists. Stated precisely because it matters: a
-# bounded search came back empty, which is NOT the same as the docs lacking it — the same
-# reply pointed at /docs/static-sites and /docs/deploys, exactly where that behaviour would
-# be. Re-ask against those pages before concluding. Either way the answer is not "no". The
-# test that settles it is in the CRM's STATE.md as queued item 0: clear the cache, deploy,
-# fetch /blog.html. A 404 means most of the machinery in this file is unnecessary.
+# ✓ ANSWERED BY EXPERIMENT, NOT BY THE DOCS (2026-08-19). Render's docs do not state
+# whether a deploy replaces the published file set or layers over it, document
+# "Clear build cache & deploy" only as a BUILD-layer action, and describe no removal
+# mechanism at all — asked directly, twice. The behaviour is genuinely undocumented. The
+# test settled it anyway: clear the cache, deploy, fetch /blog.html, and it 404s. See the
+# block below. Worth keeping as a method note — where a vendor's docs are silent, a cheap
+# experiment outranks any amount of further reading, and the silence itself should be
+# recorded as silence rather than as a "no".
 #
 # ✓ ANSWERED 2026-08-19: A HEADER RULE IS NOT BYPASSED BY AN EXISTING FILE.
 #
@@ -139,34 +144,41 @@
 # All four must return 301 and land on a 200. A 301 alone is not enough: that is exactly
 # what the space-in-the-destination bug looked like.
 #
-# ⚠⚠ RENDER'S STATIC PUBLISH IS ADDITIVE. DELETING A FILE DOES NOT UNPUBLISH IT.
-# (Established 2026-08-18, after an earlier version of this note got it wrong.)
+# ⚠ DELETING A FILE FROM THE REPO IS NOT A REMOVAL FROM THE SITE — but it is REVERSIBLE.
+# (Symptom established 2026-08-18; cause corrected by experiment 2026-08-19.)
 #
-# Files absent from a new deploy are NOT removed — everything ever published stays
-# published. Every page and asset retired on 2026-08-17 was still live the next day:
+# A file absent from a new deploy keeps being served. Every page and asset retired on
+# 2026-08-17 was still live the next day:
 #
 #   /knowledge.html                    200   the full page, 43KB
 #   /forms.html                        200   and it names an insurer 6 times
 #   /single-post/<12 articles>.html    200
 #   /forms/manifest.json, the PDF      200
 #
-# The proof it is the platform and not the build: the live /.build-stamp.json carries an
-# inputHash and inputFileCount IDENTICAL to a local build of the same commit, stamped
-# minutes after the merge. Render built the right thing and serves the leftovers beside it.
-# Not a cache either — cache-busted requests return cf-cache-status: MISS and still 200.
+# THE FIX IS ONE ACTION: clear the build cache and deploy — dashboard button, or
+# POST /v1/services/{id}/deploys with {"clearCache": "clear"}. Proven 2026-08-19:
+# /blog.html went 200 (45,940 bytes, last-modified 16 Aug) to 404 across one, on the SAME
+# commit with an IDENTICAL /.build-stamp.json inputHash and inputFileCount — so the cache
+# clear was the only variable. Nine of nine stranded paths went with it, cache-busted,
+# cf-cache-status: MISS, while every path the build does emit stayed 200 and all six
+# redirects still followed through.
 #
-# "Clear build cache & deploy" DOES NOT FIX THIS, and was tried. The build cache concerns
-# build inputs, not the published output directory.
+# So the stale files were being re-copied into each publish from the RETAINED BUILD CACHE.
+# This block previously read "Render's static publish is additive… 'Clear build cache &
+# deploy' DOES NOT FIX THIS, and was tried." The symptom was real and measured; the cause
+# was inferred, and the "was tried" was not true — the deploy history holds no such run
+# (see content/_retired/README.md for the reconstruction). It cost a day and shaped fifteen
+# tombstones. Write "was tried" only with a deploy id and a timestamp.
 #
 # ⚠ AN EXTENSIONLESS 404 IS NOT EVIDENCE. /knowledge returns 404 while /knowledge.html
 # serves 43KB — Render resolves clean URLs against the current deploy's manifest but serves
 # any file that physically exists at an explicit path. The first check on this made exactly
 # that mistake and reported the pages pruned when they were not. Always ask for the file.
 #
-# To actually remove something: empty the published directory, which means recreating the
-# static site (or a Render support ticket). Recreating is also the moment to fix the apex
-# redirect noted above — add www.asktic.com FIRST and Render creates the apex as its
-# redirect. Then verify each retired URL 404s to a cache-busted request WITH its extension.
+# To actually remove something: remove it from the repo, then CLEAR THE BUILD CACHE AND
+# DEPLOY. Then verify each retired URL 404s to a cache-busted request WITH its extension.
+# Recreating the service is NOT required and was never the answer — which also decouples
+# the apex-redirect fix below, previously bundled with it as "the moment to do both".
 #
 # See content/_retired/README.md for the full account.
 #

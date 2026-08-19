@@ -184,7 +184,7 @@
         ]
       },
       {
-        "reason": "Retired from the public site on 2026-08-17. The knowledge base, the forms library and every blog article moved into the CRM, so none of this content is coming back to a public URL. STATUS IS 404, AND THAT IS THE SETTLED ANSWER, NOT AN OUTSTANDING TASK. A 410 was asked for and is not achievable here, on two counts: this is a static export, which cannot emit a status for a path it does not build, and Render's static sites only offer route types `redirect` and `rewrite`, with no status-code option. Emitting a real 410 would mean putting a proxy in front or leaving static hosting, which is infrastructure work for a marginal gain - both signals de-index, 410 merely slightly sooner. ⚠ NOT ACTUALLY REMOVED FROM THE LIVE SITE AS AT 2026-08-18. The extensionless paths 404, but every retired page and asset is still served at its explicit path - /knowledge.html, /forms.html (which names an insurer), all 12 articles, and the forms manifest and PDF. Render's static publish is additive, so a file absent from a new deploy is never deleted; clearing the build cache does not touch published output. Removing them means emptying the publish directory, i.e. recreating the service or a support ticket. See content/_retired/README.md. Do not record these as retired until each 404s to a cache-busted request WITH its extension. Do not reopen this unless the site stops being a static export for some other reason.",
+        "reason": "Retired from the public site on 2026-08-17. The knowledge base, the forms library and every blog article moved into the CRM, so none of this content is coming back to a public URL. STATUS IS 404, AND THAT IS THE SETTLED ANSWER, NOT AN OUTSTANDING TASK. A 410 was asked for and is not achievable here, on two counts: this is a static export, which cannot emit a status for a path it does not build, and Render's static sites only offer route types `redirect` and `rewrite`, with no status-code option. Emitting a real 410 would mean putting a proxy in front or leaving static hosting, which is infrastructure work for a marginal gain - both signals de-index, 410 merely slightly sooner. ✓ TRUE IN PRODUCTION SINCE 2026-08-19, which it was not before. For over a day every retired page and asset was still served at its explicit path - /knowledge.html, /forms.html (which named an insurer), all 12 articles, the forms manifest and its PDF - because a file published by an earlier deploy kept being served after the build stopped emitting it. The cause was diagnosed as an additive publish that nothing could reverse, and the remedy was thought to be recreating the service or a support ticket. Both were wrong: a clear-cache deploy removes them, measured that day (/blog.html 200 -> 404 on the same commit with an identical build inputHash, and nine of nine stranded paths with it). Ten of these paths deliberately still answer 200 as tombstones naming their replacement - see `tombstoned`, which is the exception to this group and the only place that list is maintained. ⚠ The reading error that hid it for a day is the part worth keeping: /knowledge - no extension - returned 404 while /knowledge.html served 43KB, because Render resolves a clean URL against the current deploy's manifest but serves any file that physically exists at an explicit path. NEVER ACCEPT AN EXTENSIONLESS 404 AS EVIDENCE A PAGE IS GONE. Ask for the file, with its extension, cache-busted.",
         "paths": [
           "/single-post/2018/04/30/travel-insurance-tips-i-wished-i-knew",
           "/single-post/2018/05/06/with-health-insurance-is-major-illness-insurance-necessary",
@@ -207,11 +207,10 @@
     ]
   },
   "tombstoned": {
-    "$comment": "STALE FILES ON THE LIVE DISK, overwritten rather than removed (decision 2026-08-19). These 15 paths are also in `dropped` below and the intent there is unchanged: they should not exist. They do. Render's publish is additive - it writes whatever the build emits and leaves everything else alone - so the 17 Aug export of this site is still being served at these .html paths, complete and readable, with navigation pointing at /knowledge. The KB retirement has not actually taken effect for anyone holding an old link. Nothing in this repo can delete them. But the same additive publish that stranded them WILL overwrite a file the build does emit, which is the whole mechanism here.",
-    "$howItWorks": "scripts/gen-tombstones.ts writes one small noindex page per path into out/ after `next build`. Do not put these in public/ - they are generated from this list so the list stays the single source, and so nobody edits fifteen near-identical files by hand.",
-    "$whenToDeleteThis": "When 301s exist. A tombstone returns 200, which is worse for search than a redirect and much better than serving a retired article. If Render redirect rules are found to take precedence over an existing static file, move these to `redirectOnly`, ship the rules, and delete this block - but only after confirming the rule actually wins, because if it does not, deleting the tombstones does not restore a 404, it restores the 17 Aug page. Note the 301 would need to cover BOTH forms of each path, since both now answer.",
+    "$comment": "RETIRED PATHS THAT DELIBERATELY STILL ANSWER 200, each naming the page that replaced it. These are also in `dropped` below and the intent there is unchanged - they should not exist as themselves. WHAT CHANGED ON 2026-08-19: this block was created as a workaround, on the finding that Render's publish was additive and a published file could never be removed, so overwriting one was the only way to retire it. That finding was wrong. A clear-cache deploy DOES remove files the build no longer emits - measured that day, /blog.html went 200 to 404 across one, on the same commit with an identical build inputHash - so a path can be genuinely emptied and a missing artifact really is a 404. The list survives on a different and better argument, below.",
+    "$howItWorks": "scripts/gen-tombstones.ts writes one small noindex page per path into out/ after `next build`. Do not put these in public/ - they are generated from this list so the list stays the single source, and so nobody edits ten near-identical files by hand.",
+    "$whenToDeleteThis": "A 301 now BEATS a tombstone for any path on this list, and as of 2026-08-19 it is finally available. A tombstone returns 200, which is worse for search than a redirect; the reason one was used anyway is that a redirect rule does not apply when a resource exists at that path (Render's documented behaviour), and these paths all had a stale file on them. That file can now be removed. So the migration is: clear the build cache and deploy to empty the path, ship the 301, then delete the entry here. THE OLD WARNING ON THIS KEY IS VOID - it said deleting a tombstone would not restore a 404 but restore the 17 August page, and that is no longer true. Two things still hold: the 301 must cover BOTH forms of each path, since emitting `foo.html` is what makes the extensionless `/foo` answer too; and the rules live on the Render dashboard, not in render.yaml, on a screen that has silently deleted neighbouring rules twice - re-check every redirect afterwards.",
     "$doNotAddRobotsDisallow": "A Disallow for these paths would stop crawlers fetching them, which stops them seeing the noindex, which is what gets them out of the index. Leave them crawlable.",
-    "verifiedStaleOn": "2026-08-19",
     "paths": [
       {
         "path": "/knowledge",
@@ -222,16 +221,6 @@
         "path": "/forms",
         "destination": "/member-resources",
         "note": "The forms library. Its documents moved to the CRM as knowledge-base attachments, downloaded from /member-resources/_forms/{slug}; there is no forms index any more, so /member-resources is where they are found. Retargeted from / on 2026-08-19. Pointing here does NOT contradict the 2026-08-19 ruling that this site's nav must not carry the knowledge base: that ruling is about not advertising a member surface to prospects browsing a marketing site. Someone arriving on this path followed a link to the member surface deliberately, so routing them on is serving the request, not promoting it."
-      },
-      {
-        "path": "/projects",
-        "destination": "/",
-        "note": "Wix template page, never real content."
-      },
-      {
-        "path": "/single-post/2018/04/30/travel-insurance-tips-i-wished-i-knew",
-        "destination": "/",
-        "note": "Travel, not health. No concern page covers it."
       },
       {
         "path": "/single-post/2018/05/06/with-health-insurance-is-major-illness-insurance-necessary",
@@ -246,23 +235,8 @@
         "destination": "/maternity-insurance"
       },
       {
-        "path": "/single-post/how-do-i-get-pre-authorisation-for-a-planned-procedure",
-        "destination": "/",
-        "note": "Claims administration. No concern page owns it."
-      },
-      {
-        "path": "/single-post/how-do-i-make-a-claim-with-my-international-health-insurance",
-        "destination": "/",
-        "note": "Claims administration. No concern page owns it."
-      },
-      {
         "path": "/single-post/how-does-the-insurance-concierge-get-paid",
         "destination": "/services"
-      },
-      {
-        "path": "/single-post/what-happens-if-my-claim-is-rejected",
-        "destination": "/",
-        "note": "Claims administration. No concern page owns it."
       },
       {
         "path": "/single-post/what-is-the-difference-between-international-and-local-health-insurance-in-singapore",
@@ -281,23 +255,13 @@
         "destination": "/pre-existing-conditions"
       }
     ],
-    "$extensionlessBecame200": "MEASURED 2026-08-19, AFTER SHIPPING: emitting these files changed the extensionless paths too. Before the deploy /knowledge was 404 and /knowledge.html was 200; now both serve the tombstone. Render resolves an extensionless request to a .html file it published, but would not do so for a file merely stranded on the disk from an older publish - which is why the split existed at all. This was not the plan and it is accepted rather than regretted: a 404 and a noindex 200 both get a URL out of the index, and the 200 is the one that tells a human what happened and where to go instead. But it does mean `dropped.status` below is no longer true for these fifteen, and there is now NO WAY to have the .html tombstone without the extensionless 200 - do not go looking for one. The end state that fixes both is a 301."
+    "$extensionlessBecame200": "MEASURED 2026-08-19, AFTER SHIPPING: emitting these files changed the extensionless paths too. Before the deploy /knowledge was 404 and /knowledge.html was 200; now both serve the tombstone. Render resolves an extensionless request to a .html file it published, but would not do so for a file merely stranded on the disk from an older publish - which is why the split existed at all. This was not the plan and it is accepted rather than regretted: a 404 and a noindex 200 both get a URL out of the index, and the 200 is the one that tells a human what happened and where to go instead. But it does mean `dropped.status` below is no longer true for these fifteen, and there is now NO WAY to have the .html tombstone without the extensionless 200 - do not go looking for one. The end state that fixes both is a 301.",
+    "$whyThese": "A 404 tells a visitor the page is gone; a tombstone tells them where its subject went. So a path earns one only when a SPECIFIC page covers what they came for. Five paths whose only destination was `/` were dropped on 2026-08-19: app/not-found.tsx already says that, in the site's own design, offers /services as well, and carries the right status code. Do not add a `/`-destination entry here - drop the path instead.",
+    "strandedFilesPurgedOn": "2026-08-19"
   },
   "strandedAssets": {
-    "$comment": "NOT PAGES. Non-HTML files stranded on the live disk by the same additive publish, found 2026-08-19 while answering whether Render can delete anything. They are overwritten by the same mechanism as `tombstoned` above, because there is no other mechanism.",
-    "$whyTheseMatter": "The manifest names an insurer three times in served JSON, which is precisely what scripts/verify-copy.ts exists to prevent and which its own header records as having no remaining exemption now that /forms is retired. The PDF is an insurer's client document, 1.45MB, still downloadable by anyone with the URL. Both were meant to leave the public site on 2026-08-17 and never did.",
-    "$note": "The PDF's path still contains an insurer name. That cannot be changed - the path is what has to be overwritten - and it is not a copy violation: verify-copy.ts scans file CONTENTS, and only for the extensions in SCANNED_EXTENSIONS, which excludes .pdf.",
-    "paths": [
-      {
-        "path": "/forms/manifest.json",
-        "kind": "json",
-        "was": "The forms library index. Listed every member file and grouped them by insurer."
-      },
-      {
-        "path": "/forms/files/allianz-telehealth-user-guide.pdf",
-        "kind": "pdf",
-        "was": "1.45MB insurer client guide, publicly downloadable."
-      }
-    ]
+    "$comment": "RESOLVED 2026-08-19, and kept as an empty list rather than deleted because the shape of the problem can recur. Two non-HTML files - /forms/manifest.json and /forms/files/allianz-telehealth-user-guide.pdf, a 1.45MB insurer client document - were stranded on the live disk by the 17 August retirement and were overwritten with stubs, because nothing appeared able to delete a published file. A clear-cache deploy was then proven to remove them, so both entries were dropped from this list: a 404 beats a stub for both, since nothing moves onward from a manifest and a 617-byte PDF reading 'retired' is a worse answer than the file being absent.",
+    "paths": [],
+    "$ifThisRecurs": "Prefer clearing the build cache and deploying, which empties the path. Overwrite in place only where something must keep answering at that URL. verify-copy.ts scans file CONTENTS and only the extensions in SCANNED_EXTENSIONS, so an insurer name in a PDF's PATH is not a copy violation and was never the reason to act - the file being downloadable was."
   }
 }

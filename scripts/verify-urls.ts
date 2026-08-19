@@ -9,14 +9,16 @@
  *   2. every path in -> redirectOnly emits NO artifact (those are render.yaml redirects;
  *      shipping a real page at /file-access would silently shadow the redirect)
  *   2b. every path in -> proxied emits NO artifact either. Those are served by the CRM
- *      through a Render rewrite; an artifact here would be published at the same path and,
- *      because Render's publish is additive, would shadow the rewrite and take the
- *      knowledge base off this host with nothing failing.
+ *      through a Render rewrite, and a rewrite rule DOES NOT APPLY when a resource exists
+ *      at that path (documented by Render). So an artifact here would silently shadow the
+ *      rewrite and take the knowledge base off this host with nothing failing.
  *   3. every path in -> tombstoned emits a TOMBSTONE, and every other dropped path emits
- *      nothing. The two are opposite requirements on the same list, which is the point:
- *      a tombstoned path is one the live disk is still serving, so the only way to retire
- *      it is to overwrite it. Losing the artifact does not restore a 404 there — it
- *      restores the 17 August page.
+ *      nothing. The two are opposite requirements on the same list. A tombstone is not a
+ *      workaround any more (a clear-cache deploy can genuinely empty a path, proven
+ *      2026-08-19): it is a deliberate choice to answer 200 and name the specific page
+ *      that replaced this one, where a bare 404 could not. Dropping a path from the list
+ *      now really does give a 404 — which is the right answer wherever there is no
+ *      specific replacement to name.
  *   4. every nav href in lib/site.ts points at a preserved path
  *
  * Run after `npm run build`. Exits non-zero on any violation.
@@ -160,9 +162,10 @@ if (proxied.length > 0) {
 }
 
 /*
-  Tombstoned paths are dropped paths the live disk is STILL SERVING, so they invert the
+  Tombstoned paths are dropped paths that deliberately still answer, so they invert the
   rule below: they must emit, and what they emit must be a tombstone rather than a real
-  page. See content/url-contract.json → tombstoned.
+  page. Each one exists to name the page that replaced it. See
+  content/url-contract.json → tombstoned.
 */
 const tombstones = contract.tombstoned?.paths ?? []
 const tombstonedSet = new Set(tombstones.map((t) => t.path))
@@ -172,9 +175,10 @@ if (tombstones.length > 0) {
     const artifact = artifactFor(entry.path)
     if (!artifact) {
       failures.push(
-        `Tombstoned path ${entry.path} emitted nothing. That does not make it a 404 — it ` +
-          `leaves the 17 August page in place on Render, because the publish is additive. ` +
-          `Check scripts/gen-tombstones.ts still runs in \`npm run build\`.`,
+        `Tombstoned path ${entry.path} emitted nothing, so it will answer 404 rather than ` +
+          `pointing anyone at ${entry.destination}. If that is intended, remove it from ` +
+          `url-contract.json → tombstoned. If not, check scripts/gen-tombstones.ts still ` +
+          `runs in \`npm run build\`.`,
       )
       console.error(`  ✗ ${entry.path.padEnd(52)} MISSING`)
       continue
@@ -183,8 +187,8 @@ if (tombstones.length > 0) {
     if (!body.includes(TOMBSTONE_MARKER)) {
       failures.push(
         `Tombstoned path ${entry.path} emitted out/${artifact}, but it is not a tombstone. ` +
-          `A real page here would be published over the stale one, which is fine, but the ` +
-          `contract says this path is retired — reconcile the two before shipping.`,
+          `The contract says this path is retired — either it is live again, in which case ` +
+          `take it out of tombstoned, or something is emitting it by accident.`,
       )
       console.error(`  ✗ ${entry.path.padEnd(52)} NOT A TOMBSTONE`)
     } else if (!body.includes('name="robots" content="noindex"')) {
