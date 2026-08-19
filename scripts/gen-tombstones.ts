@@ -13,7 +13,9 @@
  * diagnosis was wrong. A clear-cache deploy DOES remove files the build no longer emits
  * (measured the same day: /blog.html went 200 to 404 across one, same commit, identical
  * build inputs), so a path can now be genuinely emptied and a missing artifact really is
- * a 404.
+ * a 404 — PROVIDED the deploy that drops it clears the build cache. The cache is
+ * repopulated every build, so an ordinary deploy re-strands whatever it stopped emitting;
+ * measured the same day on the seven paths this list shed.
  *
  * THE CHOICE (what the list means now): a 404 tells a visitor the page is gone. A
  * tombstone tells them where its subject went. So a path earns a tombstone when there is
