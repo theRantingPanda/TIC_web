@@ -662,10 +662,19 @@ export const concerns: readonly Concern[] = [
         the list rather than asserting a number, so nothing has to be invented to fill it.
       */
     ],
+    /*
+      Two items, not three. "Tell you when the scheme is already enough. That answer costs
+      us the sale and it is still the right one." stood here until 2026-08-19 and went on
+      Steven's instruction.
+
+      The substance survives in the reassurance column beside the enquiry form — "say so if
+      it is already enough" — without the second sentence, which was the firm marking its
+      own homework. Do not restore it here on the grounds that the list looks short; the
+      heading does not count this list.
+    */
     whatWeDo: [
       'Read your scheme’s actual limits with you, rather than working from what the benefits summary implies.',
       'Size a plan that sits above it instead of alongside it, so you are not paying twice for the first layer.',
-      'Tell you when the scheme is already enough. That answer costs us the sale and it is still the right one.',
     ],
     ctaLabel: 'Talk to us',
     earlyCtaLabel: 'Check whether your employer limit is enough',
