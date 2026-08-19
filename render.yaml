@@ -91,9 +91,12 @@
 # must therefore repeat the prefix. Whether a bare `/a` is matched by `/a/*` is NOT
 # documented; observation says no, and both rules are cheap, so ship both.
 #
-# ⚠ WHAT THE DOCS DO NOT ANSWER, asked directly: what causes a stale file to keep being
-# served, whether "Clear build cache & deploy" removes previously published output, and
-# whether ANY supported removal exists. Nobody knows — which is not the same as no. The
+# ⚠ WHAT RENDER'S DOCS AI DID NOT FIND, asked from their FAQ page: what causes a stale file
+# to keep being served, whether "Clear build cache & deploy" removes previously published
+# output, and whether ANY supported removal exists. Stated precisely because it matters: a
+# bounded search came back empty, which is NOT the same as the docs lacking it — the same
+# reply pointed at /docs/static-sites and /docs/deploys, exactly where that behaviour would
+# be. Re-ask against those pages before concluding. Either way the answer is not "no". The
 # test that settles it is in the CRM's STATE.md as queued item 0: clear the cache, deploy,
 # fetch /blog.html. A 404 means most of the machinery in this file is unnecessary.
 #
