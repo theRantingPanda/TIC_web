@@ -205,12 +205,12 @@
       {
         "path": "/knowledge",
         "destination": "/kb",
-        "note": "The public KB index. The knowledge base moved to the CRM and is served at /kb through a Render rewrite, so this is the one tombstone whose destination is the thing the visitor actually came for. Retargeted from / on 2026-08-19."
+        "note": "The public KB index. The knowledge base moved to the CRM and is served at /kb through a Render rewrite, so this is the one tombstone whose destination is the thing the visitor actually came for. Retargeted from / on 2026-08-19. Pointing here does NOT contradict the 2026-08-19 ruling that this site's nav must not carry the knowledge base: that ruling is about not advertising a member surface to prospects browsing a marketing site. Someone arriving on this path followed a link to the member surface deliberately, so routing them on is serving the request, not promoting it."
       },
       {
         "path": "/forms",
         "destination": "/kb",
-        "note": "The forms library. Its documents moved to the CRM as knowledge-base attachments, downloaded from /kb/_forms/{slug}; there is no forms index any more, so /kb is where they are found. Retargeted from / on 2026-08-19."
+        "note": "The forms library. Its documents moved to the CRM as knowledge-base attachments, downloaded from /kb/_forms/{slug}; there is no forms index any more, so /kb is where they are found. Retargeted from / on 2026-08-19. Pointing here does NOT contradict the 2026-08-19 ruling that this site's nav must not carry the knowledge base: that ruling is about not advertising a member surface to prospects browsing a marketing site. Someone arriving on this path followed a link to the member surface deliberately, so routing them on is serving the request, not promoting it."
       },
       {
         "path": "/projects",

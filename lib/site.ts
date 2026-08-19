@@ -94,18 +94,33 @@ export const primaryNav: readonly NavGroup[] = [
     /services, which would leave a nav item labelled "Answers" landing on a page about what
     we arrange. Both are worse than two honest groups.
 
-    ⚠ THE CONDITION THIS NOTE SET IS NOW MET (2026-08-19). A public answers surface DID
-    return: the CRM's knowledge base went live at www.asktic.com/kb on 2026-08-18, served
-    here by rewrite, and it is public and indexable. This is where the nav item goes back.
+    ✓ SETTLED, AND THE ANSWER IS NO (owner's ruling, 2026-08-19). A public answers surface
+    did return — the CRM's knowledge base went live at www.asktic.com/kb on 2026-08-18,
+    served here by rewrite — and it still does not belong in this nav. THIS SITE ADDRESSES
+    PROSPECTS. The knowledge base addresses MEMBERS: it is written for people already under
+    our care, and every article says so in its own disclaimer.
 
-    It has NOT been added, because the label is a copy decision and this file should not
-    make it. Two things a future editor needs. The surface calls itself "Member resources"
-    in its own brand lockup — the owner's word, chosen on 2026-08-18 over "Help centre" —
-    so a nav item named anything else would contradict the page it opens. And /kb is a
-    `proxied` path in content/url-contract.json, not a `preserved` one, so `verify:urls`
-    check 4 — every nav href resolves to a preserved path — must be widened to accept
-    proxied paths in the same change, or the build fails. That guard firing is correct:
-    it is asking whether linking off-origin was deliberate.
+    That is the same rule the footer note below already applies to /forms — a member is
+    sent the thing they need by email or WhatsApp, and nobody hunts for a claim form, or a
+    claims procedure, on a marketing site. The audience is the test, not whether a public
+    URL exists.
+
+    So this is now a closed question rather than a waiting one, and the "if a public
+    answers surface returns" trigger it used to carry is withdrawn: the surface returning
+    was never the point. Reopen only if the owner decides this site should serve members
+    too, which is a positioning decision and not a linking one.
+
+    Two facts kept for that unlikely day. The surface calls itself "Member resources" — the
+    owner's word, chosen 2026-08-18 over "Help centre" — so a nav item named anything else
+    would contradict the page it opens. And /kb is a `proxied` path in
+    content/url-contract.json, not a `preserved` one, so `verify:urls` check 4 (every nav
+    href resolves to a preserved path) would have to be widened in the same change or the
+    build fails. That guard firing is correct: it asks whether linking off-origin was
+    deliberate.
+
+    None of this affects reachability. /kb is public, indexed, and announced in the sitemap
+    from app/robots.ts, so a member searching for an answer finds it. It is simply not
+    advertised to people who are not members yet.
   */
 ] as const
 
