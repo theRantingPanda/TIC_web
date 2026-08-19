@@ -79,6 +79,24 @@
 # individual. And test the first rule before writing thirty — if Render serves an existing
 # file before evaluating rules, the approach is void.
 #
+# ✓ CONFIRMED BY RENDER'S DOCS 2026-08-19 (render.com/docs/redirects-rewrites, via their
+# docs AI): "redirect/rewrite rules don't apply if a resource exists at that path". So the
+# behaviour this file established by observation is DOCUMENTED and intended, not a quirk to
+# be designed around defensively — and the header asymmetry below follows from it rather
+# than contradicting it: a header acts on whatever gets served, a redirect only acts when
+# nothing is there.
+#
+# The same answer documented the wildcard: `*` in a Source matches any string from that
+# position, and `*` in a Destination substitutes the ENTIRE captured string. A destination
+# must therefore repeat the prefix. Whether a bare `/a` is matched by `/a/*` is NOT
+# documented; observation says no, and both rules are cheap, so ship both.
+#
+# ⚠ WHAT THE DOCS DO NOT ANSWER, asked directly: what causes a stale file to keep being
+# served, whether "Clear build cache & deploy" removes previously published output, and
+# whether ANY supported removal exists. Nobody knows — which is not the same as no. The
+# test that settles it is in the CRM's STATE.md as queued item 0: clear the cache, deploy,
+# fetch /blog.html. A 404 means most of the machinery in this file is unnecessary.
+#
 # ✓ ANSWERED 2026-08-19: A HEADER RULE IS NOT BYPASSED BY AN EXISTING FILE.
 #
 # The note above establishes that a redirect rule loses to a stale artifact at the same
