@@ -5,7 +5,6 @@ import { ConcernCard } from '@/components/concern-card'
 import { ConcernPanel } from '@/components/concern-panel'
 import { Container } from '@/components/container'
 import { EmailField } from '@/components/email-field'
-import { EnquiryBridge } from '@/components/enquiry-bridge'
 import { Reveal } from '@/components/reveal'
 import { Section } from '@/components/section'
 import { SectionHeading } from '@/components/section-heading'
@@ -75,10 +74,14 @@ export function metadataFor(path: string): Metadata {
  * licensing sentence is in the footer of every page, and the no-obligation line is in the
  * bridge above — so this restates rather than claims anything new.
  *
- * ⚠ RESIST ADDING A THIRD. The column exists to reassure at the point of the ask, not to
- * argue; every item added past the point where the visitor stops reading pushes the two
- * that matter further from the submit button. If something genuinely belongs here, it
- * probably belongs in the panel instead.
+ * ⚠ RESIST ADDING A THIRD, and note this has already been tested. A numbered strip above
+ * the form said three more reassuring things and the whole band tipped over into
+ * protesting too much; it lasted four hours. The reply window it carried was folded into
+ * the first item here rather than becoming a third entry, deliberately.
+ *
+ * Every item added past the point where the visitor stops reading pushes the two that
+ * matter further from the submit button. If something genuinely belongs here, it probably
+ * belongs in the panel instead.
  *
  * ⚠ DO NOT PUT A TESTIMONIAL OR A LOGO WALL HERE. Both were removed from the homepage on
  * 2026-08-16 and this is exactly the kind of empty space they come back into.
@@ -86,7 +89,7 @@ export function metadataFor(path: string): Metadata {
 const reassurance = [
   {
     term: 'No obligation',
-    body: 'We look at what you have, tell you where it stands, and say so if it is already enough. Nothing here commits you to anything.',
+    body: 'We look at what you have, tell you where it stands, and say so if it is already enough. You will hear back within two business days, and nothing here commits you to anything.',
   },
   {
     term: 'A licensed Singapore agency',
@@ -183,14 +186,21 @@ export function ConcernPage({ path }: { path: string }) {
         />
 
         {/*
-          Between the heading and the form, not above the heading: the bridge answers
-          "what happens if I do this", which is only a question once the visitor has been
-          asked. See components/enquiry-bridge.tsx for why it carries no button.
-        */}
-        <div className="mt-10">
-          <EnquiryBridge audience={concern.audience} />
-        </div>
+          ---- A numbered 01 / 02 / 03 strip stood here for about four hours ----
 
+          Added 2026-08-19 to set expectations before the form, removed the same day once
+          the reassurance column went in beside the fields. Together they said the same
+          things twice: the strip's "no obligation" and the column's "No obligation", the
+          strip's "you tell us where you are" and the lede directly above it. Six
+          reassuring statements around one form is not reassuring, it is a page protesting
+          too much, and Steven called it.
+
+          THE ONE THING THE STRIP CARRIED ALONE was the reply window, which is a real
+          commitment and the most useful thing on offer. It moved into the column rather
+          than going with the strip — see `reassurance` above. If you find yourself adding
+          a band here again, check first that what you want to say is not already in the
+          lede, the column, or the success message.
+        */}
         {/*
           Two columns from `lg`, and the right one is the whole reason this is a grid.
 
