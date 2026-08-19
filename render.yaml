@@ -6,9 +6,10 @@
 #
 #   branch          main          autoDeploy    yes, on commit
 #   buildCommand    npm run build publishPath   out
-#   env vars        none          routes        TEN, over TWO dashboard screens —
+#   env vars        none          routes        TWELVE, over TWO dashboard screens —
 #                                               Redirects/Rewrites holds the six redirects
-#                                               below plus the two /kb rewrites; Headers
+#                                               below plus FOUR rewrites (/member-resources
+#                                               and /kb, each exact + wildcard); Headers
 #                                               holds two noindex rules (see the answered
 #                                               question further down). Editing either
 #                                               screen can disturb the other.
@@ -272,7 +273,7 @@ services:
         source: /income-preservation-1
         destination: /services
 
-      # ---- The knowledge base, 2026-08-18 ----
+      # ---- The knowledge base, 2026-08-18; moved to /member-resources 2026-08-19 ----
       # REWRITES, not redirects: the visitor stays on www.asktic.com and never learns
       # another host is involved. The CRM renders these at rainmaker.asktic.com.
       #
@@ -284,7 +285,7 @@ services:
       # (see above). Headers are the tool for a file we CANNOT overwrite from the build.
       # /knowledge and /forms are files this build DOES emit — tombstones — so overwriting
       # them is both available and better: a header could only hide them from search, and
-      # what a member following an old link needs is to be sent on to /kb.
+      # what a member following an old link needs is to be sent on to the knowledge base.
       #
       # /robots.txt is deliberately NOT proxied. The CRM host bans crawlers in its own
       # robots.txt, which is fetched per host; forwarding this site's /robots.txt there
@@ -295,6 +296,23 @@ services:
       # artifact here would be published at the same path and, because Render's publish is
       # additive, would shadow the rewrite and take the knowledge base off this host with
       # nothing failing.
+      - type: rewrite
+        source: /member-resources
+        destination: https://rainmaker.asktic.com/member-resources
+      - type: rewrite
+        source: /member-resources/*
+        destination: https://rainmaker.asktic.com/member-resources/*
+
+      # ⚠ THE OLD /kb REWRITES ARE RETAINED AND MUST NOT BE DELETED. /kb was the
+      # public prefix on 18-19 Aug — long enough to be indexed, and long enough that a
+      # sitemap was announced at /kb/sitemap.xml. The 301 to /member-resources is served
+      # BY THE CRM, so removing these rewrites does not replace the redirect, it breaks
+      # it: the request would stop reaching the app that issues it.
+      #
+      # ORDER OF THE CUTOVER, and it only works one way round. These rewrites must exist
+      # BEFORE the CRM starts redirecting, or every indexed /kb link lands on a 404 here.
+      # In the window between, /member-resources reaches the CRM and 404s — which is
+      # harmless, because nothing links there yet.
       - type: rewrite
         source: /kb
         destination: https://rainmaker.asktic.com/kb

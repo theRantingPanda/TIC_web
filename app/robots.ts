@@ -6,7 +6,7 @@ import { siteConfig } from '@/lib/site'
  * The site's robots.txt. There was none before 2026-08-19.
  *
  * ITS ONE JOB IS TO ANNOUNCE THE KNOWLEDGE BASE SITEMAP, and it has to be this
- * host that does it. `/kb` is served by the CRM (rainmaker.asktic.com) through a
+ * host that does it. `/member-resources` is served by the CRM (rainmaker.asktic.com) through a
  * Render rewrite, and robots.txt is fetched PER HOST — the CRM's own copy
  * deliberately bans crawlers, so a sitemap announced there would be announced by
  * the one host telling them not to look. The public host is this one.
@@ -38,6 +38,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: `${siteConfig.url}/kb/sitemap.xml`,
+    sitemap: `${siteConfig.url}/member-resources/sitemap.xml`,
   }
 }
