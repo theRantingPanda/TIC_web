@@ -41,12 +41,56 @@ const OUT_DIR = path.join(ROOT, 'out')
 
 
 type Tombstone = { path: string; destination: string; note?: string }
+type StrandedAsset = { path: string; kind: 'json' | 'pdf'; was?: string }
 
-const contract: { tombstoned?: { paths: Tombstone[] } } = JSON.parse(
-  fs.readFileSync(path.join(ROOT, 'content', 'url-contract.json'), 'utf8'),
-)
+const contract: {
+  tombstoned?: { paths: Tombstone[] }
+  strandedAssets?: { paths: StrandedAsset[] }
+} = JSON.parse(fs.readFileSync(path.join(ROOT, 'content', 'url-contract.json'), 'utf8'))
 
 const entries = contract.tombstoned?.paths ?? []
+const assets = contract.strandedAssets?.paths ?? []
+
+const RETIRED_LINE = 'This file was retired from the public site and is no longer distributed here.'
+
+/**
+ * A complete, valid one-page PDF, written byte by byte.
+ *
+ * Needed because the only way to stop serving a stranded PDF is to publish a different
+ * one at the same path, and shipping a broken file would trade a real document for a
+ * download error. Offsets are computed rather than hand-counted: an xref table with the
+ * wrong byte positions is exactly the kind of thing that works in one reader and not in
+ * the next.
+ */
+function stubPdf(): Buffer {
+  const text = `BT /F1 12 Tf 60 780 Td (${RETIRED_LINE}) Tj ET`
+  const objects = [
+    '<</Type/Catalog/Pages 2 0 R>>',
+    '<</Type/Pages/Kids[3 0 R]/Count 1>>',
+    '<</Type/Page/Parent 2 0 R/MediaBox[0 0 595 842]/Resources<</Font<</F1 4 0 R>>>>/Contents 5 0 R>>',
+    '<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>',
+    `<</Length ${text.length}>>\nstream\n${text}\nendstream`,
+  ]
+
+  let body = '%PDF-1.4\n'
+  const offsets: number[] = []
+  objects.forEach((object, index) => {
+    offsets.push(body.length)
+    body += `${index + 1} 0 obj\n${object}\nendobj\n`
+  })
+
+  const startxref = body.length
+  body += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`
+  for (const offset of offsets) body += `${String(offset).padStart(10, '0')} 00000 n \n`
+  body += `trailer\n<</Size ${objects.length + 1}/Root 1 0 R>>\nstartxref\n${startxref}\n%%EOF\n`
+
+  return Buffer.from(body, 'latin1')
+}
+
+/** The manifest keeps its shape so anything still parsing it gets an empty list, not a crash. */
+function stubJson(asset: StrandedAsset): string {
+  return `${JSON.stringify({ version: 1, retired: true, note: RETIRED_LINE, forms: [] }, null, 2)}\n`
+}
 
 function page({ destination }: Tombstone): string {
   const home = destination === '/'
@@ -120,4 +164,28 @@ for (const entry of entries) {
   fs.mkdirSync(path.dirname(full), { recursive: true })
   fs.writeFileSync(full, page(entry))
   console.log(`  ✓ ${entry.path.padEnd(52)} -> ${entry.destination}`)
+}
+
+/*
+  Stranded non-HTML files. Same mechanism, different payload: a JSON index and a PDF
+  cannot carry a noindex or a link, so each is replaced by the smallest valid file of its
+  own type that says the same thing.
+*/
+if (assets.length > 0) {
+  console.log(`\nOverwriting ${assets.length} stranded asset(s)…`)
+  for (const asset of assets) {
+    const relative = asset.path.replace(/^\//, '')
+    const full = path.join(OUT_DIR, relative)
+
+    if (fs.existsSync(full)) {
+      console.error(`  ✗ ${asset.path} — the build already emits this. Remove it from`)
+      console.error(`    url-contract.json → strandedAssets rather than burying it.`)
+      process.exit(1)
+    }
+
+    fs.mkdirSync(path.dirname(full), { recursive: true })
+    fs.writeFileSync(full, asset.kind === 'pdf' ? stubPdf() : stubJson(asset))
+    const size = fs.statSync(full).size
+    console.log(`  ✓ ${asset.path.padEnd(52)} ${asset.kind}, ${size} bytes`)
+  }
 }
