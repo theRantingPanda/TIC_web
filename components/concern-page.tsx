@@ -165,11 +165,17 @@ export function ConcernPage({ path }: { path: string }) {
           well, and the bridge immediately below now says that in full sentences, so
           keeping it here put the same commitment on screen twice inside forty words.
 
-          IT HAS TO STAY TRUE OF THE FORM BELOW IT, and this line has now been wrong twice.
-          First it promised "Four fields" after /beyond-employer-cover swapped to the quote
-          set. Then it said "a few details" over a step two that was a fact-find. Both times
-          the visitor found out only after committing, which is the one place on the page
-          where understating the ask is a broken promise rather than a nicety.
+          IT HAS TO STAY TRUE OF THE FORM BELOW IT, and this line has now been wrong THREE
+          times. It promised "Four fields" after /beyond-employer-cover swapped to the quote
+          set. Then "a few details" over a step two that was a fact-find. Then it listed an
+          age and a residence on the day nationality became required in step one. Each time
+          the visitor would have found out only after committing, which is the one place on
+          the page where understating the ask is a broken promise rather than a nicety.
+
+          ⚠ IF YOU CHANGE WHICH FIELDS ARE REQUIRED IN STEP ONE, CHANGE THIS LINE. Three
+          for three says nobody remembers on their own. It cannot be derived, because the
+          fields live in a client component and this is a server one, so the only defence is
+          this note and the habit of reading it.
 
           What it says now is what step one actually costs — an age and a country, about two
           minutes — and step two is optional and says so. Keyed off the same `enquiryFields`
@@ -180,7 +186,7 @@ export function ConcernPage({ path }: { path: string }) {
           title="Tell us the situation"
           lede={
             quote
-              ? 'About two minutes. We need an age and a country of residence to say anything meaningful.'
+              ? 'About two minutes. We need an age, a nationality and a country of residence to say anything meaningful.'
               : 'Four fields, and the last one is optional.'
           }
         />
