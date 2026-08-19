@@ -254,5 +254,22 @@
       }
     ],
     "$extensionlessBecame200": "MEASURED 2026-08-19, AFTER SHIPPING: emitting these files changed the extensionless paths too. Before the deploy /knowledge was 404 and /knowledge.html was 200; now both serve the tombstone. Render resolves an extensionless request to a .html file it published, but would not do so for a file merely stranded on the disk from an older publish - which is why the split existed at all. This was not the plan and it is accepted rather than regretted: a 404 and a noindex 200 both get a URL out of the index, and the 200 is the one that tells a human what happened and where to go instead. But it does mean `dropped.status` below is no longer true for these fifteen, and there is now NO WAY to have the .html tombstone without the extensionless 200 - do not go looking for one. The end state that fixes both is a 301."
+  },
+  "strandedAssets": {
+    "$comment": "NOT PAGES. Non-HTML files stranded on the live disk by the same additive publish, found 2026-08-19 while answering whether Render can delete anything. They are overwritten by the same mechanism as `tombstoned` above, because there is no other mechanism.",
+    "$whyTheseMatter": "The manifest names an insurer three times in served JSON, which is precisely what scripts/verify-copy.ts exists to prevent and which its own header records as having no remaining exemption now that /forms is retired. The PDF is an insurer's client document, 1.45MB, still downloadable by anyone with the URL. Both were meant to leave the public site on 2026-08-17 and never did.",
+    "$note": "The PDF's path still contains an insurer name. That cannot be changed - the path is what has to be overwritten - and it is not a copy violation: verify-copy.ts scans file CONTENTS, and only for the extensions in SCANNED_EXTENSIONS, which excludes .pdf.",
+    "paths": [
+      {
+        "path": "/forms/manifest.json",
+        "kind": "json",
+        "was": "The forms library index. Listed every member file and grouped them by insurer."
+      },
+      {
+        "path": "/forms/files/allianz-telehealth-user-guide.pdf",
+        "kind": "pdf",
+        "was": "1.45MB insurer client guide, publicly downloadable."
+      }
+    ]
   }
 }
