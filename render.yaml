@@ -61,6 +61,45 @@
 # individual. And test the first rule before writing thirty — if Render serves an existing
 # file before evaluating rules, the approach is void.
 #
+# ✓ ANSWERED 2026-08-19: A HEADER RULE IS NOT BYPASSED BY AN EXISTING FILE.
+#
+# The note above establishes that a redirect rule loses to a stale artifact at the same
+# path. The open question was whether headers behave the same way, since the whole reason
+# to reach for them is the files we cannot delete. They do not. A header rule applies to
+# whatever the server ends up sending, including a file stranded by an older publish:
+#
+#   /blog.html                    200   x-robots-tag: noindex
+#   /income-preservation-1.html   200   x-robots-tag: noindex
+#
+# Both were added in the dashboard under Headers and verified live the same minute. This
+# is the tool for anything else left on that disk that cannot be overwritten from the
+# build: a noindex header gets a URL out of search results without removing the file and
+# WITHOUT costing the redirect on its extensionless partner, which is what tombstoning
+# those two would have done. See content/url-contract.json -> tombstoned for the paths
+# where overwriting was the right answer instead.
+#
+# ⚠⚠ EDITING HEADERS CAN TAKE THE NEIGHBOURING REDIRECTS WITH IT. Not a theory:
+# adding those two header rules removed the /blog and /income-preservation-1 redirect
+# rules outright, and both had to be re-created. The two screens sit next to each other in
+# the sidebar and the paths differ only by `.html`.
+#
+# Re-creating them then produced a LEADING SPACE in a field, twice — once in a destination
+# (`/income-preservation-1` 301'd to `/%20/services`, a 404, which is worse than the plain
+# 404 it replaced) and once in a source (`/blog` stored a rule that silently never
+# matched). A space is invisible in the input and fails without an error. Retyping the
+# rule from scratch fixed it where editing in place did not.
+#
+# SO: AFTER ANY CHANGE ON THE HEADERS OR REDIRECTS SCREEN, RE-CHECK ALL FOUR REDIRECTS.
+# One command, and it catches both failure modes because it follows the chain:
+#
+#   for p in /blog /speciality-insurance /income-preservation-1 /home-1; do
+#     curl -s -o /dev/null -w "$p %{http_code} -> %{redirect_url} lands %{http_code}\n" \
+#       -L "https://www.asktic.com$p?cb=$RANDOM"
+#   done
+#
+# All four must return 301 and land on a 200. A 301 alone is not enough: that is exactly
+# what the space-in-the-destination bug looked like.
+#
 # ⚠⚠ RENDER'S STATIC PUBLISH IS ADDITIVE. DELETING A FILE DOES NOT UNPUBLISH IT.
 # (Established 2026-08-18, after an earlier version of this note got it wrong.)
 #
