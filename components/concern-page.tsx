@@ -67,6 +67,33 @@ export function metadataFor(path: string): Metadata {
   }
 }
 
+/**
+ * What sits beside the form, and only this.
+ *
+ * Two facts a visitor weighs at the moment of committing: is this going to cost me, and
+ * is this firm real. Both are already true and stated elsewhere on the site — the
+ * licensing sentence is in the footer of every page, and the no-obligation line is in the
+ * bridge above — so this restates rather than claims anything new.
+ *
+ * ⚠ RESIST ADDING A THIRD. The column exists to reassure at the point of the ask, not to
+ * argue; every item added past the point where the visitor stops reading pushes the two
+ * that matter further from the submit button. If something genuinely belongs here, it
+ * probably belongs in the panel instead.
+ *
+ * ⚠ DO NOT PUT A TESTIMONIAL OR A LOGO WALL HERE. Both were removed from the homepage on
+ * 2026-08-16 and this is exactly the kind of empty space they come back into.
+ */
+const reassurance = [
+  {
+    term: 'No obligation',
+    body: 'We look at what you have, tell you where it stands, and say so if it is already enough. Nothing here commits you to anything.',
+  },
+  {
+    term: 'A licensed Singapore agency',
+    body: 'The Insurance Concierge Agency Pte. Ltd., advising on policies issued in Singapore since 2014.',
+  },
+] as const
+
 /** The sibling concerns on the same path, minus this one. */
 function siblings(concern: Concern): readonly Concern[] {
   return concernsFor(concern.audience).filter((item) => item.key !== concern.key)
@@ -132,24 +159,25 @@ export function ConcernPage({ path }: { path: string }) {
       <Section id="talk-to-us" tone="subtle" labelledBy="enquiry-heading">
         {/*
           The lede describes the ask and NOTHING ELSE. It used to carry the promise as
-          well — "no obligation, and a reply the same working day" — and the bridge
-          immediately below now says both of those in full sentences, so keeping them here
-          put the same commitment on screen twice inside forty words.
+          well, and the bridge immediately below now says that in full sentences, so
+          keeping it here put the same commitment on screen twice inside forty words.
 
-          It also has to follow the form. /beyond-employer-cover swapped to the quote
-          question set on 2026-08-18 and this line went on promising "Four fields" above a
-          form asking for dates of birth, nationality, residency and an upload. That is
-          the one place on the page where understating the ask is a broken promise rather
-          than a nicety, because the visitor has already committed by the time they find
-          out. It is keyed off the same `enquiryFields` value that chooses the fields
-          below, so the count and the form cannot drift apart again.
+          IT HAS TO STAY TRUE OF THE FORM BELOW IT, and this line has now been wrong twice.
+          First it promised "Four fields" after /beyond-employer-cover swapped to the quote
+          set. Then it said "a few details" over a step two that was a fact-find. Both times
+          the visitor found out only after committing, which is the one place on the page
+          where understating the ask is a broken promise rather than a nicety.
+
+          What it says now is what step one actually costs — an age and a country, about two
+          minutes — and step two is optional and says so. Keyed off the same `enquiryFields`
+          value that chooses the fields, so the two cannot drift apart again.
         */}
         <SectionHeading
           id="enquiry-heading"
           title="Tell us the situation"
           lede={
-            concern.enquiryFields === 'top-up-quote'
-              ? 'A few details so we can price it properly.'
+            quote
+              ? 'About two minutes. We need an age and a country of residence to say anything meaningful.'
               : 'Four fields, and the last one is optional.'
           }
         />
@@ -163,7 +191,21 @@ export function ConcernPage({ path }: { path: string }) {
           <EnquiryBridge audience={concern.audience} />
         </div>
 
-        <Reveal className="mt-10 max-w-xl">
+        {/*
+          Two columns from `lg`, and the right one is the whole reason this is a grid.
+
+          The form is capped at a readable measure, which on a desktop left roughly half
+          the band empty beside it — a review called that out, and it was right: blank
+          space next to the one thing on the page asking for commitment reads as an
+          unfinished layout rather than as calm. The column carries the two facts a
+          visitor weighs at exactly that moment, and nothing else. It is NOT a place to
+          put more argument; the argument is above and it has already been made.
+
+          It sits AFTER the form in the DOM so a keyboard or screen reader user reaches
+          the fields first. `lg:order-first` is not used for the same reason.
+        */}
+        <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,36rem)_minmax(0,1fr)] lg:gap-16">
+          <Reveal className="max-w-xl">
           {captureEnabled ? (
             <CaptureForm
               source="concern-enquiry"
@@ -172,8 +214,8 @@ export function ConcernPage({ path }: { path: string }) {
               // file. The two lists stay separate.
               list={company ? 'corporate' : 'individual'}
               submitLabel="Send this"
-              continueLabel="Next: who needs cover"
-              successMessage="Got it. We will come back to you today or tomorrow morning."
+              continueLabel="Next: optional detail"
+              successMessage="Got it. We will come back to you within two business days."
               className="space-y-5"
               secondStep={quote ? <TopUpQuoteDetails /> : undefined}
             >
@@ -271,7 +313,32 @@ export function ConcernPage({ path }: { path: string }) {
               .
             </p>
           ) : null}
-        </Reveal>
+          </Reveal>
+
+          {/*
+            A margin note, NOT A CARD.
+
+            It was a bordered box on a white ground, which put a rounded rectangle with a
+            border directly beside four rounded rectangles with borders that were inputs.
+            Steven read it as another text field, and once seen it cannot be unseen.
+
+            What separates it now is type, not chrome: a hairline rule down the left, the
+            serif for the terms where every form label on the page is sans, and no fill.
+            That reads as an aside in a margin, which is what it is. DO NOT PUT THE BORDER
+            AND BACKGROUND BACK to make it "stand out" — standing out is precisely what
+            made it compete with the form.
+          */}
+          <Reveal className="lg:pt-1">
+            <dl className="border-l border-border pl-6 lg:pl-8">
+              {reassurance.map((item, index) => (
+                <div key={item.term} className={index > 0 ? 'mt-7' : undefined}>
+                  <dt className="font-serif text-lg text-ink">{item.term}</dt>
+                  <dd className="mt-1.5 text-sm/6 text-ink-muted">{item.body}</dd>
+                </div>
+              ))}
+            </dl>
+          </Reveal>
+        </div>
       </Section>
 
       {/*
