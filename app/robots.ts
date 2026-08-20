@@ -18,10 +18,16 @@ import { siteConfig } from '@/lib/site'
  * read and the page stays indexed — the opposite of the intent. If a Disallow is
  * ever added here, check that list first.
  *
- * KNOWN GAP, deliberately not filled here: the marketing site has no sitemap of
- * its own (there is no app/sitemap.ts). Only the KB's is announced. Adding one is
- * a separate decision about which of these 14 pages should be in it, not
- * housekeeping.
+ * ✓ GAP CLOSED 2026-08-20. The marketing site now has its own sitemap at
+ * app/sitemap.ts and both are announced below. The decision this note deferred —
+ * which of the 14 pages belong in it — is answered there and answered by
+ * derivation: the list comes from the URL contract's `preserved` set, so it is
+ * the pages this site is already committed to keeping alive, and it cannot drift
+ * from them.
+ *
+ * TWO SITEMAPS, NOT A SITEMAP INDEX. An index is for sites large enough to need
+ * one, and two entries in robots.txt is the plainer thing that works. If a third
+ * ever appears, that is the moment to reconsider, not before.
  */
 /**
  * REQUIRED under `output: 'export'`. robots.ts compiles to a Route Handler, and a
@@ -38,6 +44,9 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: `${siteConfig.url}/member-resources/sitemap.xml`,
+    sitemap: [
+      `${siteConfig.url}/sitemap.xml`,
+      `${siteConfig.url}/member-resources/sitemap.xml`,
+    ],
   }
 }
