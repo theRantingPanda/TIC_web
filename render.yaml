@@ -276,10 +276,8 @@ services:
       # /file-access and /file were deleted on 2026-08-18 and RESTORED the same day on the
       # operator's ruling. Both are Wix-era paths for the member file library.
       #
-      # ⚠ PENDING ON THE SERVICE (2026-08-20). The destinations below read /member-resources
-      # and the service still says /forms. Steven asked for the hop collapsed; the routes
-      # screen change is his to make, and this file is correct again only once it is done.
-      # Verify with the six-redirect command in the answered-question block above.
+      # ✓ CLEARED 2026-08-20. The hop through /forms is collapsed: both go straight to
+      # /member-resources on the service, verified by `npm run verify:redirects`.
       #
       # ⚠ These two are among the four to re-check after ANY change on the Headers or
       # Redirects screen — see the command in the answered-question block above. Both were
@@ -300,7 +298,8 @@ services:
 
       # ---- The ten retired paths, 2026-08-20 ----
       #
-      # ⚠ ALSO PENDING ON THE SERVICE. Each of these carried a tombstone until the same day;
+      # ✓ CLEARED 2026-08-20, all sixteen redirects verified serving and landing on a 200.
+      # Each of these carried a tombstone until the same day;
       # content/url-contract.json → tombstoned records why they existed and why the list is
       # now empty. A 301 beats a tombstone on every count, and became possible only once the
       # clear-cache purge was found: a redirect rule does not apply while a resource exists
@@ -308,8 +307,20 @@ services:
       #
       # ORDER MATTERS AND THE FAILURE IS SILENT. The rules are inert until the files go, and
       # the files only go on a CLEAR-CACHE deploy. Ship the rules first and nothing breaks in
-      # between; ship the purge first and these ten 404 until the rules land. Steven accepted
-      # that window — nobody is hitting these paths — but it is a window, not a no-op.
+      # between; ship the purge first and these ten 404 until the rules land.
+      #
+      # It went the second way, and the record is worth keeping. The rules looked added and
+      # were not: while a tombstone still shadowed each path they returned 200 whether the
+      # rule existed or not, so there was nothing to see. The purge removed the shadow and
+      # ten paths went to 404 at once. Two rules then failed individually — /file-access had
+      # a DUPLICATE, where the older row won and the new one sat below it doing nothing, and
+      # /knowledge was first saved with the CRM's origin URL as its destination and then lost
+      # entirely while being corrected.
+      #
+      # THE LESSON IS ABOUT VERIFIABILITY, NOT ABOUT CARE. Every one of those was invisible
+      # until the thing shadowing it was removed. If a rule cannot be observed working, it is
+      # not known to work — ship the rules first precisely so the window where that is true
+      # is as short as possible.
       #
       # The .html twin of each is NOT covered. A rule matches the exact path, so /knowledge
       # and /knowledge.html would need two. The bare form is the indexed one; the .html form
