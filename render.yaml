@@ -133,16 +133,24 @@
 # matched). A space is invisible in the input and fails without an error. Retyping the
 # rule from scratch fixed it where editing in place did not.
 #
-# SO: AFTER ANY CHANGE ON THE HEADERS OR REDIRECTS SCREEN, RE-CHECK ALL FOUR REDIRECTS.
-# One command, and it catches both failure modes because it follows the chain:
+# SO: AFTER ANY CHANGE ON THE HEADERS OR REDIRECTS SCREEN, RUN:
 #
-#   for p in /blog /speciality-insurance /income-preservation-1 /home-1; do
-#     curl -s -o /dev/null -w "$p %{http_code} -> %{redirect_url} lands %{http_code}\n" \
-#       -L "https://www.asktic.com$p?cb=$RANDOM"
-#   done
+#   npm run verify:redirects
 #
-# All four must return 301 and land on a 200. A 301 alone is not enough: that is exactly
-# what the space-in-the-destination bug looked like.
+# It reads the routes below and checks every one against the live site, cache-busted. A
+# rule added here is checked from then on, which a hardcoded list is not — this used to be
+# a `for p in /blog /speciality-insurance /income-preservation-1 /home-1` one-liner, and it
+# named four paths because there were four rules. There are sixteen now. On 2026-08-20
+# /file-access and /file were wrong and that command reported everything fine.
+#
+# A 301 alone is not a pass, and the script does not treat it as one: the
+# space-in-the-destination bug produced a perfectly good 301 to /%20/services, which 404s.
+# Every rule has to land on a 200.
+#
+# It is NOT part of `npm run verify`. That gate reads out/ and is offline and
+# deterministic; this makes sixteen network calls to production and can fail for reasons
+# that have nothing to do with the commit. Wiring it in would teach people to ignore a red
+# build.
 #
 # ⚠ DELETING A FILE FROM THE REPO IS NOT A REMOVAL FROM THE SITE — but it is REVERSIBLE.
 # (Symptom established 2026-08-18; cause corrected by experiment 2026-08-19.)
@@ -266,9 +274,12 @@ services:
         destination: /
 
       # /file-access and /file were deleted on 2026-08-18 and RESTORED the same day on the
-      # operator's ruling. Both are Wix-era paths for the member file library. They 301 to
-      # /forms, which is now a tombstone pointing onward at /kb — see the header for why
-      # that hop is tolerated rather than collapsed.
+      # operator's ruling. Both are Wix-era paths for the member file library.
+      #
+      # ⚠ PENDING ON THE SERVICE (2026-08-20). The destinations below read /member-resources
+      # and the service still says /forms. Steven asked for the hop collapsed; the routes
+      # screen change is his to make, and this file is correct again only once it is done.
+      # Verify with the six-redirect command in the answered-question block above.
       #
       # ⚠ These two are among the four to re-check after ANY change on the Headers or
       # Redirects screen — see the command in the answered-question block above. Both were
@@ -282,10 +293,57 @@ services:
       # which says nothing about what Render serves.
       - type: redirect
         source: /file-access
-        destination: /forms
+        destination: /member-resources
       - type: redirect
         source: /file
-        destination: /forms
+        destination: /member-resources
+
+      # ---- The ten retired paths, 2026-08-20 ----
+      #
+      # ⚠ ALSO PENDING ON THE SERVICE. Each of these carried a tombstone until the same day;
+      # content/url-contract.json → tombstoned records why they existed and why the list is
+      # now empty. A 301 beats a tombstone on every count, and became possible only once the
+      # clear-cache purge was found: a redirect rule does not apply while a resource exists
+      # at the path, and each of these had a file on it.
+      #
+      # ORDER MATTERS AND THE FAILURE IS SILENT. The rules are inert until the files go, and
+      # the files only go on a CLEAR-CACHE deploy. Ship the rules first and nothing breaks in
+      # between; ship the purge first and these ten 404 until the rules land. Steven accepted
+      # that window — nobody is hitting these paths — but it is a window, not a no-op.
+      #
+      # The .html twin of each is NOT covered. A rule matches the exact path, so /knowledge
+      # and /knowledge.html would need two. The bare form is the indexed one; the .html form
+      # only ever existed because this build once emitted it, and 404 is right for it.
+      - type: redirect
+        source: /knowledge
+        destination: /member-resources
+      - type: redirect
+        source: /forms
+        destination: /member-resources
+      - type: redirect
+        source: /single-post/2018/05/06/with-health-insurance-is-major-illness-insurance-necessary
+        destination: /international-health-insurance
+      - type: redirect
+        source: /single-post/am-i-covered-for-dental-and-optical-treatment
+        destination: /international-health-insurance
+      - type: redirect
+        source: /single-post/what-is-the-difference-between-international-and-local-health-insurance-in-singapore
+        destination: /international-health-insurance
+      - type: redirect
+        source: /single-post/does-my-plan-cover-maternity-and-newborn-care
+        destination: /maternity-insurance
+      - type: redirect
+        source: /single-post/how-does-the-insurance-concierge-get-paid
+        destination: /services
+      - type: redirect
+        source: /single-post/when-should-i-start-my-policy-renewal-process
+        destination: /renewal-premium-increase
+      - type: redirect
+        source: /single-post/why-has-my-renewal-premium-increased
+        destination: /renewal-premium-increase
+      - type: redirect
+        source: /single-post/will-my-pre-existing-conditions-be-covered
+        destination: /pre-existing-conditions
 
       # ---- Copy-deck path changes, 2026-08-16 ----
       # These two are a deliberate, signed-off exception to URL preservation: both were
