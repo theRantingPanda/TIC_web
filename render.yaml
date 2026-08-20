@@ -133,16 +133,24 @@
 # matched). A space is invisible in the input and fails without an error. Retyping the
 # rule from scratch fixed it where editing in place did not.
 #
-# SO: AFTER ANY CHANGE ON THE HEADERS OR REDIRECTS SCREEN, RE-CHECK ALL FOUR REDIRECTS.
-# One command, and it catches both failure modes because it follows the chain:
+# SO: AFTER ANY CHANGE ON THE HEADERS OR REDIRECTS SCREEN, RUN:
 #
-#   for p in /blog /speciality-insurance /income-preservation-1 /home-1; do
-#     curl -s -o /dev/null -w "$p %{http_code} -> %{redirect_url} lands %{http_code}\n" \
-#       -L "https://www.asktic.com$p?cb=$RANDOM"
-#   done
+#   npm run verify:redirects
 #
-# All four must return 301 and land on a 200. A 301 alone is not enough: that is exactly
-# what the space-in-the-destination bug looked like.
+# It reads the routes below and checks every one against the live site, cache-busted. A
+# rule added here is checked from then on, which a hardcoded list is not — this used to be
+# a `for p in /blog /speciality-insurance /income-preservation-1 /home-1` one-liner, and it
+# named four paths because there were four rules. There are sixteen now. On 2026-08-20
+# /file-access and /file were wrong and that command reported everything fine.
+#
+# A 301 alone is not a pass, and the script does not treat it as one: the
+# space-in-the-destination bug produced a perfectly good 301 to /%20/services, which 404s.
+# Every rule has to land on a 200.
+#
+# It is NOT part of `npm run verify`. That gate reads out/ and is offline and
+# deterministic; this makes sixteen network calls to production and can fail for reasons
+# that have nothing to do with the commit. Wiring it in would teach people to ignore a red
+# build.
 #
 # ⚠ DELETING A FILE FROM THE REPO IS NOT A REMOVAL FROM THE SITE — but it is REVERSIBLE.
 # (Symptom established 2026-08-18; cause corrected by experiment 2026-08-19.)
