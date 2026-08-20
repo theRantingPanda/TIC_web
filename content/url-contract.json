@@ -211,53 +211,12 @@
     "$howItWorks": "scripts/gen-tombstones.ts writes one small noindex page per path into out/ after `next build`. Do not put these in public/ - they are generated from this list so the list stays the single source, and so nobody edits ten near-identical files by hand.",
     "$whenToDeleteThis": "A 301 now BEATS a tombstone for any path on this list, and as of 2026-08-19 it is finally available. A tombstone returns 200, which is worse for search than a redirect; the reason one was used anyway is that a redirect rule does not apply when a resource exists at that path (Render's documented behaviour), and these paths all had a stale file on them. That file can now be removed. So the migration is: clear the build cache and deploy to empty the path, ship the 301, then delete the entry here. THE OLD WARNING ON THIS KEY IS VOID - it said deleting a tombstone would not restore a 404 but restore the 17 August page, and that is no longer true. Two things still hold: the 301 must cover BOTH forms of each path, since emitting `foo.html` is what makes the extensionless `/foo` answer too; and the rules live on the Render dashboard, not in render.yaml, on a screen that has silently deleted neighbouring rules twice - re-check every redirect afterwards. AND THE PURGE IS PER-DEPLOY: ANY DEPLOY THAT REMOVES A FILE MUST BE A CLEAR-CACHE DEPLOY. Measured 2026-08-19: seven paths dropped from the build in the very next ordinary deploy after a purge stranded again immediately, serving their previous artifact. The cache does not stay clean - it is repopulated each build - so this is a step in every removal, not a one-off repair. So deleting an entry here is a two-part change - drop it from the list, then clear the cache on the deploy that ships the drop.",
     "$doNotAddRobotsDisallow": "A Disallow for these paths would stop crawlers fetching them, which stops them seeing the noindex, which is what gets them out of the index. Leave them crawlable.",
-    "paths": [
-      {
-        "path": "/knowledge",
-        "destination": "/member-resources",
-        "note": "The public KB index. The knowledge base moved to the CRM and is served at /member-resources through a Render rewrite, so this is the one tombstone whose destination is the thing the visitor actually came for. Retargeted from / on 2026-08-19. Pointing here does NOT contradict the 2026-08-19 ruling that this site's nav must not carry the knowledge base: that ruling is about not advertising a member surface to prospects browsing a marketing site. Someone arriving on this path followed a link to the member surface deliberately, so routing them on is serving the request, not promoting it."
-      },
-      {
-        "path": "/forms",
-        "destination": "/member-resources",
-        "note": "The forms library. Its documents moved to the CRM as knowledge-base attachments, downloaded from /member-resources/_forms/{slug}; there is no forms index any more, so /member-resources is where they are found. Retargeted from / on 2026-08-19. Pointing here does NOT contradict the 2026-08-19 ruling that this site's nav must not carry the knowledge base: that ruling is about not advertising a member surface to prospects browsing a marketing site. Someone arriving on this path followed a link to the member surface deliberately, so routing them on is serving the request, not promoting it."
-      },
-      {
-        "path": "/single-post/2018/05/06/with-health-insurance-is-major-illness-insurance-necessary",
-        "destination": "/international-health-insurance"
-      },
-      {
-        "path": "/single-post/am-i-covered-for-dental-and-optical-treatment",
-        "destination": "/international-health-insurance"
-      },
-      {
-        "path": "/single-post/does-my-plan-cover-maternity-and-newborn-care",
-        "destination": "/maternity-insurance"
-      },
-      {
-        "path": "/single-post/how-does-the-insurance-concierge-get-paid",
-        "destination": "/services"
-      },
-      {
-        "path": "/single-post/what-is-the-difference-between-international-and-local-health-insurance-in-singapore",
-        "destination": "/international-health-insurance"
-      },
-      {
-        "path": "/single-post/when-should-i-start-my-policy-renewal-process",
-        "destination": "/renewal-premium-increase"
-      },
-      {
-        "path": "/single-post/why-has-my-renewal-premium-increased",
-        "destination": "/renewal-premium-increase"
-      },
-      {
-        "path": "/single-post/will-my-pre-existing-conditions-be-covered",
-        "destination": "/pre-existing-conditions"
-      }
-    ],
+    "paths": [],
     "$extensionlessBecame200": "MEASURED 2026-08-19, AFTER SHIPPING: emitting these files changed the extensionless paths too. Before the deploy /knowledge was 404 and /knowledge.html was 200; now both serve the tombstone. Render resolves an extensionless request to a .html file it published, but would not do so for a file merely stranded on the disk from an older publish - which is why the split existed at all. This was not the plan and it is accepted rather than regretted: a 404 and a noindex 200 both get a URL out of the index, and the 200 is the one that tells a human what happened and where to go instead. But it does mean `dropped.status` below is no longer true for these fifteen, and there is now NO WAY to have the .html tombstone without the extensionless 200 - do not go looking for one. The end state that fixes both is a 301.",
     "$whyThese": "A 404 tells a visitor the page is gone; a tombstone tells them where its subject went. So a path earns one only when a SPECIFIC page covers what they came for. Five paths whose only destination was `/` were dropped on 2026-08-19: app/not-found.tsx already says that, in the site's own design, offers /services as well, and carries the right status code. Do not add a `/`-destination entry here - drop the path instead.",
-    "strandedFilesPurgedOn": "2026-08-19"
+    "strandedFilesPurgedOn": "2026-08-19",
+    "$emptiedOn": "2026-08-20. All ten went to 301s on the routes screen, which is strictly better: a redirect carries the right status code AND names the replacement, where a tombstone could only do the second. It became available when the clear-cache purge was found - a redirect rule does not apply while a resource exists at the path, and every one of these had a file on it. Steven declined the interim fallback on /forms: nobody is hitting these paths, so the window where a rule is inert and the file is already gone costs nothing.",
+    "$whyKeepThisBlock": "The list is empty and the machinery stays, deliberately, matching how `strandedAssets` was left. The reasoning above is the expensive part - what a tombstone is for, when a path earns one, and the ordering that makes it safe - and it applies to any future retirement where a 301 is not available. An empty list costs one branch in scripts/gen-tombstones.ts. Deleting the block would throw away the findings and keep the problem."
   },
   "strandedAssets": {
     "$comment": "RESOLVED 2026-08-19, and kept as an empty list rather than deleted because the shape of the problem can recur. Two non-HTML files - /forms/manifest.json and /forms/files/allianz-telehealth-user-guide.pdf, a 1.45MB insurer client document - were stranded on the live disk by the 17 August retirement and were overwritten with stubs, because nothing appeared able to delete a published file. A clear-cache deploy was then proven to remove them, so both entries were dropped from this list: a 404 beats a stub for both, since nothing moves onward from a manifest and a 617-byte PDF reading 'retired' is a worse answer than the file being absent.",
