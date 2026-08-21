@@ -827,8 +827,18 @@ does not answer.
 The apex of both names already points at `redirection.vodien.com` — that is Vodien's
 redirect service, and it is what the parking zone is *for*. The timeout observed on
 `asktic.com.sg` almost certainly means no forwarding target has been set, not that the
-service is broken. Find the URL-forwarding or web-forwarding setting in the domain's panel,
-set the target to `https://www.asktic.com`, and the existing DNS needs no change at all.
+service is broken.
+
+Vodien documents two routes. **Aliases under cPanel does not apply here** — these are
+registration-only products, with no hosting plan behind them, so there is no cPanel. The one
+that applies is **Account Manager → the domain → Domain Forwarding / URL Redirect**: set the
+target to `https://www.asktic.com` and pick **301 (permanent)**, not 302. A 302 tells search
+engines the move is temporary, so the `.sg` names would stay indexed in their own right
+instead of consolidating onto `www.asktic.com`. The existing DNS needs no change at all.
+
+Vodien's own guidance: `vodien.com/learn/how-to-domain-forwarding/` and
+`vodien.com/help/article/website-redirect`. Their note about 24–48 hours to propagate is
+generic boilerplate; with TTL at `300` here it will be minutes.
 
 **The one thing to verify is HTTPS.** Open `https://asktic.sg` in a browser afterwards. A
 certificate warning on a brand domain is worse than no redirect, so if Vodien's forwarding
