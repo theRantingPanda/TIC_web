@@ -541,13 +541,18 @@ naming makes that easy to do by accident.
 
 ### Post-cutover follow-ups
 
-The DNS move to Vodien is done, verified against three resolvers, and confirmed on delivered
-messages over both sending paths. What remains is a question the move surfaced rather than
-caused: Freshdesk relays through Google Workspace and signs with the `google` selector, so
-`include:email.freshdesk.com` — 6 of the record's 7 SPF lookups — may authorise nothing. A
-week of DMARC reports settles it. Also outstanding: holding the Wix rollback until then. The
-TTL and `dmarc@` items are both closed. See
-[Still open after the move](#still-open-after-the-move).
+**Nothing outstanding.** The DNS move to Vodien is done, verified against three resolvers,
+and confirmed on delivered messages over both sending paths. Every follow-up it raised is
+closed: the TTL needed no change, `dmarc@` is filtered out of the support queue, the SPF
+include stays, and the zone has been exported so Wix is free to retire. The reasoning behind
+each is in [Still open after the move](#still-open-after-the-move), kept under that heading
+because the decisions matter more than the fact they are finished.
+
+One thing the move surfaced and did not resolve, deliberately: Freshdesk relays through
+Google Workspace and signs with the `google` selector, so `include:email.freshdesk.com` — 6
+of the record's 7 SPF lookups — probably authorises nothing. It stays anyway; removing it
+risks permanent SPF failure for mail nobody tests, and at 7 of 10 the record is not near
+failure.
 
 ### The apex does not redirect to www
 
