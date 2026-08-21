@@ -782,11 +782,46 @@ gateway-forwarding finding above.
   than cleanly. Confirm nobody uses an `@asktic.com.sg` address, then replace it with the
   null `MX` above.
 
-The web side matters less and was not testable from here — this environment's proxy refuses
-both hostnames — but a `301` to `www.asktic.com` is the obvious end state for both.
-`asktic.com.sg` is already on Vodien's `redirection.vodien.com` service; whether it holds a
-valid certificate for `https://` is worth checking in a browser, because a certificate
-warning on a brand domain is worse than no redirect at all.
+### `asktic.com.sg` does not answer at all
+
+Checked in a browser 2026-08-21: `ERR_TIMED_OUT`. The DNS points at
+`redirection.vodien.com`, but that host accepts no connection, so the name resolves and
+then hangs.
+
+**That is worse than having no web records.** A domain with no `A` fails immediately and
+legibly — "server not found". One that resolves to a dead address makes the browser sit
+there for thirty seconds first, which reads as *the firm's site is down* rather than *this
+address isn't used*. If the redirect is not going to be fixed, deleting the wildcard and
+the apex `A` is a strict improvement.
+
+A `301` to `www.asktic.com` is the better end state for both names. Vodien's redirect
+service is already configured for `asktic.com.sg` and is not working; if it cannot be made
+to serve valid HTTPS, this repo already carries a working pattern for exactly this job —
+`tic-help-redirect` in `render.yaml`, a standalone static service whose only function is to
+redirect one hostname, with Render handling the certificate.
+
+---
+
+## Order of work (as at 2026-08-21)
+
+1. **Wait out `asktic.com` convergence.** Nothing to do but re-check. Converged means
+   `fwtrack` absent on every attempt and every TTL reading `300`.
+2. **Harden both `.sg` names against spoofing.** Independent of everything else and worth
+   doing first because it is pure gain. For `asktic.com.sg` the records go straight into
+   Vodien's DNS panel; `asktic.sg` is still on Wix nameservers, so fold this into step 3
+   rather than writing records into a zone about to be abandoned.
+3. **Move `asktic.sg` to Vodien.** Build its (very small) zone in Vodien's DNS panel first —
+   the anti-spoof records, plus whatever the web answer is to be — then switch its
+   nameservers. Check the Wix account for `asktic.sg` still being *connected*, or expect the
+   same nameserver re-assertion that produced the split on `asktic.com`.
+4. **Decide the web answer for both**: `301` to `www.asktic.com`, or no records at all.
+   Either beats the current timeout.
+5. **Add the `_report._dmarc` authorisations on `asktic.com`**, if `rua` is used.
+6. **Only now, cancel Wix.** Not before `asktic.com` has converged *and* `asktic.sg` is off
+   Wix nameservers and Wix hosting. Until both hold, that subscription is load-bearing for
+   two domains, not zero.
+
+
 
 ## `rainmaker` is not misrouted — the service is misnamed
 
