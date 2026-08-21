@@ -18,6 +18,13 @@
  *
  * Formal disclosure of appointments is a real obligation, but it belongs in the advisory
  * documentation, not in marketing copy. This guard is about the public site only.
+ *
+ * ⚠ THERE IS NO LONGER ANY EXEMPTION. /forms, the member file library, was the single
+ * route where an insurer could be named — it was grouped by insurer because that is how a
+ * member holds the problem, the name being printed on their schedule. That page was
+ * retired from the public site on 2026-08-17 and moved to the CRM, so the carve-out went
+ * with it. Every route now fails on an insurer name. Do not reintroduce a path-based
+ * exemption without the page that justified it.
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -142,6 +149,7 @@ console.log(`Scanning ${files.length} built file(s) for insurer names and panel 
 
 for (const file of files) {
   const text = readableText(file)
+  const relative = path.relative(OUT_DIR, file)
 
   for (const { label, pattern } of [...termPatterns, ...PANEL_PATTERNS]) {
     pattern.lastIndex = 0
@@ -159,12 +167,7 @@ for (const file of files) {
         if (isSchemeWord) continue
       }
 
-      hits.push({
-        file: path.relative(OUT_DIR, file),
-        label,
-        term: match[0],
-        context,
-      })
+      hits.push({ file: relative, label, term: match[0], context })
     }
   }
 }
@@ -189,4 +192,4 @@ if (hits.length > 0) {
   process.exit(1)
 }
 
-console.log('✓ No insurer names or panel references in public copy.')
+console.log('\n✓ No insurer names or panel references in public copy.')

@@ -100,8 +100,10 @@ stale; Steven will supply KB copy by hand instead. Do not restart the pull to "f
 this — the remaining 29 articles are not wanted.
 
 ⚠ **The 4 captured Allianz articles below are NOT a source of truth.** They are a
-point-in-time archive of content already judged stale. Do not port them into
-`content/kb/`. KB copy comes from Steven.
+point-in-time archive of content already judged stale. One has since been reworked by
+hand into a CRM knowledge-base article (Allianz family policy number and portal access,
+2026-08-19) — reworked, not ported, and by Steven's decision. That is the only route by
+which any of them may be used; nothing here is copy.
 
 The folder inventory is still accurate and worth keeping — it is a record of what the
 help centre contained at migration time.
@@ -217,8 +219,10 @@ the practical conflict it created is gone, so there is no longer a reason to loo
 Should another publicly-visible folder ever appear under INTERNAL, the same question
 returns — and it should be answered explicitly, not by changing the rule silently.
 
-Nothing is at risk in the meantime: only files in `content/kb/` reach the build, and
-that directory is still empty.
+Nothing is at risk in the meantime: this repo no longer builds knowledge-base articles
+at all. `content/kb/` and its schema were deleted on 2026-08-19 — the KB is the CRM's,
+served at `www.asktic.com/kb`. What survives here is the redirect obligation: those
+Freshdesk URLs are indexed, and each published article owes a 301 wherever it lands.
 
 ## Attachments are not archived
 

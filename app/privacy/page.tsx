@@ -12,6 +12,22 @@ import { siteConfig } from '@/lib/site'
  * The copy is verbatim. Nothing in a privacy policy gets tidied, reworded or trimmed
  * as part of a migration — it is a legal statement about how data is handled, and
  * changing it is a decision for the firm, not a porting task.
+ *
+ * ⚠ FLAGGED FOR LEGAL REVIEW, NOT FOR A COPY PASS. The page is dated 5 MAY 2018, so it
+ * predates the PDPA amendments in force from 2021 — mandatory data-breach notification
+ * among them — and this firm handles health and claims data, which is the category where
+ * that matters most. What needs checking is currency and accuracy against how the firm
+ * actually operates: breach notification, retention periods, and the claims-data flows.
+ * A lawyer's job.
+ *
+ * It is NOT flagged for naming the wrong statute. A 2026-08-17 review claimed the page
+ * cites Australia's Privacy Act; it does not. content/pages/privacy.mdx says "Under the
+ * Personal Data Protection Act 2012 of Singapore", which is correct, and the phrase
+ * "Privacy Act" appears nowhere in the file. Recorded here so the same wrong correction
+ * is not made twice.
+ *
+ * The footer keeps linking this page throughout. An out-of-date privacy policy on a firm
+ * handling health data is a problem; no privacy policy at all is a bigger one.
  */
 const SLUG = 'privacy'
 

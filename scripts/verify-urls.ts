@@ -8,7 +8,18 @@
  *   1. every path in content/url-contract.json -> preserved emits an artifact in out/
  *   2. every path in -> redirectOnly emits NO artifact (those are render.yaml redirects;
  *      shipping a real page at /file-access would silently shadow the redirect)
- *   3. every nav href in lib/site.ts points at a preserved path
+ *   2b. every path in -> proxied emits NO artifact either. Those are served by the CRM
+ *      through a Render rewrite, and a rewrite rule DOES NOT APPLY when a resource exists
+ *      at that path (documented by Render). So an artifact here would silently shadow the
+ *      rewrite and take the knowledge base off this host with nothing failing.
+ *   3. every path in -> tombstoned emits a TOMBSTONE, and every other dropped path emits
+ *      nothing. The two are opposite requirements on the same list. A tombstone is not a
+ *      workaround any more (a clear-cache deploy can genuinely empty a path, proven
+ *      2026-08-19): it is a deliberate choice to answer 200 and name the specific page
+ *      that replaced this one, where a bare 404 could not. Dropping a path from the list
+ *      now really does give a 404 — which is the right answer wherever there is no
+ *      specific replacement to name.
+ *   4. every nav href in lib/site.ts points at a preserved path
  *
  * Run after `npm run build`. Exits non-zero on any violation.
  */
@@ -16,6 +27,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { STAMP_FILE, computeInputHash } from './lib/build-stamp.ts'
+import { TOMBSTONE_MARKER } from './lib/tombstone.ts'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const OUT_DIR = path.join(ROOT, 'out')
@@ -23,7 +35,9 @@ const OUT_DIR = path.join(ROOT, 'out')
 type Contract = {
   preserved: { path: string; note?: string }[]
   redirectOnly: { path: string; destination: string; status: number }[]
+  proxied?: { paths: { path: string; destination: string; note?: string }[] }
   dropped?: { groups: { reason: string; paths: string[] }[] }
+  tombstoned?: { paths: { path: string; destination: string; note?: string }[] }
 }
 
 const contract: Contract = JSON.parse(
@@ -117,9 +131,84 @@ for (const entry of contract.redirectOnly) {
   }
 }
 
+/*
+  Proxied paths are served by another origin. The assertion is the redirect-only one for
+  the same reason — a file published here wins over the rule that forwards the path — but
+  the consequence is worse: a redirect that stops working 404s visibly, while a shadowed
+  rewrite serves a plausible page of ours in place of the whole knowledge base.
+
+  A bare /kb and /kb/* are separate rules on the service. Only the literal paths are
+  checked here; a wildcard has no artifact to test.
+*/
+const proxied = contract.proxied?.paths ?? []
+if (proxied.length > 0) {
+  console.log('\nChecking proxied paths emit nothing…')
+  for (const entry of proxied) {
+    if (entry.path.includes('*')) {
+      console.log(`  - ${entry.path.padEnd(36)} wildcard, nothing to check`)
+      continue
+    }
+    const artifact = artifactFor(entry.path)
+    if (artifact) {
+      failures.push(
+        `Proxied path ${entry.path} emitted out/${artifact} — Render's publish is additive, ` +
+          `so that file would shadow the rewrite to ${entry.destination}.`,
+      )
+      console.error(`  ✗ ${entry.path.padEnd(36)} UNEXPECTED out/${artifact}`)
+    } else {
+      console.log(`  ✓ ${entry.path.padEnd(36)} -> ${entry.destination}`)
+    }
+  }
+}
+
+/*
+  Tombstoned paths are dropped paths that deliberately still answer, so they invert the
+  rule below: they must emit, and what they emit must be a tombstone rather than a real
+  page. Each one exists to name the page that replaced it. See
+  content/url-contract.json → tombstoned.
+*/
+const tombstones = contract.tombstoned?.paths ?? []
+const tombstonedSet = new Set(tombstones.map((t) => t.path))
+if (tombstones.length > 0) {
+  console.log(`\nChecking ${tombstones.length} tombstoned path(s) overwrite the stale files…`)
+  for (const entry of tombstones) {
+    const artifact = artifactFor(entry.path)
+    if (!artifact) {
+      failures.push(
+        `Tombstoned path ${entry.path} emitted nothing, so it will answer 404 rather than ` +
+          `pointing anyone at ${entry.destination}. If that is intended, remove it from ` +
+          `url-contract.json → tombstoned. If not, check scripts/gen-tombstones.ts still ` +
+          `runs in \`npm run build\`.`,
+      )
+      console.error(`  ✗ ${entry.path.padEnd(52)} MISSING`)
+      continue
+    }
+    const body = fs.readFileSync(path.join(OUT_DIR, artifact), 'utf8')
+    if (!body.includes(TOMBSTONE_MARKER)) {
+      failures.push(
+        `Tombstoned path ${entry.path} emitted out/${artifact}, but it is not a tombstone. ` +
+          `The contract says this path is retired — either it is live again, in which case ` +
+          `take it out of tombstoned, or something is emitting it by accident.`,
+      )
+      console.error(`  ✗ ${entry.path.padEnd(52)} NOT A TOMBSTONE`)
+    } else if (!body.includes('name="robots" content="noindex"')) {
+      failures.push(
+        `Tombstone for ${entry.path} is missing its noindex. Without it the path stays in ` +
+          `the index indefinitely, which is the only thing this file is for.`,
+      )
+      console.error(`  ✗ ${entry.path.padEnd(52)} NO NOINDEX`)
+    } else {
+      console.log(`  ✓ ${entry.path.padEnd(52)} -> ${entry.destination}`)
+    }
+  }
+}
+
 // Deliberately dropped paths are a signed-off exception to URL preservation. Assert
 // they stay dropped, so nobody restores them later on the strength of the old sitemap.
-const droppedPaths = (contract.dropped?.groups ?? []).flatMap((g) => g.paths)
+// Tombstoned paths are excluded: they are checked above, under the opposite rule.
+const droppedPaths = (contract.dropped?.groups ?? [])
+  .flatMap((g) => g.paths)
+  .filter((p) => !tombstonedSet.has(p))
 if (droppedPaths.length > 0) {
   console.log(`\nChecking ${droppedPaths.length} dropped path(s) emit nothing…`)
   let restored = 0

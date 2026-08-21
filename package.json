@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build && tsx scripts/stamp-build.ts",
+    "build": "next build && tsx scripts/gen-tombstones.ts && tsx scripts/stamp-build.ts",
     "start": "npx serve out",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
@@ -19,9 +19,13 @@
     "port:blog": "tsx scripts/port-blog.ts",
     "port:page": "tsx scripts/port-page.ts",
     "capture:assets": "tsx scripts/pull-assets.ts",
+    "resize:image": "tsx scripts/resize-image.ts",
+    "content:status": "tsx scripts/content-status.ts",
     "capture:freshdesk": "tsx scripts/crawl-freshdesk.ts",
     "ingest:freshdesk": "tsx scripts/ingest-freshdesk.ts",
-    "gen:redirects": "tsx scripts/gen-redirects.ts"
+    "gen:redirects": "tsx scripts/gen-redirects.ts",
+    "gen:tombstones": "tsx scripts/gen-tombstones.ts",
+    "verify:redirects": "tsx scripts/verify-redirects.ts"
   },
   "dependencies": {
     "@mdx-js/mdx": "^3.1.0",

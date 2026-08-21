@@ -6,13 +6,47 @@
 #
 #   branch          main          autoDeploy    yes, on commit
 #   buildCommand    npm run build publishPath   out
-#   env vars        none          routes        the six redirects below
+#   env vars        none          routes        TWELVE, over TWO dashboard screens —
+#                                               Redirects/Rewrites holds the six redirects
+#                                               below plus FOUR rewrites (/member-resources
+#                                               and /kb, each exact + wildcard); Headers
+#                                               holds two noindex rules (see the answered
+#                                               question further down). Editing either
+#                                               screen can disturb the other.
 #
-# ⚠ ACTION REQUIRED (2026-08-16): the /blog, /speciality-insurance and
-# /income-preservation-1 redirects added
-# below are NOT yet on the service. Add them in the dashboard, or those three indexed
-# paths 404 in production the moment this branch deploys — their page files have been
-# deleted. Nothing in the build can catch this; see the paragraph below.
+# ✓ CLEARED (2026-08-17). This block used to warn that the /blog, /speciality-insurance
+# and /income-preservation-1 redirects were not yet on the service and that those three
+# paths would 404 the moment the branch deployed. They were added, and all three were
+# verified against the live site on 2026-08-17: each returns 301 to its documented
+# destination, as do /home-1, /file-access and /file. Six redirects, all serving.
+#
+# ⚠ AMENDED, CLEARED, THEN REVERSED — all within 2026-08-18. /file-access and /file still
+# 301'd to /forms, retired the day before, so both landed on a 404; they were removed here
+# and deleted on the service. The operator then ruled the same day that both should exist,
+# and they were restored on the service in their original position after /home-1. So the
+# live redirect count is SIX, not four, and this file is correct again only as of the
+# restoration of those two entries below (2026-08-19).
+#
+# The destination they were restored to is /forms, which is no longer a 404: it is a
+# tombstone this repo emits, and since 2026-08-19 it points onward at /member-resources,
+# where the member documents now live as knowledge-base attachments. So the chain is
+# /file-access → 301 /forms → 200 "This page has moved" → /member-resources. Honest at
+# each hop, one longer than it needs to be.
+#
+# COLLAPSING IT IS NOW AVAILABLE and is a routes-screen change, not a repo one: point both
+# straight at /member-resources. /forms keeps its own tombstone either way, for anyone who
+# follows that path directly. Not done on 2026-08-19 because that screen has silently
+# deleted neighbouring rules twice and the chain works; if you do it, use the read-merge-
+# write path and re-check all six redirects afterwards.
+#
+# NOT RE-VERIFIED HERE. www.asktic.com and render.com are both egress-blocked from the
+# session that wrote this; the restoration is taken from the record in CLAUDE.md, not
+# from a live read. Check the live routes before relying on it.
+#
+# The warning is recorded as cleared rather than deleted, because the drift it describes
+# is permanent while this file and the service are maintained separately, and a future
+# addition here starts in exactly the same state. Check the live path before assuming a
+# redirect in this file is doing anything.
 #
 # The redirects were MISSING from the service until 2026-08-12 — they existed only in
 # this file, so /home-1, /file-access and /file returned 404 on the live site instead of
@@ -24,6 +58,143 @@
 # `npm run verify:urls` cannot catch that class of drift: it asserts a redirect-only
 # path emits no artifact in out/, which is necessary but says nothing about whether
 # Render serves the redirect. Check the service's routes when changing this file.
+#
+# ✓ CONFIRMED NOT A RECREATE (2026-08-18), AND NO RECREATE IS NEEDED (2026-08-19). The
+# service ID is still srv-d9sogvijobas73fouu7g — the same one recorded at the top of this
+# file — so nothing was ever replaced. That mattered while recreating the service was
+# believed to be the only way to empty the publish directory; a clear-cache deploy does it,
+# so the id is now just an identity check. A genuine replacement would still show a
+# DIFFERENT id.
+#
+# ⚠⚠ REDIRECT RULES MATCH THE EXACT PATH. A rule on /blog does NOT cover /blog.html, and
+# where a stale artifact exists at the .html path it is served instead, bypassing the
+# redirect entirely. Proven live, not assumed:
+#
+#   /blog                    301 -> /services       /blog.html                   200
+#   /income-preservation-1   301 -> /services       /income-preservation-1.html  200
+#   /home-1                  301 -> /               /home-1.html                 404
+#
+# /home-1 was clean only because nothing was ever built at that path. ✓ THE OTHER TWO ARE
+# FIXED (2026-08-19): a clear-cache deploy removed both stale artifacts, so /blog.html and
+# /income-preservation-1.html now 404 and each redirect is the only thing answering on its
+# path. The rule above still holds — a redirect matches the exact path — it just no longer
+# has a leak to hide.
+#
+# The stopgap that was being sized here (a rule per path INCLUDING .html and .txt variants,
+# thirty-odd of them) is UNNECESSARY. Where a stale file shadows a rule, empty the path
+# instead of routing around it.
+#
+# ✓ CONFIRMED BY RENDER'S DOCS 2026-08-19 (render.com/docs/redirects-rewrites, via their
+# docs AI): "redirect/rewrite rules don't apply if a resource exists at that path". So the
+# behaviour this file established by observation is DOCUMENTED and intended, not a quirk to
+# be designed around defensively — and the header asymmetry below follows from it rather
+# than contradicting it: a header acts on whatever gets served, a redirect only acts when
+# nothing is there.
+#
+# The same answer documented the wildcard: `*` in a Source matches any string from that
+# position, and `*` in a Destination substitutes the ENTIRE captured string. A destination
+# must therefore repeat the prefix. Whether a bare `/a` is matched by `/a/*` is NOT
+# documented; observation says no, and both rules are cheap, so ship both.
+#
+# ✓ ANSWERED BY EXPERIMENT, NOT BY THE DOCS (2026-08-19). Render's docs do not state
+# whether a deploy replaces the published file set or layers over it, document
+# "Clear build cache & deploy" only as a BUILD-layer action, and describe no removal
+# mechanism at all — asked directly, twice. The behaviour is genuinely undocumented. The
+# test settled it anyway: clear the cache, deploy, fetch /blog.html, and it 404s. See the
+# block below. Worth keeping as a method note — where a vendor's docs are silent, a cheap
+# experiment outranks any amount of further reading, and the silence itself should be
+# recorded as silence rather than as a "no".
+#
+# ✓ ANSWERED 2026-08-19: A HEADER RULE IS NOT BYPASSED BY AN EXISTING FILE.
+#
+# The note above establishes that a redirect rule loses to a stale artifact at the same
+# path. The open question was whether headers behave the same way, since the whole reason
+# to reach for them is the files we cannot delete. They do not. A header rule applies to
+# whatever the server ends up sending, including a file stranded by an older publish:
+#
+#   /blog.html                    200   x-robots-tag: noindex
+#   /income-preservation-1.html   200   x-robots-tag: noindex
+#
+# Both were added in the dashboard under Headers and verified live the same minute. This
+# is the tool for anything else left on that disk that cannot be overwritten from the
+# build: a noindex header gets a URL out of search results without removing the file and
+# WITHOUT costing the redirect on its extensionless partner, which is what tombstoning
+# those two would have done. See content/url-contract.json -> tombstoned for the paths
+# where overwriting was the right answer instead.
+#
+# ⚠⚠ EDITING HEADERS CAN TAKE THE NEIGHBOURING REDIRECTS WITH IT. Not a theory:
+# adding those two header rules removed the /blog and /income-preservation-1 redirect
+# rules outright, and both had to be re-created. The two screens sit next to each other in
+# the sidebar and the paths differ only by `.html`.
+#
+# Re-creating them then produced a LEADING SPACE in a field, twice — once in a destination
+# (`/income-preservation-1` 301'd to `/%20/services`, a 404, which is worse than the plain
+# 404 it replaced) and once in a source (`/blog` stored a rule that silently never
+# matched). A space is invisible in the input and fails without an error. Retyping the
+# rule from scratch fixed it where editing in place did not.
+#
+# SO: AFTER ANY CHANGE ON THE HEADERS OR REDIRECTS SCREEN, RUN:
+#
+#   npm run verify:redirects
+#
+# It reads the routes below and checks every one against the live site, cache-busted. A
+# rule added here is checked from then on, which a hardcoded list is not — this used to be
+# a `for p in /blog /speciality-insurance /income-preservation-1 /home-1` one-liner, and it
+# named four paths because there were four rules. There are sixteen now. On 2026-08-20
+# /file-access and /file were wrong and that command reported everything fine.
+#
+# A 301 alone is not a pass, and the script does not treat it as one: the
+# space-in-the-destination bug produced a perfectly good 301 to /%20/services, which 404s.
+# Every rule has to land on a 200.
+#
+# It is NOT part of `npm run verify`. That gate reads out/ and is offline and
+# deterministic; this makes sixteen network calls to production and can fail for reasons
+# that have nothing to do with the commit. Wiring it in would teach people to ignore a red
+# build.
+#
+# ⚠ DELETING A FILE FROM THE REPO IS NOT A REMOVAL FROM THE SITE — but it is REVERSIBLE.
+# (Symptom established 2026-08-18; cause corrected by experiment 2026-08-19.)
+#
+# A file absent from a new deploy keeps being served. Every page and asset retired on
+# 2026-08-17 was still live the next day:
+#
+#   /knowledge.html                    200   the full page, 43KB
+#   /forms.html                        200   and it names an insurer 6 times
+#   /single-post/<12 articles>.html    200
+#   /forms/manifest.json, the PDF      200
+#
+# THE FIX IS ONE ACTION: clear the build cache and deploy — dashboard button, or
+# POST /v1/services/{id}/deploys with {"clearCache": "clear"}. Proven 2026-08-19:
+# /blog.html went 200 (45,940 bytes, last-modified 16 Aug) to 404 across one, on the SAME
+# commit with an IDENTICAL /.build-stamp.json inputHash and inputFileCount — so the cache
+# clear was the only variable. Nine of nine stranded paths went with it, cache-busted,
+# cf-cache-status: MISS, while every path the build does emit stayed 200 and all six
+# redirects still followed through.
+#
+# So the stale files were being re-copied into each publish from the RETAINED BUILD CACHE.
+# This block previously read "Render's static publish is additive… 'Clear build cache &
+# deploy' DOES NOT FIX THIS, and was tried." The symptom was real and measured; the cause
+# was inferred, and the "was tried" was not true — the deploy history holds no such run
+# (see content/_retired/README.md for the reconstruction). It cost a day and shaped fifteen
+# tombstones. Write "was tried" only with a deploy id and a timestamp.
+#
+# ⚠ AN EXTENSIONLESS 404 IS NOT EVIDENCE. /knowledge returns 404 while /knowledge.html
+# serves 43KB — Render resolves clean URLs against the current deploy's manifest but serves
+# any file that physically exists at an explicit path. The first check on this made exactly
+# that mistake and reported the pages pruned when they were not. Always ask for the file.
+#
+# To actually remove something: remove it from the repo, then CLEAR THE BUILD CACHE AND
+# DEPLOY. Then verify each retired URL 404s to a cache-busted request WITH its extension.
+# Recreating the service is NOT required and was never the answer — which also decouples
+# the apex-redirect fix below, previously bundled with it as "the moment to do both".
+#
+# ⚠ AND IT IS NOT A ONE-OFF REPAIR. Measured 2026-08-19: seven paths dropped from the build
+# in the very NEXT ordinary deploy after a purge stranded again immediately, each serving
+# its previous artifact. The cache is repopulated every build, so an ordinary deploy still
+# cannot remove anything. A deploy that drops a file is a clear-cache deploy, every time —
+# and the check afterwards is the same one: cache-busted, WITH the extension.
+#
+# See content/_retired/README.md for the full account.
 #
 # OUTSTANDING: the apex does not redirect to www. Both asktic.com and www.asktic.com
 # serve the site, so every page answers on two hostnames. Canonical tags in
@@ -102,16 +273,88 @@ services:
         source: /home-1
         destination: /
 
+      # /file-access and /file were deleted on 2026-08-18 and RESTORED the same day on the
+      # operator's ruling. Both are Wix-era paths for the member file library.
+      #
+      # ✓ CLEARED 2026-08-20. The hop through /forms is collapsed: both go straight to
+      # /member-resources on the service, verified by `npm run verify:redirects`.
+      #
+      # ⚠ These two are among the four to re-check after ANY change on the Headers or
+      # Redirects screen — see the command in the answered-question block above. Both were
+      # lost once already by an unrelated edit, and a leading space in a re-typed field
+      # fails silently.
+      #
+      # The lesson in the round trip is worth more than the routes: removing them from this
+      # file did nothing by itself. The service's routes are configured in the dashboard and
+      # this file does not govern it, so a route change is two changes. `verify:urls` cannot
+      # catch the gap either — it asserts a redirect-only path emits no artifact in out/,
+      # which says nothing about what Render serves.
       - type: redirect
         source: /file-access
-        destination: /forms
-
-      # /file is the older file-access page (confirmed 2026-08-11). Same destination.
-      # Note it is a distinct path, not a prefix of /file-access — Render matches the
-      # full path, so this rule does not shadow the one above.
+        destination: /member-resources
       - type: redirect
         source: /file
-        destination: /forms
+        destination: /member-resources
+
+      # ---- The ten retired paths, 2026-08-20 ----
+      #
+      # ✓ CLEARED 2026-08-20, all sixteen redirects verified serving and landing on a 200.
+      # Each of these carried a tombstone until the same day;
+      # content/url-contract.json → tombstoned records why they existed and why the list is
+      # now empty. A 301 beats a tombstone on every count, and became possible only once the
+      # clear-cache purge was found: a redirect rule does not apply while a resource exists
+      # at the path, and each of these had a file on it.
+      #
+      # ORDER MATTERS AND THE FAILURE IS SILENT. The rules are inert until the files go, and
+      # the files only go on a CLEAR-CACHE deploy. Ship the rules first and nothing breaks in
+      # between; ship the purge first and these ten 404 until the rules land.
+      #
+      # It went the second way, and the record is worth keeping. The rules looked added and
+      # were not: while a tombstone still shadowed each path they returned 200 whether the
+      # rule existed or not, so there was nothing to see. The purge removed the shadow and
+      # ten paths went to 404 at once. Two rules then failed individually — /file-access had
+      # a DUPLICATE, where the older row won and the new one sat below it doing nothing, and
+      # /knowledge was first saved with the CRM's origin URL as its destination and then lost
+      # entirely while being corrected.
+      #
+      # THE LESSON IS ABOUT VERIFIABILITY, NOT ABOUT CARE. Every one of those was invisible
+      # until the thing shadowing it was removed. If a rule cannot be observed working, it is
+      # not known to work — ship the rules first precisely so the window where that is true
+      # is as short as possible.
+      #
+      # The .html twin of each is NOT covered. A rule matches the exact path, so /knowledge
+      # and /knowledge.html would need two. The bare form is the indexed one; the .html form
+      # only ever existed because this build once emitted it, and 404 is right for it.
+      - type: redirect
+        source: /knowledge
+        destination: /member-resources
+      - type: redirect
+        source: /forms
+        destination: /member-resources
+      - type: redirect
+        source: /single-post/2018/05/06/with-health-insurance-is-major-illness-insurance-necessary
+        destination: /international-health-insurance
+      - type: redirect
+        source: /single-post/am-i-covered-for-dental-and-optical-treatment
+        destination: /international-health-insurance
+      - type: redirect
+        source: /single-post/what-is-the-difference-between-international-and-local-health-insurance-in-singapore
+        destination: /international-health-insurance
+      - type: redirect
+        source: /single-post/does-my-plan-cover-maternity-and-newborn-care
+        destination: /maternity-insurance
+      - type: redirect
+        source: /single-post/how-does-the-insurance-concierge-get-paid
+        destination: /services
+      - type: redirect
+        source: /single-post/when-should-i-start-my-policy-renewal-process
+        destination: /renewal-premium-increase
+      - type: redirect
+        source: /single-post/why-has-my-renewal-premium-increased
+        destination: /renewal-premium-increase
+      - type: redirect
+        source: /single-post/will-my-pre-existing-conditions-be-covered
+        destination: /pre-existing-conditions
 
       # ---- Copy-deck path changes, 2026-08-16 ----
       # These two are a deliberate, signed-off exception to URL preservation: both were
@@ -138,6 +381,60 @@ services:
         source: /income-preservation-1
         destination: /services
 
+      # ---- The knowledge base, 2026-08-18; moved to /member-resources 2026-08-19 ----
+      # REWRITES, not redirects: the visitor stays on www.asktic.com and never learns
+      # another host is involved. The CRM renders these at rainmaker.asktic.com.
+      #
+      # TWO RULES, because a bare /kb is not matched by /kb/*. And the destination REPEATS
+      # the prefix — the splat substitutes only the captured segment, so `.../*` would
+      # strip /kb and 404 every article. Both facts cost a round on 2026-08-18.
+      #
+      # NOT a job for a header rule, though headers are now proven to beat a stranded file
+      # (see above). Headers are the tool for a file we CANNOT overwrite from the build.
+      # /knowledge and /forms are files this build DOES emit — tombstones — so overwriting
+      # them is both available and better: a header could only hide them from search, and
+      # what a member following an old link needs is to be sent on to the knowledge base.
+      #
+      # /robots.txt is deliberately NOT proxied. The CRM host bans crawlers in its own
+      # robots.txt, which is fetched per host; forwarding this site's /robots.txt there
+      # would serve that ban to crawlers of www.asktic.com.
+      #
+      # Recorded in content/url-contract.json -> proxied, where `verify:urls` asserts the
+      # build emits nothing at these paths. That check matters more than it looks: an
+      # artifact here would be published at the same path and, because Render's publish is
+      # additive, would shadow the rewrite and take the knowledge base off this host with
+      # nothing failing.
+      - type: rewrite
+        source: /member-resources
+        destination: https://rainmaker.asktic.com/member-resources
+      - type: rewrite
+        source: /member-resources/*
+        destination: https://rainmaker.asktic.com/member-resources/*
+
+      # ⚠ THE OLD /kb REWRITES ARE RETAINED AND MUST NOT BE DELETED. /kb was the
+      # public prefix on 18-19 Aug — long enough to be indexed, and long enough that a
+      # sitemap was announced at /kb/sitemap.xml. The 301 to /member-resources is served
+      # BY THE CRM, so removing these rewrites does not replace the redirect, it breaks
+      # it: the request would stop reaching the app that issues it.
+      #
+      # ORDER OF THE CUTOVER, and it only works one way round. These rewrites must exist
+      # BEFORE the CRM starts redirecting, or every indexed /kb link lands on a 404 here.
+      # In the window between, /member-resources reaches the CRM and 404s — which is
+      # harmless, because nothing links there yet.
+      - type: rewrite
+        source: /kb
+        destination: https://rainmaker.asktic.com/kb
+      - type: rewrite
+        source: /kb/*
+        destination: https://rainmaker.asktic.com/kb/*
+
+      # /projects is NOT here, and its absence is the decision. It was briefly given a 301
+      # to /services on the assumption that an indexed path is always worth preserving.
+      # It is not: the Wix original was an unfinished template with no original content,
+      # and the owner retired it as "legacy and a mistake from the old site". It now sits
+      # in content/url-contract.json -> dropped and 404s deliberately, which is also why
+      # there is nothing to add to the service for it.
+
       # ⚠ BEFORE RUNNING `npm run gen:redirects`, READ THIS.
       #
       # content/_inventory/freshdesk/redirects.json carries destination slugs with an
@@ -156,7 +453,7 @@ services:
       # END GENERATED freshdesk-article-map
 
   # ---------------------------------------------------------------------------
-  # help.asktic.com -> https://www.asktic.com/knowledge
+  # help.asktic.com -> https://www.asktic.com/kb
   #
   # A standalone service whose only job is to redirect one hostname. It exists
   # because Render's redirect rules cannot match on host: putting this rule on the
@@ -164,6 +461,17 @@ services:
   #
   # Attach `help.asktic.com` as a custom domain on THIS service (not on tic-web),
   # then point its DNS at Render.
+  #
+  # ⚠ STILL DO NOT CREATE THIS SERVICE — but the reason has changed (2026-08-19).
+  #
+  # The old warning was that its destination was a 404: it pointed at /knowledge, retired
+  # on 2026-08-17. That is fixed — a public answers surface DID return, at /kb, and this
+  # definition is repointed there in the same change, exactly as the old note asked.
+  #
+  # What remains is the older and more basic objection below: `help.asktic.com` does not
+  # exist. There is no record to move and nothing to serve. It is harmless today only
+  # because that is true AND this file is not applied as a Blueprint; adopting the file
+  # would create a service for a hostname nobody can reach.
   #
   # READ THIS BEFORE SPENDING ANY TIME ON THIS SERVICE (2026-08-11):
   # `help.asktic.com` DOES NOT EXIST. It resolves NXDOMAIN today, and the zone
@@ -174,8 +482,10 @@ services:
   #
   # So this service is not "waiting on DNS" — there is no record to move. It only
   # becomes useful if someone decides to CREATE help.asktic.com and point it here.
-  # Nothing in the rebuild depends on that: this site's own nav links to /knowledge
-  # directly. Left in place because it costs nothing and the decision is not ours.
+  # Nothing in the rebuild depends on that. The site's own nav no longer links to a
+  # knowledge path at all — /knowledge was retired and the knowledge base is reached at
+  # /kb, which this site serves by rewrite. Left in place because it costs nothing and
+  # the decision is not ours.
   #
   # Separately (decision 2026-08-11): the domain is NOT moving to Vodien. Wix stays
   # authoritative for the zone, so cutover is record surgery in Wix's DNS rather than a
@@ -192,10 +502,13 @@ services:
     runtime: static
     # No build: the service only ever answers with a redirect. The placeholder page
     # is what gets served if a request somehow misses the rule below.
-    buildCommand: mkdir -p out && printf '<!doctype html><meta http-equiv="refresh" content="0;url=https://www.asktic.com/knowledge">' > out/index.html
+    buildCommand: mkdir -p out && printf '<!doctype html><meta http-equiv="refresh" content="0;url=https://www.asktic.com/kb">' > out/index.html
     staticPublishPath: ./out
     pullRequestPreviewsEnabled: false
     routes:
       - type: redirect
         source: /*
-        destination: https://www.asktic.com/knowledge
+        destination: https://www.asktic.com/kb
+        # Repointed from /knowledge on 2026-08-19. That path is now a tombstone, so a
+        # help hostname would have landed visitors on a page saying the page had moved.
+        # /kb is the knowledge base itself.

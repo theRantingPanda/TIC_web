@@ -1,60 +1,83 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
-import { CaptureForm } from '@/components/capture-form'
-import { CaptureProvider } from '@/components/capture-context'
-import { CardGrid } from '@/components/card-grid'
+import Image from 'next/image'
+import { ConcernCard } from '@/components/concern-card'
+import { ConcernPanel } from '@/components/concern-panel'
 import { Container } from '@/components/container'
-import { EmailField } from '@/components/email-field'
-import { Faq, type FaqItem } from '@/components/faq'
-import { FeatureCard } from '@/components/feature-card'
-import { BuildingIcon, GlobeIcon, HardHatIcon, HourglassIcon } from '@/components/icons'
-import { IndicativePrice } from '@/components/indicative-price'
-import { LeadMagnetPanel } from '@/components/lead-magnet-panel'
-import { QuoteBlock } from '@/components/quote-block'
-import { Reveal } from '@/components/reveal'
-import { Section } from '@/components/section'
-import { SectionHeading } from '@/components/section-heading'
-import { StatBand } from '@/components/stat-band'
-import { hasIndicativePricing } from '@/content/home/price-bands'
+import { CountUp } from '@/components/count-up'
+import { HomeFlow } from '@/components/home-flow'
 import {
-  meta,
-  s01Hero,
-  s02Numbers,
-  s03Arrange,
-  s04CompanyCover,
-  s05AfterYouBuy,
-  s06Case,
-  s08TwoWaysIn,
-  s09Questions,
-  s10Closing,
-} from '@/content/home/copy'
-import { readPost } from '@/lib/content'
-import { captureEnabled } from '@/lib/capture'
+  BriefcaseIcon,
+  BuildingIcon,
+  FlagIcon,
+  GlobeIcon,
+  MembersIcon,
+  PersonIcon,
+} from '@/components/icons'
+import { concerns, concernsFor, paths, spansFullWidth } from '@/content/concerns'
+import { homeCopy, type TrustStatIcon } from '@/content/home/copy'
 import { contact, siteConfig } from '@/lib/site'
 
 /**
- * The homepage.
+ * The homepage. Five moves, in order, each one earned by the visitor's previous action.
  *
- * Structure and copy come from asktic-homepage-copy-deck.md. Every string is in
- * content/home/copy.ts so it diffs against the deck; this file is layout only.
+ *   1. Sparse hero            name and headline only
+ *   2. Trust proof            four real stats and one quiet regulatory line
+ *   3. One binary choice      myself/family, or my company
+ *   4. Concern selection      four cards per path, revealed after the choice
+ *   5. Drill-down             the six-part panel, revealed after a card
  *
- * Section 07 ("What it actually costs") is cut, on the deck's own recommendation in its
- * section 04 note: it read as a fourth unlabelled pricing configuration and overlapped
- * the two-field ask. That leaves three posting capture points rather than four.
+ * ---- STOP ADDING THINGS TO THIS PAGE ----
  *
- * The anchors are load-bearing. #indicative-price is the hero's first CTA and
- * #talk-to-us is the header button, the section 04 CTA and the price component's
- * fallback route. components/section.tsx carries the scroll-mt that keeps them clear of
- * the sticky header.
+ * This replaced a ten-section homepage on 2026-08-16 and the deletions were the point.
+ * No About section, no insurer logo wall, no testimonial carousel, no extra proof
+ * points, no second call to action. The homepage's entire job is three moves: say what
+ * the firm does, show that other people trust it, and ask what brought the visitor here.
+ * Everything past that is earned by a click into a specific concern.
+ *
+ * Where the old sections went, so nobody re-adds them here looking for them:
+ *   - the enquiry form and the FAQ now sit on each concern's own page, where the
+ *     question being answered is known and the lead can be tagged with it
+ *   - the two lead magnets moved to /services and /employee-benefits
+ *   - the "what we arrange" grid is replaced by the concern grid, which does the same
+ *     job with the visitor's words instead of the firm's
+ *   - the case study is on /beyond-employer-cover, which is the claim it proves
+ *
+ * ---- No subtext under the fork buttons ----
+ *
+ * It was tried twice and removed twice. The subtext consistently read as re-introducing
+ * the clutter this page exists to remove. The two labels are enough.
+ *
+ * ---- No photographs on the fork or the cards ----
+ *
+ * Also tried and reverted. Selection steps stay lean; feeling is earned at the
+ * drill-down, where the lead image finally appears. See components/concern-panel.tsx.
  */
-export const metadata: Metadata = {
-  // `absolute` because app/layout.tsx templates titles as "%s | TIC", which would render
-  // the deck's tag as "... | The Insurance Concierge | TIC".
-  title: { absolute: meta.title },
-  description: meta.description,
+/**
+ * Each trust figure's mark, resolved from the `icon` key in content/home/copy.ts.
+ *
+ * Typed as a Record over the union, so a fifth stat added to the copy without a mark
+ * here fails the build rather than rendering an undefined component.
+ *
+ * Two of these are shared with the concern cards on purpose. The mark supplied for
+ * "countries our members live in" was the globe already drawn for international health,
+ * and the one for "corporate schemes serviced" was the briefcase already drawn for
+ * senior hires — same glyph, same argument, so they are one icon each and not two.
+ */
+const TRUST_ICONS: Record<TrustStatIcon, typeof MembersIcon> = {
+  members: MembersIcon,
+  countries: GlobeIcon,
+  nationalities: FlagIcon,
+  schemes: BriefcaseIcon,
 }
 
-const cardIcons = [GlobeIcon, HourglassIcon, BuildingIcon, HardHatIcon] as const
+export const metadata: Metadata = {
+  // `absolute` because app/layout.tsx templates titles as "%s | TIC", which would render
+  // this as "... | The Insurance Concierge | TIC".
+  title: { absolute: homeCopy.meta.title },
+  description: homeCopy.meta.description,
+}
+
+const forkIcons = { individual: PersonIcon, company: BuildingIcon } as const
 
 /**
  * Organisation schema. Kept minimal and factual: no aggregate rating, no invented
@@ -62,339 +85,330 @@ const cardIcons = [GlobeIcon, HourglassIcon, BuildingIcon, HardHatIcon] as const
  *
  * There is deliberately no `telephone` — the published number is out of service and was
  * swept from the site on 2026-08-16. Do not add one back without checking it answers.
+ *
+ * There is deliberately no `sameAs` either. It listed the Facebook and LinkedIn profiles
+ * until 2026-08-17, when both were dropped sitewide for being thin (see `contact` in
+ * lib/site.ts). The field was removed rather than left as an empty array: `sameAs: []`
+ * tells a search engine the firm has no profiles, which is a claim, where an absent field
+ * simply says nothing. Bring it back with the links, not before.
  */
 const organisationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: siteConfig.name,
   url: siteConfig.url,
+  logo: `${siteConfig.url}/images/logo-mark.png`,
   email: contact.email,
-  description: meta.description,
+  description: homeCopy.meta.description,
   areaServed: 'SG',
-  sameAs: contact.social.map((item) => item.href),
-}
-
-function questions(): FaqItem[] {
-  return s09Questions.slugs.map((slug) => {
-    const post = readPost(slug)
-    return {
-      question: post.frontmatter.title,
-      answer: post.frontmatter.summary,
-      href: `/single-post/${post.frontmatter.slug}`,
-    }
-  })
 }
 
 export default function Page() {
-  const faqItems = questions()
-
   return (
-    <CaptureProvider>
+    <>
       <script
         type="application/ld+json"
         // Serialised from the literal above. No user input reaches this.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organisationSchema) }}
       />
 
-      {/* 01. Hero */}
-      <section className="border-b border-border bg-surface-subtle">
-        <Container className="py-16 md:py-24 lg:py-28">
-          <div className="max-w-[46rem]">
-            <h1 className="text-display-lg sm:text-display-xl text-ink">
-              {s01Hero.headline}
-            </h1>
-            {/*
-              The tagline is retained, so the subhead does all the explanatory work: it
-              has to say plainly what the firm does and for whom, because the headline
-              does not. Do not shorten it.
-            */}
-            <p className="mt-6 text-lg/8 text-ink-muted">{s01Hero.subhead}</p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              {/*
-                Two doors, equal weight. Two audiences arrive here with different jobs to
-                do, and one button forces one of them to translate.
-              */}
-              <Link
-                href={s01Hero.primaryCta.href}
-                className="rounded-md bg-brand-green px-5 py-3 text-center text-sm font-medium text-white no-underline hover:bg-brand-green-700"
-              >
-                {s01Hero.primaryCta.label}
-              </Link>
-              <Link
-                href={s01Hero.secondaryCta.href}
-                className="rounded-md border border-border bg-surface px-5 py-3 text-center text-sm font-medium text-ink no-underline hover:border-brand-green-300 hover:text-brand-green-700"
-              >
-                {s01Hero.secondaryCta.label}
-              </Link>
-            </div>
-          </div>
+      {/*
+        1. Hero. Name and headline over the photograph. Nothing else belongs here.
+
+        THE PHOTOGRAPH IS THE OLD SITE'S OWN HERO, restored on 2026-08-17 on the owner's
+        instruction. It was pulled from Wix during Phase 1, dropped from the tree, and
+        recovered from git history at c22e5f27. The Wix markup had it as a column-strip
+        `bgImage` with `displayMode: fill` behind a `colorUnderlay`, which is the same
+        treatment rebuilt below — full bleed, with a wash over it so the ink still reads.
+
+        ⚠ TWO THINGS THAT WERE FLAGGED AND OVERRULED, recorded so they are not rediscovered
+        as if they were oversights:
+
+          1. The homepage deliberately had no photograph. The rule that stands is the one
+             below about the FORK AND THE CARDS: selection steps stay lean and imagery is
+             earned at the drill-down. A hero is not a selection step, so the two can
+             coexist — but do not read this as licence to put photographs back on the
+             cards.
+          2. LICENSING IS UNCONFIRMED. This came off Wix as stock, and a sibling file in
+             the same capture was Unsplash-sourced through Wix's integration. A licence
+             covering the Wix site does not automatically cover this one. Confirm the
+             provenance; if it does not hold, this is the file to pull.
+
+        `object-left` on the image, not the default centre: the subject sits in the left
+        third and the right two-thirds is bright curtain. Cropping from the centre on a
+        narrow viewport would cut her out and leave an empty wash.
+
+        Sized by `fill` rather than intrinsic dimensions because it is a background that
+        has to cover an arbitrary box. The section carries its own min-height so there is
+        nothing to shift: the image never decides the layout. `priority` because this is
+        the largest element above the fold and lazy-loading it would delay LCP.
+      */}
+      <section className="relative isolate flex min-h-[26rem] items-center overflow-hidden bg-surface-subtle md:min-h-[32rem]">
+        <Image
+          src="/images/home-hero.webp"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="-z-10 object-cover object-[38%_center] md:object-left"
+        />
+        {/*
+          The wash, and it is DELIBERATELY LIGHT. Wix used a flat colour underlay; the
+          first attempt here rebuilt that at full strength and erased the photograph
+          completely — a 14.05:1 headline over what may as well have been a plain stone
+          background. Contrast was never the constraint: the photograph is high-key, the
+          bright curtain reads at 0.85 luminance and even the chair sits near 0.55, so ink
+          clears large-text contrast against the whole frame without help.
+
+          What the wash is actually for is knocking the photograph back far enough that it
+          reads as ground rather than as subject, and unifying its warm cast with the
+          page's stone. It is the page's own colour rather than black or white, so the
+          hero belongs to the site instead of looking like a photo with a filter on it.
+
+          Slightly stronger on the left, where the woman and the chair are the only
+          mid-tones in the frame, and lighter to the right where there is nothing but
+          curtain to protect. Every figure above was measured off the rendered pixels
+          rather than judged by eye.
+        */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-linear-to-r from-surface-subtle/65 via-surface-subtle/45 to-surface-subtle/35"
+        />
+        <Container className="relative w-full py-16 text-center md:py-24">
+          <p className="text-eyebrow uppercase text-ink-muted">{siteConfig.name}</p>
+          <h1 className="mx-auto mt-4 max-w-[38rem] text-display-md sm:text-display-lg text-ink">
+            {homeCopy.hero.headline}
+          </h1>
+          {/*
+            `text-balance` because at 390px the line breaks after "in" and orphans
+            "Singapore" on a line of its own, which is conspicuous set over a photograph.
+          */}
+          <p className="mx-auto mt-5 max-w-[30rem] text-balance text-lg/8 text-ink-muted">
+            {homeCopy.hero.subhead}
+          </p>
         </Container>
       </section>
 
-      {/* 02. The numbers */}
-      <Section labelledBy="numbers-heading">
-        <SectionHeading id="numbers-heading" title={s02Numbers.heading} />
-        <div className="mt-10">
-          <StatBand stats={s02Numbers.stats} />
-        </div>
-      </Section>
-
-      {/* 03. What we arrange */}
-      <Section tone="subtle" labelledBy="arrange-heading">
-        <SectionHeading id="arrange-heading" title={s03Arrange.heading} />
-        <div className="mt-10">
-          {/* Four cards, so 2x2 on desktop and a single stack on mobile. */}
-          <CardGrid columns={2}>
-            {s03Arrange.cards.map((card, index) => (
-              <li key={card.title}>
-                <FeatureCard
-                  icon={cardIcons[index]}
-                  title={card.title}
-                  body={card.body}
-                  link={card.link}
-                />
-              </li>
-            ))}
-          </CardGrid>
-        </div>
-      </Section>
-
-      {/* 04. If your only cover is through work */}
-      <Section labelledBy="company-cover-heading">
-        <SectionHeading id="company-cover-heading" title={s04CompanyCover.heading} />
-        <div className="mt-8 max-w-[46rem] space-y-5">
-          {s04CompanyCover.paragraphs.map((paragraph) => (
-            <p key={paragraph.slice(0, 40)} className="text-base/8 text-ink">
-              {paragraph}
-            </p>
-          ))}
-        </div>
-
-        <div className="mt-12">
+      {/* 2. Trust proof. Four real stats, then one footnote-weight line. */}
+      <section className="border-y border-border bg-surface">
+        <Container className="py-10">
+          <dl className="grid grid-cols-2 gap-x-6 gap-y-8 text-center md:grid-cols-4">
+            {homeCopy.trust.stats.map((stat) => {
+              const Mark = TRUST_ICONS[stat.icon]
+              return (
+                /*
+                 * flex-col-reverse so the figure reads above its label while the DOM keeps
+                 * <dt> before <dd>, which is what a description list requires.
+                 */
+                <div key={stat.label} className="flex flex-col-reverse gap-1">
+                  <dt className="text-sm text-ink-muted">{stat.label}</dt>
+                  {/*
+                    The mark lives INSIDE the <dd> rather than as a third child of the
+                    wrapper. A <dl>'s div grouping may contain only <dt> and <dd>, so a
+                    loose <svg> beside them is invalid markup; nesting it keeps the list
+                    valid and keeps the icon in the same reversed column as its figure.
+                  */}
+                  <dd className="flex flex-col items-center gap-2.5 text-display-sm font-medium text-ink">
+                    <Mark className="size-6 text-ink-muted" />
+                    <CountUp value={stat.figure} />
+                  </dd>
+                </div>
+              )
+            })}
+          </dl>
           {/*
-            Same visual treatment as section 02, which is why it is the same component.
-            The footnote is a disclosure, not decoration: these figures are low because
-            the configuration is narrow. Never trim it to balance the layout.
-          */}
-          <StatBand
-            stats={s04CompanyCover.band.stats}
-            intro={s04CompanyCover.band.intro}
-            footnote={s04CompanyCover.band.footnote}
-            figureSize="compact"
-          />
-        </div>
+            Footnote weight, deliberately, not a fifth stat.
 
-        <p className="mt-10">
-          <Link
-            href={s04CompanyCover.cta.href}
-            className="inline-block rounded-md bg-brand-green px-5 py-3 text-sm font-medium text-white no-underline hover:bg-brand-green-700"
+            This was promoted to body size on 2026-08-16 on the strength of a design
+            review, then reverted the same day: at that weight the claim dominated the
+            band and started arguing with the visitor before they had been asked anything.
+            The homepage's job is to ask one question, and a paragraph defending the
+            firm's pricing sits in front of it. The claim is not lost — /employee-benefits
+            makes it, and the `how-does-the-insurance-concierge-get-paid` answer linked
+            from several concern pages makes it at length.
+
+            The wording is the safest true claim available and is not to be strengthened
+            without checking the firm's own registration category first. It asserts only
+            that the insurers are regulated. "Agent" and "broker" are distinct
+            registrations in Singapore, and the firm is externally categorised as an
+            insurance agent, so any wording that implies brokerage is a claim nobody has
+            verified. Note the footer separately carries the live site's own regulatory
+            disclosure verbatim; this line does not replace it.
+          */}
+          <p className="mt-8 text-center text-eyebrow text-ink-muted">
+            {homeCopy.trust.line}
+          </p>
+        </Container>
+      </section>
+
+      <HomeFlow>
+        <div data-concern-flow>
+          {/*
+            3. One binary choice.
+
+            `id="talk-to-us"` is inherited, not invented. It named the enquiry form on the
+            old homepage and is linked from the header's CTA button, from
+            /international-health-insurance and from /employee-benefits. The form has
+            moved to the concern pages, where the question being answered is known — so
+            the anchor now lands on the fork, which is the site's actual ask: tell us
+            which situation is yours. Every existing link keeps working and keeps meaning
+            what it meant. Do not remove it without sweeping those call sites.
+
+            scroll-mt-20 clears the sticky header, which components/section.tsx bakes in
+            for the sections that use it and this hand-rolled one does not get for free.
+          */}
+          <section
+            id="talk-to-us"
+            aria-labelledby="fork-heading"
+            className="scroll-mt-20 bg-surface-subtle"
           >
-            {s04CompanyCover.cta.label}
-          </Link>
-        </p>
-      </Section>
-
-      {/* 05. What you get after you've bought */}
-      <Section tone="subtle" labelledBy="after-you-buy-heading">
-        <SectionHeading id="after-you-buy-heading" title={s05AfterYouBuy.heading} />
-        <div className="mt-10">
-          <CardGrid columns={3}>
-            {s05AfterYouBuy.points.map((point) => (
-              <li key={point.title}>
-                <FeatureCard title={point.title} body={point.body} />
-              </li>
-            ))}
-          </CardGrid>
-        </div>
-
-        {/*
-          Omitted entirely when there are no bands, rather than rendered empty. See
-          content/home/price-bands.ts — the deck supplies no figures for this
-          configuration and none are invented.
-        */}
-        {hasIndicativePricing ? (
-          <div id="indicative-price" className="mt-12 scroll-mt-20">
-            <IndicativePrice enquiryHref="#talk-to-us" />
-          </div>
-        ) : null}
-      </Section>
-
-      {/* 06. One case */}
-      <Section labelledBy="case-heading">
-        <SectionHeading id="case-heading" title={s06Case.heading} align="center" />
-        <div className="mt-10">
-          <QuoteBlock paragraphs={s06Case.paragraphs} footer={s06Case.footer} />
-        </div>
-      </Section>
-
-      {/* 08. Two ways in. (07 is cut — see the file header.) */}
-      <Section tone="subtle" labelledBy="two-ways-heading">
-        <SectionHeading id="two-ways-heading" title={s08TwoWaysIn.heading} />
-        <div className="mt-10 grid gap-8 md:grid-cols-2">
-          {/*
-            Two segments, two magnets, two follow-up sequences. The list each panel
-            writes to is fixed here and carried to n8n explicitly; do not merge them.
-          */}
-          <LeadMagnetPanel
-            {...s08TwoWaysIn.panels[0]}
-            source="homepage-08-individual-timeline"
-            list="individual"
-            contactEmail={contact.email}
-          />
-          <LeadMagnetPanel
-            {...s08TwoWaysIn.panels[1]}
-            source="homepage-08-corporate-numbers"
-            list="corporate"
-            contactEmail={contact.email}
-          />
-        </div>
-      </Section>
-
-      {/* 09. What people ask us */}
-      <Section labelledBy="questions-heading">
-        <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
-          <div className="lg:col-span-5">
-            <SectionHeading id="questions-heading" title={s09Questions.heading} />
-          </div>
-          <div className="lg:col-span-7">
-            <Faq
-              items={faqItems}
-              allAnswersHref={s09Questions.allAnswers.href}
-              allAnswersLabel={s09Questions.allAnswers.label}
-            />
-          </div>
-        </div>
-      </Section>
-
-      {/* 10. Closing ask */}
-      <Section id="talk-to-us" tone="subtle" labelledBy="closing-heading">
-        <Reveal className="max-w-[46rem]">
-          <h2 id="closing-heading" className="text-display-sm sm:text-display-md text-ink">
-            {s10Closing.headline}
-          </h2>
-          <p className="mt-3 text-lg/8 text-ink-muted">{s10Closing.subhead}</p>
-        </Reveal>
-
-        <div className="mt-8 max-w-xl">
-          {captureEnabled ? (
-            <CaptureForm
-              source="homepage-10-enquiry"
-              list="individual"
-              // The answer to "who needs cover" decides the list, so a company enquiry
-              // never lands in the individual follow-up sequence. A descriptor rather
-              // than a callback: this is a server component, and a function prop cannot
-              // cross into a client one.
-              listRule={{ field: 'who', corporateWhen: ['My company'] }}
-              submitLabel={s10Closing.buttonLabel}
-              successMessage={s10Closing.confirmation}
-              className="space-y-5"
-            >
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-ink">
-                  Your name
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  required
-                  autoComplete="name"
-                  className="mt-1 w-full rounded-(--radius-card) border border-border px-3 py-2 text-ink"
-                />
-              </div>
-
-              <EmailField id="enquiry-email" />
-
-              <div>
-                <label htmlFor="who" className="block text-sm font-medium text-ink">
-                  Who needs cover
-                </label>
-                <select
-                  id="who"
-                  name="who"
-                  required
-                  defaultValue=""
-                  className="mt-1 w-full rounded-(--radius-card) border border-border bg-surface px-3 py-2 text-ink"
+            <Container className="pt-14 pb-2 md:pt-20">
+              <fieldset className="text-center">
+                <legend
+                  id="fork-heading"
+                  // A <legend>, so the base layer's heading rules do not reach it and
+                  // the display face has to be asked for explicitly.
+                  className="mx-auto font-serif text-display-xs sm:text-display-sm text-ink"
                 >
-                  <option value="" disabled>
-                    Choose one
-                  </option>
-                  {s10Closing.whoOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  {homeCopy.fork.heading}
+                </legend>
 
-              <div>
-                <label htmlFor="ages" className="block text-sm font-medium text-ink">
-                  Ages of everyone to be covered
-                </label>
-                <input
-                  id="ages"
-                  name="ages"
-                  type="text"
-                  required
-                  className="mt-1 w-full rounded-(--radius-card) border border-border px-3 py-2 text-ink"
-                />
-              </div>
+                <div className="mx-auto mt-8 grid max-w-xl gap-4 sm:grid-cols-2">
+                  {paths.map((path) => {
+                    const Icon = forkIcons[path.audience]
+                    return (
+                      /*
+                        The id makes each fork option a real anchor target. Concern pages
+                        link back here as `/#individual` or `/#company`, so with no
+                        JavaScript the browser scrolls to the fork and the visitor picks
+                        again by hand; components/home-flow.tsx enhances that into having
+                        the choice already made. The link is not dependent on the script.
+                      */
+                      <div key={path.audience} id={path.audience} className="scroll-mt-24">
+                        {/*
+                          A real radio, visually hidden. The fork is a genuine choice
+                          between two options, so a radio group is what it is — and it
+                          means app/globals.css can drive the whole reveal with :has()
+                          and no JavaScript. The label is the next sibling so Tailwind's
+                          `peer-checked` can style the selected state.
+                        */}
+                        <input
+                          type="radio"
+                          name="tic-path"
+                          id={`tic-path-${path.audience}`}
+                          value={path.audience}
+                          className="peer sr-only"
+                        />
+                        <label
+                          htmlFor={`tic-path-${path.audience}`}
+                          className={`flex cursor-pointer flex-col items-center gap-2 rounded-(--radius-panel) border border-border bg-surface px-4 py-7 text-center hover:border-ink-muted peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-brand-blue ${
+                            path.audience === 'company'
+                              ? 'peer-checked:border-brand-blue-600 peer-checked:bg-brand-blue-50'
+                              : 'peer-checked:border-brand-green-600 peer-checked:bg-brand-green-50'
+                          }`}
+                        >
+                          {/*
+                            Line-style SVG, not emoji. 👤 and 🏢 were tried on these two
+                            buttons and replaced: they undermine the restrained visual
+                            language and render inconsistently across platforms. Do not
+                            reintroduce emoji anywhere in this flow.
+                          */}
+                          <Icon className="h-6 w-6 text-ink-muted" />
+                          <span className="font-serif text-lg text-ink">{path.label}</span>
+                        </label>
+                      </div>
+                    )
+                  })}
+                </div>
+              </fieldset>
+            </Container>
+          </section>
 
-              <div>
-                <label htmlFor="where" className="block text-sm font-medium text-ink">
-                  Where you live now
-                </label>
-                <input
-                  id="where"
-                  name="where"
-                  type="text"
-                  required
-                  autoComplete="country-name"
-                  className="mt-1 w-full rounded-(--radius-card) border border-border px-3 py-2 text-ink"
-                />
-              </div>
+          {/* 4. Concern selection, revealed by the choice above. */}
+          <section aria-label="Choose your situation" className="bg-surface-subtle">
+            <Container className="pb-14 md:pb-20">
+              {paths.map((path) => (
+                <div
+                  key={path.audience}
+                  data-concern-group={path.audience}
+                  className="pt-10"
+                >
+                  {/*
+                    For the no-:has() fallback only. There both grids render at once and
+                    each needs saying whose it is; where :has() is supported the fork
+                    above already answers the question and app/globals.css hides these.
+                  */}
+                  <h2
+                    data-concern-group-heading
+                    className="text-display-xs text-ink sm:text-center"
+                  >
+                    {path.label}
+                  </h2>
 
-              {/* Optional on purpose. This is where the useful information arrives. */}
-              <div>
-                <label htmlFor="notes" className="block text-sm font-medium text-ink">
-                  Anything we should know{' '}
-                  <span className="font-normal text-ink-muted">(optional)</span>
-                </label>
-                <textarea
-                  id="notes"
-                  name="notes"
-                  rows={4}
-                  placeholder={s10Closing.freeTextPlaceholder}
-                  className="mt-1 w-full rounded-(--radius-card) border border-border px-3 py-2 text-ink"
-                />
-              </div>
-            </CaptureForm>
-          ) : (
-            /*
-              No webhook configured, so no form is rendered at all — decided here at
-              build time. A form that accepts what someone typed and then tells them to
-              email instead is worse than not offering one.
-            */
-            <p className="text-base/7 text-ink">
-              {s10Closing.fallbackLine}{' '}
-              <a href={`mailto:${contact.email}`} className="text-brand-blue">
-                {contact.email}
-              </a>
-              .
-            </p>
-          )}
+                  <p className="mt-2 text-sm text-ink-muted sm:text-center">
+                    {homeCopy.concerns.intro}
+                  </p>
 
-          {captureEnabled ? (
-            <p className="mt-6 text-sm text-ink-muted">
-              {s10Closing.fallbackLine}{' '}
-              <a href={`mailto:${contact.email}`} className="text-brand-blue">
-                {contact.email}
-              </a>
-              .
-            </p>
-          ) : null}
+                  {/*
+                    56rem, not the 72rem container, so the grid shares an edge with the
+                    panel that opens beneath it — ConcernPanel is `mx-auto max-w-[56rem]`
+                    and the two were 108px out on each side at 1280.
+
+                    The cards moved rather than the panel because the panel's width is
+                    load-bearing: its copy is set to a 42rem measure, and stretching it to
+                    the full container would leave roughly 220px of empty space beside
+                    every paragraph. Card labels are two or three words and lose nothing by
+                    being narrower. If one of these two numbers changes, change both.
+                  */}
+                  <ul className="mx-auto mt-6 grid max-w-[56rem] gap-4 sm:grid-cols-2">
+                    {concernsFor(path.audience).map((concern, index, all) => (
+                      <li
+                        key={concern.key}
+                        /*
+                          An odd-numbered grid leaves one card alone on the last row
+                          whatever the order, so the last one spans both columns and reads
+                          as a deliberate closer rather than a leftover. The rule lives in
+                          the content module so the next odd grid is not solved a
+                          different way. See spansFullWidth.
+                        */
+                        className={
+                          spansFullWidth(index, all.length) ? 'sm:col-span-2' : undefined
+                        }
+                      >
+                        {/*
+                          A real link to a real page, enhanced into an inline reveal by
+                          components/home-flow.tsx. With scripting off it simply
+                          navigates, and the destination renders the identical panel.
+                        */}
+                        <ConcernCard concern={concern} interactive />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </Container>
+          </section>
+
+          {/*
+            5. The drill-downs.
+
+            All eight are server-rendered and hidden, rather than fetched on demand. The
+            reveal is then instant and needs no network, and every panel is in the HTML
+            for anything that does not run scripts. The cost is roughly 25KB of markup on
+            a page with no other weight, which is the right trade for a static export on
+            a CDN. Each concern's own route is canonical for its content.
+          */}
+          <section aria-label="Details" className="bg-surface-subtle">
+            <Container className="pb-20">
+              {concerns.map((concern) => (
+                <div key={concern.key} data-concern-panel={concern.key} hidden>
+                  <ConcernPanel concern={concern} ctaHref={`${concern.path}#talk-to-us`} />
+                </div>
+              ))}
+            </Container>
+          </section>
         </div>
-      </Section>
-    </CaptureProvider>
+      </HomeFlow>
+    </>
   )
 }

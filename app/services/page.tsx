@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { ConcernCard } from '@/components/concern-card'
 import { Container } from '@/components/container'
-import { getPublishedPosts } from '@/lib/content'
+import { LeadMagnetPanel } from '@/components/lead-magnet-panel'
+import { concerns, spansFullWidth } from '@/content/concerns'
+import { contact } from '@/lib/site'
 
 /**
  * The services landing page.
@@ -13,17 +16,21 @@ import { getPublishedPosts } from '@/lib/content'
  *
  * NOT a port: Wix rendered the original client-side and its content could never be
  * captured, so there is no original copy to reproduce. It is built from what the site
- * already knows — the cover pages, and the posts from content/blog. Replace it with real
- * copy when it can be written.
+ * already knows — the cover pages. Replace it with real copy when it can be written.
  *
- * Listing the posts here also gives them somewhere to be linked from: the 8 Wix
- * blog-category pages were deliberately dropped, and this is the closest thing the site
- * has to an index.
+ * It listed every post from content/blog until 2026-08-17, which also gave those articles
+ * somewhere to be linked from, the 8 Wix blog-category pages having been dropped. The
+ * articles have now been retired from the public site and moved to the CRM, so that list
+ * went with them and this page is no longer an index of anything but the cover pages.
+ *
+ * It also lists all eight concern pages, which is this page's second job: the homepage
+ * shows four at a time behind a fork, so this is the only place a visitor can see the
+ * whole set at once, and the only flat internal link to every one of them.
  */
 export const metadata: Metadata = {
   title: 'Services',
   description:
-    'What The Insurance Concierge arranges — international health, maternity and newborn, employee benefits, and cover for offshore and deployed teams — plus answers to common questions.',
+    'What The Insurance Concierge arranges — international health, maternity and newborn, employee benefits, and cover for offshore and deployed teams — plus what happens after a policy is placed.',
 }
 
 /**
@@ -42,21 +49,17 @@ const services = [
     href: '/international-health-insurance',
     label: 'International health insurance',
   },
-  { href: '/maternity-insurance', label: 'Maternity and newborn' },
   { href: '/employee-benefits', label: 'Employee benefits' },
-  { href: '/offshore-and-energy', label: 'Offshore and deployed teams' },
 ] as const
 
 export default function Page() {
-  const posts = getPublishedPosts()
-
   return (
     <Container className="py-(--spacing-section)">
       <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-ink sm:text-5xl">
         Services
       </h1>
 
-      <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="mt-12 grid gap-4 sm:grid-cols-2">
         {services.map((service) => (
           <li key={service.href}>
             <Link
@@ -69,28 +72,54 @@ export default function Page() {
         ))}
       </ul>
 
-      {posts.length > 0 ? (
-        <section className="mt-(--spacing-section) border-t border-border pt-12">
-          <h2 className="text-2xl font-semibold tracking-tight text-ink">
-            Common questions
-          </h2>
-          <ul className="mt-8 space-y-8">
-            {posts.map((post) => (
-              <li key={post.frontmatter.slug}>
-                <Link
-                  href={`/single-post/${post.frontmatter.slug}`}
-                  className="text-lg font-medium text-ink no-underline hover:text-brand-blue"
-                >
-                  {post.frontmatter.title}
-                </Link>
-                <p className="mt-1 max-w-2xl text-base/7 text-ink-muted">
-                  {post.frontmatter.summary}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+      <section className="mt-(--spacing-section) border-t border-border pt-12">
+        <h2 className="text-2xl font-semibold tracking-tight text-ink">
+          Or start from the situation
+        </h2>
+        <p className="mt-2 max-w-2xl text-base/7 text-ink-muted">
+          The homepage asks which of these is yours and shows four at a time. Here they
+          all are.
+        </p>
+        <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+          {concerns.map((concern, index) => (
+            <li
+              key={concern.key}
+              className={
+                spansFullWidth(index, concerns.length) ? 'sm:col-span-2' : undefined
+              }
+            >
+              <ConcernCard concern={concern} />
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <div className="mt-(--spacing-section) max-w-2xl">
+        {/*
+          Rehomed from the old homepage on 2026-08-16, along with its corporate twin,
+          which went to /employee-benefits. The two lists stay separate and so do the
+          follow-up sequences: do not merge them into one panel on one page.
+        */}
+        <LeadMagnetPanel
+          audience="For individuals and families"
+          intro="Moving here, having a baby, coming off a company scheme, or just tired of not understanding what you bought."
+          magnetTitle="The maternity and newborn timeline"
+          magnetBody="When to buy, what the waiting periods actually mean, and the point after which it is too late. One page, no jargon."
+          buttonLabel="Send me the timeline"
+          source="services-individual-timeline"
+          list="individual"
+          contactEmail={contact.email}
+        />
+      </div>
+
+      {/*
+        A "Common questions" list of every published article stood here until 2026-08-17,
+        each item linking to /single-post/…. The articles were retired from the public site
+        that day and moved to the CRM, so the list had nothing left to link to.
+
+        It was also the last thing on this page, which is the slot the enquiry route wants.
+        If something returns here it should not be a list of links away from the page.
+      */}
     </Container>
   )
 }

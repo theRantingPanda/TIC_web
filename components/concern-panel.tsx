@@ -1,0 +1,463 @@
+import Image from 'next/image'
+import Link from 'next/link'
+import { CtaButton } from '@/components/cta-button'
+import { Reveal } from '@/components/reveal'
+import { ImageIcon } from '@/components/icons'
+import type { Concern } from '@/content/concerns'
+
+/**
+ * The drill-down panel: one concern, in the fixed six-part structure.
+ *
+ * Rendered in two places from one source — inline on the homepage once the visitor
+ * selects a concern, and as the body of that concern's own route. Both get identical
+ * markup, which is the point: the URL is a real page, not a consolation prize for
+ * arriving without JavaScript.
+ *
+ * THE LEAD IMAGE APPEARS HERE AND NOWHERE EARLIER IN THE FLOW. Photographs were tried on
+ * the fork buttons and on the concern cards and reverted both times. The principle that
+ * survived is that selection steps stay lean and feeling is earned at the drill-down, so
+ * a picture only earns its place once the visitor has committed to a specific situation.
+ * Do not add thumbnails to the cards.
+ *
+ * Where a real photograph does not exist yet the brief renders in its place, visibly
+ * unfinished. That is deliberate: a grey box with a brief in it is honest about what is
+ * missing, and real photography beats stock here. Do not fill these with stock — the
+ * generic "Team Meeting" shot was flagged as a weakness on the page this replaces.
+ *
+ * `headingLevel` exists because the same panel is an <h2> under the homepage's flow and
+ * an <h1> on its own page. Everything below it steps down accordingly.
+ */
+/**
+ * The case's figures as a bar: what the scheme covered, and the gap above it.
+ *
+ * MARKUP, NOT AN IMAGE, and that is the whole point. A supplied graphic put an employer
+ * ceiling of S$40,000 against a S$125,000 bill straight onto the panel, which contradicted
+ * the real case printed directly beneath it. Because the numbers were pixels they could
+ * not carry the configuration disclosure every other figure on this site carries, could
+ * not be corrected without re-rendering, and could not be read by `npm run verify:copy` —
+ * the guard that has caught every other copy problem here. Never put a figure in a
+ * photograph.
+ *
+ * The gap is drawn, not implied. A chart that stopped at the covered portion would be the
+ * advertising version of a story whose entire credibility rests on what was NOT covered.
+ *
+ * The bar is `aria-hidden` and the figures are a real description list underneath, so a
+ * screen reader gets the numbers rather than a decorative div, and the whole thing still
+ * says something useful with CSS off.
+ */
+function CaseChart({
+  chart,
+}: {
+  chart: NonNullable<Extract<Concern['case'], { kind: 'real' }>['chart']>
+}) {
+  const coveredPercent = Math.round((chart.covered.amount / chart.total.amount) * 100)
+
+  return (
+    <figure className="mt-6 border-t border-border pt-5">
+      <figcaption className="text-eyebrow uppercase text-ink-muted">
+        {chart.heading}
+      </figcaption>
+
+      <div
+        aria-hidden="true"
+        className="mt-3 flex h-9 w-full overflow-hidden rounded-(--radius-card) border border-border"
+      >
+        {/*
+          green-800, not the brand green-600, and not at reduced opacity. White on
+          green-600 is 2.80:1 and fails at every size; green-800 carries it at 6.35:1.
+          This is the rule recorded in app/globals.css, and a chart label is text like any
+          other. Darkening the fill is the fix; lightening the label is not.
+        */}
+        <div
+          className="flex items-center bg-brand-green-800 px-3"
+          style={{ width: `${coveredPercent}%` }}
+        >
+          <span className="truncate text-xs font-medium text-white">
+            {chart.covered.display}
+          </span>
+        </div>
+        {/*
+          The uncovered remainder, hatched rather than filled. A solid red block next to
+          the brand green reads as an alert state; the hatch reads as "nothing here",
+          which is what it is.
+        */}
+        <div className="flex flex-1 items-center justify-end px-3 [background-image:repeating-linear-gradient(135deg,transparent,transparent_5px,var(--color-border)_5px,var(--color-border)_6px)]">
+          <span className="truncate text-xs font-medium text-ink">{chart.gap.display}</span>
+        </div>
+      </div>
+
+      <dl className="mt-4 grid gap-x-6 gap-y-2 sm:grid-cols-3">
+        {[chart.total, chart.covered, chart.gap].map((item) => (
+          <div key={item.label} className="flex flex-col-reverse">
+            <dt className="text-xs text-ink-muted">{item.label}</dt>
+            <dd className="font-medium text-ink">{item.display}</dd>
+          </div>
+        ))}
+      </dl>
+
+      {/*
+        Load-bearing. The limit is one policy's, not a market figure, and a reader who
+        takes S$207,000 away as "what a plan covers" has been misled by a chart that was
+        trying to tell them the opposite. Never trim this to balance the layout.
+      */}
+      <p className="mt-4 text-eyebrow text-ink-muted">{chart.footnote}</p>
+    </figure>
+  )
+}
+
+/**
+ * The heading counts the list instead of asserting "Three".
+ *
+ * It was hard-coded until 2026-08-18, when `beyond-employer` dropped to two — a heading
+ * promising three above a list of two reads as a bug, and the alternative was inventing a
+ * third consideration to satisfy a string. Falls back to the digit above four, which no
+ * concern reaches; if one ever does, that is a copy decision, not a rendering one.
+ */
+function countWord(n: number): string {
+  return { 1: 'One', 2: 'Two', 3: 'Three', 4: 'Four' }[n] ?? String(n)
+}
+
+/**
+ * Whether to render the parts of a panel that are not finished yet.
+ *
+ * ---- Unfinished content SHIPS HIDDEN, and opens itself when it is ready ----
+ *
+ * Seven of the nine case studies are briefs. Those placeholders exist so the team can see
+ * what is missing, which is useful in the editor
+ * and unacceptable in front of a customer: a visitor reading "[Real case needed,
+ * anonymised…]" on a page selling advice learns exactly the wrong thing about the firm.
+ *
+ * So the gate is the environment. `next dev` shows every brief and bracketed case, so the
+ * gaps are impossible to forget. A production build renders neither.
+ *
+ * NOTHING IS DELETED AND NO FLAG HAS TO BE FLIPPED LATER. `image` and `case` are tagged
+ * unions, so the moment a `kind: 'brief'` becomes a `kind: 'photo'`, or a
+ * `kind: 'placeholder'` becomes a `kind: 'real'` or a `kind: 'scenario'`, that section
+ * appears in production by itself. Sections open as the pieces arrive, one concern at a
+ * time, with no code change and no way to ship a half-finished panel by accident.
+ *
+ * This gate is about UNFINISHED, not about unverified. A `scenario` is finished content
+ * and ships; what keeps it honest is the label on it, not a hidden section.
+ *
+ * The panel still reads without them: situation, three things to consider, what we do,
+ * and the call to action. That is the argument intact, just without the evidence.
+ */
+const SHOW_UNFINISHED = process.env.NODE_ENV === 'development'
+
+export function ConcernPanel({
+  concern,
+  headingLevel = 'h2',
+  ctaHref,
+  priority = false,
+}: {
+  concern: Concern
+  headingLevel?: 'h1' | 'h2'
+  /** Where the closing call to action goes. The routes point it at their own form. */
+  ctaHref: string
+  /**
+   * Load the lead image eagerly.
+   *
+   * THIS IS ASYMMETRIC ON PURPOSE, so do not "tidy" it into always-on or always-off. On a
+   * concern route the panel is the page hero, the image is above the fold and is the LCP
+   * element, so lazy-loading it delays the largest paint for no benefit. On the homepage
+   * the identical component sits inside a `display:none` panel, where eager loading would
+   * fetch photographs for eight situations the visitor has not asked about.
+   *
+   * components/concern-page.tsx passes it; app/page.tsx deliberately does not.
+   */
+  priority?: boolean
+}) {
+  const Heading = headingLevel
+  const SubHeading = headingLevel === 'h1' ? 'h2' : 'h3'
+  const company = concern.audience === 'company'
+
+  // Path identity is carried by tint and rule, never by colouring body copy: the logo's
+  // green fails text contrast until its 800 step, so green text would be a different
+  // green from the mark. Green is the individual path, blue is the company path.
+  const rule = company ? 'border-brand-blue-600' : 'border-brand-green-600'
+  const tint = company ? 'bg-brand-blue-50' : 'bg-brand-green-50'
+
+  return (
+    /*
+      Narrower than the 72rem container it sits in. The copy inside is set to a 42rem
+      measure for readability, and a card stretched to the full container leaves a third
+      of itself empty beside every paragraph, which reads as a layout fault rather than
+      as white space. 56rem holds the measure with a margin either side.
+    */
+    <article className="mx-auto max-w-[56rem] overflow-hidden rounded-(--radius-inset) border border-border bg-surface">
+      {concern.image.kind === 'photo' ? (
+        <Image
+          src={concern.image.src}
+          alt={concern.image.alt}
+          width={concern.image.width}
+          height={concern.image.height}
+          sizes="(min-width: 1024px) 56rem, 100vw"
+          priority={priority}
+          className="aspect-16/7 w-full object-cover"
+        />
+      ) : SHOW_UNFINISHED ? (
+        /*
+          A holding frame at the real image's 16:7, so the panel is laid out now exactly
+          as it will be once the photograph lands and nothing shifts when it does.
+
+          DEVELOPMENT ONLY — see SHOW_UNFINISHED above. In production the panel simply
+          starts at its copy until a real photograph is set on the concern.
+
+          It has to read as DELIBERATELY EMPTY rather than broken, which is the whole
+          design problem here: an untreated tinted block at this height just looks like a
+          failed image. So it carries the hatch, the label and the brief itself. Anyone
+          looking at the page can see both that a photograph is coming and what it is
+          meant to be, which is also the fastest way to get the right one commissioned.
+
+          The hatch is a CSS gradient rather than an asset: a placeholder that costs a
+          network request is a placeholder that outstays its welcome.
+        */
+        <div
+          className={`relative flex aspect-16/7 items-center justify-center border-b border-border px-6 ${tint}`}
+        >
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 opacity-40 [background-image:repeating-linear-gradient(135deg,transparent,transparent_7px,var(--color-border)_7px,var(--color-border)_8px)]"
+          />
+          <div className="relative max-w-md text-center">
+            <ImageIcon className="mx-auto h-7 w-7 text-ink-muted" />
+            <p className="mt-3 text-eyebrow uppercase text-ink-muted">Photograph to come</p>
+            <p className="mt-2 text-sm text-ink-muted">{concern.image.brief}</p>
+          </div>
+        </div>
+      ) : null}
+
+      <div className="p-6 sm:p-10 lg:p-12">
+        <p className="text-eyebrow uppercase text-ink-muted">Their situation</p>
+        <Heading className="mt-2 text-display-sm sm:text-display-md text-ink">
+          {concern.panelTitle}
+        </Heading>
+
+        <div className="mt-5 max-w-[42rem] space-y-4">
+          {concern.situation.map((paragraph) => (
+            <p key={paragraph.slice(0, 40)} className="text-base/8 text-ink-muted">
+              {paragraph}
+            </p>
+          ))}
+        </div>
+
+        {/*
+          An early way out, for the reader who is already convinced.
+          Added 2026-08-19 after a review pointed out that the first action on this page
+          arrived only after the case, the premium table and several explanatory sections.
+          Someone who reads the opening and thinks "yes, that is me" had no way to act on
+          it without finishing the whole argument first.
+
+          ⚠ IT IS A QUIET LINK, NOT A SECOND BUTTON, and that is the point. The panel ends
+          on one primary call to action and a page with two identical buttons has none —
+          the second one just takes weight off the first. This reads as an offer to skip
+          ahead, which is what it is: same destination, same form, no new promise.
+
+          Only where the concern names an early label. Eight of the nine do not, because
+          their opening argument is two paragraphs and the case is directly beneath it;
+          there is nothing to skip. See `earlyCtaLabel` in the content module.
+        */}
+        {concern.earlyCtaLabel ? (
+          <p className="mt-6">
+            <Link
+              href={ctaHref}
+              className="text-sm font-medium text-brand-blue no-underline hover:text-brand-blue-700"
+            >
+              {concern.earlyCtaLabel}
+              <span aria-hidden="true"> &rarr;</span>
+            </Link>
+          </p>
+        ) : null}
+
+        {/*
+          2. The case.
+
+          Rendered when it is finished — a real case or a written scenario — and in
+          development when it is still a brief, so the gap stays visible to whoever is
+          writing. A production build with an unwritten case shows no section at all
+          rather than an empty promise. See SHOW_UNFINISHED above.
+
+          ⚠ A SCENARIO IS LABELLED, IN WORDS, ON THE PAGE. It gets its own eyebrow and a
+          plain closing line saying it is not a client's story. That is not a legal
+          hedge, it is the whole reason the variant exists: this site's argument rests on
+          a reader being able to believe the one real case, and an illustration dressed
+          in the same frame spends credit it did not earn. Do not reduce the label to
+          something skimmable, and do not drop it because the panel looks cleaner without.
+        */}
+        {concern.case.kind !== 'placeholder' || SHOW_UNFINISHED ? (
+          <Reveal className="mt-10">
+            <p className="text-eyebrow uppercase text-ink-muted">
+              {concern.case.kind === 'scenario' ? 'A situation we see' : 'A real case'}
+            </p>
+            <blockquote className={`mt-3 max-w-[42rem] border-l-2 py-1 pl-5 ${rule}`}>
+              {concern.case.kind === 'placeholder' ? (
+                /*
+                  Italic and muted because it is unfinished, not because it is a
+                  quotation. When a real case replaces it, it renders in the branch
+                  below: full ink, no italics, reading as the strongest thing on the
+                  panel, which it will be.
+                */
+                <p className="text-base/7 italic text-ink-muted">{concern.case.brief}</p>
+              ) : (
+                <>
+                  {concern.case.paragraphs.map((paragraph, index) => (
+                    <p
+                      key={paragraph.slice(0, 40)}
+                      className={`text-base/8 text-ink ${index > 0 ? 'mt-4' : ''}`}
+                    >
+                      {paragraph}
+                    </p>
+                  ))}
+                  {/* The verdict, set apart because it is not more narrative. */}
+                  {concern.case.footer ? (
+                    <p className="mt-4 font-medium text-ink">{concern.case.footer}</p>
+                  ) : null}
+                  {concern.case.kind === 'real' && concern.case.chart ? (
+                    <CaseChart chart={concern.case.chart} />
+                  ) : null}
+                  {concern.case.kind === 'scenario' ? (
+                    <p className="mt-4 text-sm text-ink-muted">
+                      An illustration, not an account of a particular client.
+                    </p>
+                  ) : null}
+                </>
+              )}
+            </blockquote>
+          </Reveal>
+        ) : null}
+
+        {/* 3. Numbers, only where a real on-topic figure exists. */}
+        {concern.numbers ? (
+          <Reveal className="mt-10">
+            <SubHeading className="text-display-xs text-ink">
+              {concern.numbers.heading}
+            </SubHeading>
+            {concern.numbers.intro ? (
+              <p className="mt-3 max-w-[42rem] text-base/8 text-ink-muted">
+                {concern.numbers.intro}
+              </p>
+            ) : null}
+
+            {concern.numbers.table ? (
+              /*
+                Scrolls rather than squeezing. Two columns until 2026-08-18, when the
+                beyond-employer comparison arrived with four and no longer fits a phone.
+                A premium table that wraps its own figures is worse than one a reader
+                drags sideways, and shrinking the type to fit is how a disclosure becomes
+                unreadable. `max-w-sm` went with the same change: it was sized for two.
+              */
+              <div className="mt-4 -mx-1 overflow-x-auto px-1">
+                <table className="w-full min-w-[34rem] border-collapse text-left">
+                  <thead>
+                    <tr>
+                      {concern.numbers.table.columns.map((column, index) => (
+                        <th
+                          key={column || `col-${index}`}
+                          scope="col"
+                          className="border-b border-border py-2 pr-6 text-eyebrow font-medium uppercase text-ink-muted last:pr-0"
+                        >
+                          {column}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {concern.numbers.table.rows.map((row) => {
+                      /*
+                        An attribute row is what the plan covers; the rest are what it
+                        costs. Bold on both made the table one undifferentiated block, so
+                        the attribute keeps regular weight and a heavier rule closes it off
+                        from the prices below. Named in `attributeRows`, never inferred
+                        from position — reordering rows must not restyle the wrong one.
+                      */
+                      const isAttribute =
+                        concern.numbers?.table?.attributeRows?.includes(row[0]) ?? false
+                      const rule = isAttribute ? 'border-b-2 border-ink/15' : 'border-b border-border'
+                      const weight = isAttribute ? 'font-normal' : 'font-medium'
+                      return (
+                        <tr key={row[0]}>
+                          {/* First cell is the row header; the rest are figures. */}
+                          <th
+                            scope="row"
+                            className={`whitespace-nowrap py-2.5 pr-6 font-normal text-ink-muted ${rule}`}
+                          >
+                            {row[0]}
+                          </th>
+                          {row.slice(1).map((cell, index) => (
+                            <td
+                              key={`${row[0]}-${index}`}
+                              className={`whitespace-nowrap py-2.5 pr-6 text-ink last:pr-0 ${rule} ${weight}`}
+                            >
+                              {cell}
+                            </td>
+                          ))}
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
+
+            {/*
+              The configuration disclosure. Load-bearing wherever a figure appears: these
+              numbers are what they are because the cover is narrow, and a reader who
+              sees the figure without the configuration has been misled. Never trim it to
+              balance the layout.
+            */}
+            <p className="mt-4 max-w-[42rem] text-eyebrow text-ink-muted">
+              {concern.numbers.footnote}
+            </p>
+          </Reveal>
+        ) : null}
+
+        {/* 4. Three things to consider. */}
+        <Reveal className="mt-10">
+          <SubHeading className="text-display-xs text-ink">
+            {countWord(concern.considerations.length)} things to consider
+          </SubHeading>
+          <dl className="mt-4 max-w-[42rem] space-y-4">
+            {concern.considerations.map((item) => (
+              <div key={item.term}>
+                <dt className="font-medium text-ink">{item.term}</dt>
+                <dd className="mt-1 text-base/7 text-ink-muted">{item.body}</dd>
+              </div>
+            ))}
+          </dl>
+        </Reveal>
+
+        {/* 5. What we do. Administration and comparison only. */}
+        <Reveal className="mt-10">
+          <SubHeading className="text-display-xs text-ink">What we do</SubHeading>
+          <ul className="mt-4 max-w-[42rem] space-y-3">
+            {concern.whatWeDo.map((item) => (
+              <li key={item.slice(0, 40)} className="flex gap-3 text-base/7 text-ink-muted">
+                <span
+                  aria-hidden="true"
+                  className={`mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full ${
+                    company ? 'bg-brand-blue-600' : 'bg-brand-green-600'
+                  }`}
+                />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </Reveal>
+
+        {/* 6. One call to action. */}
+        <Reveal className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
+          <CtaButton href={ctaHref}>{concern.ctaLabel}</CtaButton>
+          {concern.furtherReading ? (
+            <Link
+              href={concern.furtherReading.href}
+              className="text-sm font-medium text-brand-blue no-underline hover:text-brand-blue-700"
+            >
+              {concern.furtherReading.label}
+              <span aria-hidden="true"> &rarr;</span>
+            </Link>
+          ) : null}
+        </Reveal>
+      </div>
+    </article>
+  )
+}

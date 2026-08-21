@@ -5,6 +5,13 @@ export const siteConfig = {
   shortName: 'TIC',
   /** Kept in sync with the live domain — used for canonical URLs and metadataBase. */
   url: 'https://www.asktic.com',
+  /**
+   * The company's UEN, which in Singapore is also its GST registration number. It is the
+   * same number the privacy policy header carries, so it is held once here rather than
+   * typed into JSX. Confirmed 2026-08-17 that the firm is GST-registered — do not render
+   * a "GST Reg." label off this field for an entity that is not.
+   */
+  uen: '201415200G',
   description:
     'Insurance advisory in Singapore: international health, employee benefits, maternity and newborn, and cover for offshore and deployed teams.',
 } as const
@@ -22,28 +29,34 @@ export type NavGroup = {
 }
 
 /**
- * Navigation — restructured 2026-08-16 to the homepage copy deck's four entries.
+ * Navigation — restructured 2026-08-16, then again the same day for the concern flow.
  *
- * It previously mirrored the live Wix nav (Home · Services · Members · Projects). The
- * deck replaces that with Cover · For companies · About · Answers, plus a "Talk to us"
- * button. Three of those needed reconciling against what actually exists:
+ * It previously mirrored the live Wix nav (Home · Services · Members · Projects), then
+ * became Cover · For companies · Answers against the homepage copy deck. It now splits
+ * along the same fork the homepage does, because the site's structure is that fork:
  *
- * - **Cover** points at `/services`, which is `/blog`'s 301 destination. The old
- *   "Services → /blog" pairing is gone with the redirect.
- * - **For companies** points at `/employee-benefits`. The deck wants `/business`, which
- *   does not exist yet. Repointing this is the whole change when it does. It duplicates
- *   an item in the Cover dropdown, which is honest rather than a defect: the hero's
- *   second CTA needs a corporate door and this is the only real one.
- * - **About** is omitted entirely. `/about` does not exist, and pointing it at
- *   `/projects` would be worse than leaving it out.
+ * - **Cover** is the individual path. Its dropdown is the five individual concerns, in
+ *   the order the homepage grid shows them, plus the product page they all sit under.
+ *   The parent still points at `/services`, which is `/blog`'s 301 destination.
+ * - **For companies** is the company path, and its dropdown is the four company
+ *   concerns. The parent points at `/employee-benefits`, which is the company hub.
+ * - **About** is omitted entirely. `/about` does not exist, and there is no near-enough
+ *   page to point it at. Build one before adding the entry, not the other way round.
+ *
+ * The dropdown labels are NOT the homepage's card titles. A card says "I already have a
+ * medical condition" because the visitor has just been asked what is on their mind and
+ * the card answers in their words. A nav entry is a signpost read out of that context,
+ * so it names the subject: "Pre-existing conditions". Do not sync the two lists.
  *
  * "Home" is dropped because the header's logo already links `/`. The "Members" dropdown
  * is killed per the deck; its two destinations move to Answers and to the footer.
- * "Projects" moves to the footer's Company column so `/projects` is not orphaned.
  *
- * `/income-preservation-1` is retired. It was unlinked first, then withdrawn entirely
- * on 2026-08-16 and now 301s to /services. Do not add it back to either nav array:
- * `verify:urls` requires every nav href to be a preserved path, and it is no longer one.
+ * `/income-preservation-1` and `/projects` are both retired, and they are NOT retired the
+ * same way. The first was a real service page, so it 301s to /services and the equity
+ * follows. The second was an unfinished Wix template with no original content, so it is
+ * `dropped` in the URL contract and 404s deliberately — there is nothing to send anyone
+ * to. Do not add either back to a nav array: `verify:urls` requires every nav href to be
+ * a preserved path and neither is one, so the check fails the build, which is the point.
  *
  * Every href here must exist in content/url-contract.json → `preserved`. That invariant
  * is asserted at build time by `npm run verify:urls`, which reads this file's source
@@ -56,22 +69,74 @@ export const primaryNav: readonly NavGroup[] = [
     href: '/services',
     items: [
       { href: '/international-health-insurance', label: 'International health insurance' },
-      { href: '/maternity-insurance', label: 'Maternity and newborn' },
-      { href: '/employee-benefits', label: 'Employee benefits' },
-      { href: '/offshore-and-energy', label: 'Offshore and deployed teams' },
+      { href: '/maternity-insurance', label: 'Planning for a family' },
+      { href: '/relocating-to-singapore', label: 'Relocating to Singapore' },
+      { href: '/beyond-employer-cover', label: 'Beyond your employer’s cover' },
+      { href: '/pre-existing-conditions', label: 'Pre-existing conditions' },
+      { href: '/leaving-singapore', label: 'Leaving Singapore' },
     ],
   },
-  { label: 'For companies', href: '/employee-benefits' },
-  { label: 'Answers', href: '/knowledge' },
+  {
+    label: 'For companies',
+    href: '/employee-benefits',
+    items: [
+      { href: '/renewal-premium-increase', label: 'A renewal that has increased' },
+      { href: '/cover-for-senior-hires', label: 'Cover for senior hires' },
+      { href: '/offshore-and-energy', label: 'Offshore and deployed teams' },
+      { href: '/first-company-scheme', label: 'Setting up a first scheme' },
+    ],
+  },
+  /*
+    "Answers" stood here, pointing at /knowledge, until 2026-08-17. The knowledge base and
+    every /single-post/… article were retired from the public site that day and moved to
+    the CRM, so the destination stopped existing. It was not repointed: the two candidates
+    were a CRM login, which sends a visitor to a wall most of them cannot pass, and
+    /services, which would leave a nav item labelled "Answers" landing on a page about what
+    we arrange. Both are worse than two honest groups.
+
+    ✓ SETTLED, AND THE ANSWER IS NO (owner's ruling, 2026-08-19). A public answers surface
+    did return — the CRM's knowledge base went live at www.asktic.com/kb on 2026-08-18,
+    served here by rewrite — and it still does not belong in this nav. THIS SITE ADDRESSES
+    PROSPECTS. The knowledge base addresses MEMBERS: it is written for people already under
+    our care, and every article says so in its own disclaimer.
+
+    That is the same rule the footer note below already applies to /forms — a member is
+    sent the thing they need by email or WhatsApp, and nobody hunts for a claim form, or a
+    claims procedure, on a marketing site. The audience is the test, not whether a public
+    URL exists.
+
+    So this is now a closed question rather than a waiting one, and the "if a public
+    answers surface returns" trigger it used to carry is withdrawn: the surface returning
+    was never the point. Reopen only if the owner decides this site should serve members
+    too, which is a positioning decision and not a linking one.
+
+    Two facts kept for that unlikely day. The surface calls itself "Member resources" — the
+    owner's word, chosen 2026-08-18 over "Help centre" — so a nav item named anything else
+    would contradict the page it opens. And /kb is a `proxied` path in
+    content/url-contract.json, not a `preserved` one, so `verify:urls` check 4 (every nav
+    href resolves to a preserved path) would have to be widened in the same change or the
+    build fails. That guard firing is correct: it asks whether linking off-origin was
+    deliberate.
+
+    None of this affects reachability. /kb is public, indexed, and announced in the sitemap
+    from app/robots.ts, so a member searching for an answer finds it. It is simply not
+    advertised to people who are not members yet.
+  */
 ] as const
 
 /**
  * The header's primary call to action.
  *
  * Deliberately NOT a member of `primaryNav`. It is a button rather than a nav entry, and
- * it targets an in-page anchor: the enquiry form is section 10 of the homepage, since
- * `/contact` does not exist yet. `verify:urls` strips the fragment before checking, so
- * this validates against `/`.
+ * it targets an in-page anchor.
+ *
+ * `#talk-to-us` used to name the enquiry form on the old homepage. The form has since
+ * moved to the concern pages, where the question being answered is known and the lead can
+ * be tagged with it, so the anchor now lands on the homepage FORK — which is the site's
+ * actual ask: tell us which situation is yours. The id was kept rather than renamed so
+ * this link and the two others pointing at it keep working.
+ *
+ * `verify:urls` strips the fragment before checking, so this validates against `/`.
  */
 export const ctaLink = { href: '/#talk-to-us', label: 'Talk to us' } as const
 
@@ -81,40 +146,43 @@ export const flatNav: readonly NavItem[] = primaryNav.flatMap((group) => [
   ...(group.items ?? []),
 ])
 
-/**
- * Footer columns, per the copy deck: Cover · Answers · Company · Contact.
+/*
+ * THERE IS NO `footerNav`, AND THAT IS THE DECISION, NOT AN OVERSIGHT.
  *
- * Only three are here — the fourth, Contact, is the footer's brand block, which already
- * carries the email address and the social links.
+ * A four-column sitemap stood here until 2026-08-17: "For you and your family", "For
+ * companies", "Answers" and "Company", 15 links, on every page. It was removed after
+ * being measured rather than admired.
  *
- * "About" and "Contact" are absent from Company because those pages do not exist yet.
- * Add them here when they do; the layout already has the room.
+ * 12 OF THE 15 WERE EXACT DUPLICATES of `primaryNav` above — same hrefs, same labels —
+ * and components/site-header.tsx is `sticky top-0`. A visitor standing at the footer
+ * already had every one of those links 64px above them, and the small-screen <details>
+ * menu in components/site-nav.tsx carries the same set in full. The conventional case
+ * for a comprehensive footer assumes a header you must scroll back up to reach. This
+ * site does not have one, so the sitemap was answering a question nobody was asking.
+ *
+ * The three links that were NOT duplicates each had a better home:
+ *
+ *   /privacy   -> two places. components/capture-form.tsx, at the point of collection,
+ *                 which is where a privacy link belongs and where it gets read; AND the
+ *                 footer's legal line, because `captureEnabled` is false until
+ *                 NEXT_PUBLIC_N8N_CONTACT_WEBHOOK is set and no form renders today, so
+ *                 the form link alone would have meant no privacy link anywhere.
+ *   /forms     -> retired 2026-08-17; its documents moved to the CRM and are attached to
+ *                 knowledge-base articles, downloaded from /kb/_forms/{slug}. Members are
+ *                 still sent a specific document directly by email or WhatsApp when they
+ *                 need one. Nobody hunts for a claim form on a marketing site.
+ *   /projects  -> nowhere. It was redundant — its page content was derived from
+ *                 `primaryNav`, so the footer linked to a page that re-listed the nav.
+ *                 Retired entirely on 2026-08-17 as a legacy mistake from the old site.
+ *                 The page is gone and the path is `dropped`, so it 404s on purpose.
+ *
+ * /privacy still builds and is still a preserved path; only its link moved. /forms is
+ * now a tombstone pointing at /kb — see content/url-contract.json.
+ *
+ * ⚠ IF YOU ARE ABOUT TO ADD A FOOTER SITEMAP BACK, count first. The test is not whether
+ * a footer conventionally has one, it is how many of its links the sticky header already
+ * carries. A genuinely new destination belongs in `primaryNav`, where every page gets it.
  */
-export const footerNav: readonly { heading: string; items: readonly NavItem[] }[] = [
-  {
-    heading: 'Cover',
-    items: [
-      { href: '/international-health-insurance', label: 'International health insurance' },
-      { href: '/maternity-insurance', label: 'Maternity and newborn' },
-      { href: '/employee-benefits', label: 'Employee benefits' },
-      { href: '/offshore-and-energy', label: 'Offshore and deployed teams' },
-    ],
-  },
-  {
-    heading: 'Answers',
-    items: [
-      { href: '/knowledge', label: 'Knowledge base' },
-      { href: '/forms', label: 'Forms and documents' },
-    ],
-  },
-  {
-    heading: 'Company',
-    items: [
-      { href: '/projects', label: 'Projects' },
-      { href: '/privacy', label: 'Privacy' },
-    ],
-  },
-] as const
 
 /**
  * Contact and social links, as they appear in the live Wix footer (captured 2026-08-11).
@@ -123,33 +191,78 @@ export const footerNav: readonly { heading: string; items: readonly NavItem[] }[
  * it is not reproduced — the header already links home.
  */
 /**
- * The footer's about block, verbatim from the live Wix footer — captured 2026-08-12 by
- * rendering the site in a browser, which is the only way it is visible: the footer is
- * client-rendered and absent from the server HTML the earlier capture archived.
+ * The footer's about block — cut down to a sign-off on 2026-08-17.
  *
- * One change: the original reads "since 2003". Corrected to 2014, the UEN registration
- * year, on Steven's instruction — the same correction applied to /income-preservation-1,
- * which said 2023. The live site carries both numbers for the same claim.
+ * It arrived verbatim from the live Wix footer, captured 2026-08-12 by rendering the site
+ * in a browser, which is the only way it is visible: the live footer is client-rendered and
+ * absent from the server HTML the earlier capture archived. The live wording, kept here so
+ * the edit is auditable:
+ *
+ *   "People often find insurance complex and finding the right one arduous. We agree it
+ *    should be easier and have taken up the challenge to simplify it for our client. We
+ *    have been at it since 2003; Listening, Understanding, ensuring their Peace of Mind."
+ *
+ * 43 words to 6. What went is a prose claim to simplicity sitting a screen below the trust
+ * stats and the concern fork, which demonstrate the same thing with numbers and with an
+ * interaction — it told the reader what the page had just finished showing them. Its
+ * grammar faults went with it: "our client" singular for a plural, a semicolon doing a
+ * colon's job, and three capitalised gerunds.
+ *
+ * The 2003 → 2014 correction survives the cut. 2014 is the UEN registration year, on
+ * Steven's instruction; the same correction was applied to /income-preservation-1, which
+ * said 2023. The live site carries all three numbers for the one claim.
+ *
+ * ⚠ THE TAGLINE HAS NO OTHER HOME. "Peace of Mind. Simplified!" appears nowhere else in
+ * this repo — before this cut it existed only as the fragment "ensuring their Peace of
+ * Mind" buried mid-sentence here, and the word "Simplified" did not appear on the site at
+ * all. This line is therefore the tagline's only appearance, standing as the footer
+ * sign-off. Shorten this further if you like; do not drop the second sentence.
+ *
+ * ⚠ THE EXCLAMATION MARK IS DELIBERATE, and it is the only one in this site's public copy.
+ * It is the tagline as supplied, not stray enthusiasm — leave it, and do not "fix" it to a
+ * full stop for consistency with the restrained voice everywhere else.
+ *
+ * ⚠ DO NOT PUT THE FIRM'S NAME BACK IN FRONT. The trim was first written as "The Insurance
+ * Concierge, since 2014. …", which screenshots killed: `SiteFooter` prints
+ * `siteConfig.name` as the heading immediately above this line and the copyright notice
+ * prints it again below, so the name landed three times in six lines and read as a bug. It
+ * also cost a line — at 390px "Simplified!" wrapped away from "Peace of Mind.", splitting
+ * the tagline. Naming the firm once, in the heading, fits one line at both 1280 and 390.
  */
-export const about =
-  'People often find insurance complex and finding the right one arduous. We agree it ' +
-  'should be easier and have taken up the challenge to simplify it for our client. We ' +
-  'have been at it since 2014; Listening, Understanding, ensuring their Peace of Mind.'
+export const about = 'Since 2014. Peace of Mind. Simplified!'
 
 /**
- * Regulatory disclosure, verbatim from the live footer.
+ * Regulatory disclosure — the live footer's, tightened on 2026-08-17.
  *
  * This is a licensing statement for a MAS-regulated firm and appears on every page of
  * the current site. It was missing from the rebuild entirely until 2026-08-12 — not a
  * styling choice but an omission, since the earlier capture never saw the footer.
+ *
+ * The live wording, kept here so the edit is auditable:
+ *
+ *   "We are a general insurance agency incorporated in Singapore complying with the
+ *    regulations and guidelines set out by the General Insurance Association (GIA), and
+ *    the Monetary Authority of Singapore (MAS)."
+ *
+ * 33 words to 27. Same disclosure, same two bodies named, no claim added or dropped.
+ *
+ * ⚠ "REGULATIONS AND" IS LOAD-BEARING. A review proposed "complying with guidelines set
+ * by the GIA and MAS", which is shorter and wrong: MAS is the statutory regulator and
+ * issues regulations, GIA is a trade association and issues guidelines. Collapsing both
+ * to "guidelines" understates the MAS relationship in the one sentence on this site whose
+ * job is to state it. Shorten this further if you like; do not lose that word.
+ *
+ * It must also not drift into contradicting `homeCopy.trust.line`, which deliberately
+ * asserts only that the INSURERS are MAS-regulated and says nothing about what this firm
+ * is registered as. This sentence claims compliance, not brokerage, so the two hold.
  */
 export const regulatory =
-  'We are a general insurance agency incorporated in Singapore complying with the ' +
-  'regulations and guidelines set out by the General Insurance Association (GIA), and ' +
-  'the Monetary Authority of Singapore (MAS).'
+  'A Singapore-incorporated general insurance agency, complying with the regulations ' +
+  'and guidelines of the General Insurance Association (GIA) and the Monetary ' +
+  'Authority of Singapore (MAS).'
 
 /**
- * Contact and social links.
+ * Contact.
  *
  * **There is deliberately no phone number here.** `+65 6681 6455` was published in the
  * live footer sitewide and on /employee-benefits, and it is out of service. Removing the
@@ -161,15 +274,20 @@ export const regulatory =
  * signatures. A dead number in a Google listing is worse than none, because it is often
  * the first thing someone finds and they never reach the site at all.
  *
- * YouTube was removed at the same time — the channel is being dropped, so the link goes
- * rather than being repointed.
+ * **There are deliberately no social links either**, for the same reason and by the same
+ * method. YouTube went on 2026-08-16 with the channel. Facebook and LinkedIn followed on
+ * 2026-08-17: both profiles are thin, and a link that lands a considering visitor on an
+ * inactive page spends exactly the trust the rest of the footer is built to earn. Better
+ * no link than a weak one. The `social` field is gone rather than emptied so that
+ * anything still reading it fails to compile — there were two consumers, the footer's
+ * brand block and the homepage's Organization JSON-LD, and both were removed with it.
+ *
+ * Revisit when either account has something on it worth a visitor's click. Restoring the
+ * field means restoring `sameAs` in app/page.tsx too; an empty `sameAs: []` is a worse
+ * signal to a search engine than an absent one, so it was deleted, not blanked.
  */
 export const contact = {
   email: 'hello@asktic.com',
-  social: [
-    { href: 'https://www.facebook.com/InsuranceConcierge', label: 'Facebook' },
-    { href: 'https://sg.linkedin.com/in/dstevenneo', label: 'LinkedIn' },
-  ],
 } as const
 
 /** Every path this build is contractually required to emit. */

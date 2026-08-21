@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TIC file library manifest",
+  "description": "Describes the documents served at /forms (also the redirect target for the legacy /file-access and /file paths). Grouped by insurer on the page, which makes /forms the one route on this site that names insurers in public copy — everywhere else `npm run verify:copy` fails the build on one. The authority is lib/forms-schema.ts, which validates this file at build time and throws on a mismatch; this copy exists so an editor can autocomplete and lint while typing.",
+  "type": "object",
+  "required": ["version", "forms"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "const": 1 },
+    "forms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "file", "carrier", "category"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "description": "Stable kebab-case identifier. Never rendered."
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The document's own name. Must NOT repeat the insurer — the group heading directly above it already says that."
+          },
+          "description": { "type": "string", "minLength": 1 },
+          "file": {
+            "type": "string",
+            "pattern": "^/forms/files/[A-Za-z0-9._-]+$",
+            "description": "Path relative to /public, e.g. /forms/files/claim-form.pdf. The build throws if it does not exist on disk."
+          },
+          "carrier": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The insurer, as a member would recognise it. This is the grouping key and it is rendered."
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The row label: Claim form, Enrolment, Guide, Policy document."
+          },
+          "productLine": {
+            "type": "string",
+            "minLength": 1,
+            "description": "e.g. 'International Health, Outpatient Plan'. Shown beside the category."
+          },
+          "jurisdiction": {
+            "type": "string",
+            "minLength": 1,
+            "description": "ISO 3166-1 alpha-2, or GLOBAL. Filing only; not rendered today."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date",
+            "description": "The DOCUMENT'S own revision date, not the day it was added here. Leave it out rather than guess — a wrong date tells a member their claim form is current when it may not be."
+          }
+        }
+      }
+    }
+  }
+}

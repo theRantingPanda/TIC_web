@@ -2,7 +2,8 @@
 
 Archive of the pre-rebuild asktic.com Wix site and the Freshdesk help centre. This is a
 **record**, not build input — the site build never reads this directory. Content is
-hand-ported from here into `app/` and `content/kb/` in Phase 3.
+hand-ported from here into `app/`, and — for help-centre articles — into the CRM's
+knowledge base, which serves `www.asktic.com/kb`.
 
 ## Status: Wix captured, Freshdesk stopped by decision
 
@@ -191,12 +192,12 @@ human signs off before any captured page goes public.
 }
 ```
 
-`status` is captured so drafts stay out of the public build — the filter lives in
-`lib/content.ts` (`getPublicKbArticles`). Unknown status values map to `draft`: fail
-closed, never publish by accident.
+`status` is captured so drafts get no redirect — an unpublished article has no public
+destination to send anyone to. The mapping lives in `scripts/lib/freshdesk-status.ts`;
+unknown status values map to `draft`: fail closed, never publish by accident.
 
-`internal/` articles carry `audience: 'operator'` when ported and belong to the
-CRM-side operator KB. They must never be rendered by this site.
+Both `public/` and `internal/` articles are destined for the CRM-side knowledge base,
+which decides its own visibility. Nothing here is rendered by this site.
 
 ## Read-only
 
