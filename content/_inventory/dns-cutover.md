@@ -270,9 +270,13 @@ acting, since Google's reports alone cannot rule out direct sending to other pro
    observed source is Google's relay; the include stays. The Microsoft and Yahoo vantage
    points were deliberately not pursued — they would only matter if the include were being
    removed, and it is not.
-2. **Do not cancel the Wix subscription yet.** It is the rollback, and the only remaining
-   copy of the records that were dropped. Nothing now depends on keeping it beyond ordinary
-   caution, so retire it whenever the zone has felt stable long enough.
+2. ~~Do not cancel the Wix subscription yet.~~ Discharged 2026-08-21 — the zone was
+   exported, so Wix is no longer the only copy of the records that were dropped and the
+   subscription can be retired at will. Two things about that export: this file does not
+   record where it lives, which is worth fixing here rather than in someone's memory; and it
+   is a point-in-time snapshot, so once the zone drifts it becomes a record of history
+   rather than a restore point. Treat it as evidence of what was, not as a backup of what
+   is.
 3. ~~Raise the TTL from `300`.~~ Nothing to do — **the zone already serves `3600`.** The
    panel's `300` is not what the nameservers publish; measured post-cutover, every record
    answers with `3600` and the `NS` RRset with `21600`. A resolver cannot report a TTL
