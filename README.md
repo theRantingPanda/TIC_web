@@ -11,9 +11,9 @@ and the palette was re-derived from the logo. What remains is real content for t
 placeholders that flow surfaced (see [below](#what-is-still-placeholder-content)) and an
 editorial pass over the ported copy
 ([`port-worklist.md`](content/_inventory/port-worklist.md)). On DNS: the zone moved to
-Vodien on 2026-08-16 and **reverted to Wix on its own by 2026-08-21** — nothing is broken,
-but do not cancel the Wix subscription. See
-[`dns-cutover.md`](content/_inventory/dns-cutover.md).
+Vodien on 2026-08-16, but the registrar now delegates to **both** Vodien and Wix at once —
+nothing is broken, though the split must be repaired before the Wix subscription is
+cancelled. See [`dns-cutover.md`](content/_inventory/dns-cutover.md).
 
 ---
 
@@ -249,12 +249,12 @@ apart, so resolve before deleting; removing a live one silently pushes ticket re
 toward spam. SPF, DMARC and Google DKIM are now published after years without them, with
 only **3 of SPF's 10 DNS lookups spare** — cost any future "add our SPF include" request
 before adding it, because exceeding the limit fails SPF permanently rather than degrading.
-And **the zone is back on Wix.** It moved to Vodien on 2026-08-16 and was verified there,
-but by 2026-08-21 the delegation had reverted to `ns4/ns5.wixdns.net` on its own, with
-nobody touching either panel. Nothing is broken — the Wix zone is complete — but **the Wix
-subscription must not be cancelled**, and Vodien's panel still badges its unserved records
-`Active`. Read the Vodien section of `dns-cutover.md` before editing, and check a resolver
-rather than the panel.
+And **the delegation is split.** The zone moved to Vodien on 2026-08-16, but the registrar
+now lists four nameservers — two Vodien, two Wix — so both are authoritative over different
+zones and each lookup lands on whichever answers first. Nothing is broken, because the two
+zones agree on everything that matters, but an edit in either panel would apply to only some
+lookups. Repair it before cancelling Wix. Read the Vodien section of `dns-cutover.md` first,
+and check a resolver rather than the panel.
 
 
 Two assumptions in that service could **not** be verified — `render.com` is blocked by

@@ -4,17 +4,18 @@ The site moved from Wix hosting to Render on **2026-08-12**. This is what change
 it looks like now, and what was verified. Written down because the next person to touch
 this zone should not have to rediscover any of it.
 
-🔴 **The Vodien move reverted itself. Wix is authoritative again as of 2026-08-21, and
-the Wix subscription must not be cancelled.** DNS hosting moved to Vodien on 2026-08-16 and
-was verified there; five days later, with nobody having touched either panel, the
-delegation reads `ns4/ns5.wixdns.net` on all three public resolvers and the SOA names
-`ns4.wixdns.net`. See [The move reverted itself](#the-move-reverted-itself-2026-08-21).
+🔴 **The delegation is split across both providers, and must be repaired before the Wix
+subscription is cancelled.** DNS moved to Vodien on 2026-08-16 and was verified there. As
+of 2026-08-21 the registrar lists **four** nameservers — `ns1`/`ns2.vodien.com` *and*
+`ns3`/`ns4.wixdns.net` — so Wix and Vodien are both authoritative, serving two different
+zones, and each lookup lands on whichever answers first. See
+[The delegation is split](#the-delegation-is-split-2026-08-21).
 
-Nothing is broken — the Wix zone is complete and serving correctly, because the SPF, DMARC
-and DKIM work was done at Wix *before* the move. But every statement below about Wix
-serving nothing, and about the Wix subscription being free to retire, is now wrong and
-dangerous. Cancelling Wix today would take down the site, the CRM, the help centre and all
-mail at once.
+Nothing is broken today, because the two zones agree on every record that matters. The
+danger is what happens next: an edit in either panel takes effect for only some lookups,
+and cancelling Wix while its nameservers remain delegated would leave half the delegation
+answering with failure. Statements below about Wix serving nothing, and about the
+subscription being free to retire, are wrong until the delegation is repaired.
 
 ---
 
@@ -74,63 +75,84 @@ before deciding a Freshworks record is disposable; the full split is tabulated
 
 ---
 
-## The move reverted itself (2026-08-21)
+## The delegation is split (2026-08-21)
 
-**Nobody changed anything.** The domain owner confirms neither panel was touched, and the
-Vodien DNS tab still holds the same 18 records it held at cutover, all badged `Active`.
+**Nobody changed anything, and nothing reverted.** The registrar's Name Servers tab reads
+**4/6**:
 
-What changed is the delegation. Measured 2026-08-21 against `1.1.1.1`, `8.8.8.8` and
-`9.9.9.9`, all three agreeing:
+| Row | Host | Provider |
+| --- | --- | --- |
+| Name Server 1 | `ns1.vodien.com` | Vodien |
+| Name Server 2 | `ns2.vodien.com` | Vodien |
+| Name Server 3 | `ns3.wixdns.net` | **Wix** |
+| Name Server 4 | `ns4.wixdns.net` | **Wix** |
+
+Immediately after the cutover the same tab held exactly two rows, both Vodien. The two Wix
+entries were added afterwards by something neither panel operator did — and note they are
+`ns3`/`ns4`, not the `ns4`/`ns5` pair the domain used originally, so this is not a stored
+value being restored. The likeliest source is the Wix account still holding the domain as
+*connected* and re-asserting its nameservers through the registrar.
+
+### What a split delegation does
+
+Both providers are authoritative and hold **different zones**. A resolver picks whichever
+nameserver answers fastest and uses that zone's reply, so answers are non-deterministic per
+lookup. Asking twelve times across three resolvers:
 
 ```
-asktic.com.  NS   ns4.wixdns.net.
-asktic.com.  NS   ns5.wixdns.net.
-asktic.com.  SOA  ns4.wixdns.net.
+9 replies  ns4.wixdns.net, ns5.wixdns.net          <- served by Wix
+3 replies  ns1, ns2, ns3.vodien.com                <- served by Vodien
 ```
 
-On 2026-08-16, immediately after the cutover, the same three resolvers agreed on
-`ns1`/`ns2`/`ns3.vodien.com`. The registry has reverted the nameservers to Wix on its own.
+Each provider returns its own in-zone `NS` list, which is why the delegation appeared to
+have "reverted" when sampled and why the earlier reading in this file was wrong. It never
+reverted. Both have been live simultaneously.
 
-### This explains the "re-added" records, which were never re-added
+### This is the whole explanation for the "re-added" records
 
-Earlier in this file the six Freshworks-suite records were recorded as having reappeared,
-and a question was raised about who put them back. Nobody did. **They are answering because
-Wix is authoritative again and the Wix zone always contained them** — they were only ever
-absent from the *Vodien* copy. `fslink` stayed absent throughout because it was deleted from
-the Wix zone before the move, which is the detail that should have given this away sooner.
+The six Freshworks-suite records are the *only* place the two zones disagree — Wix has
+them, Vodien does not. So they answer when a lookup lands on Wix and vanish when it lands
+on Vodien, which is exactly the record-by-record inconsistency observed across resolvers.
+Nobody re-added anything. `fslink` stayed absent throughout because neither zone has it.
 
-The record-by-record disagreement between resolvers on 2026-08-21 was not a zone edit
-propagating. It was the delegation itself flipping back, caught mid-flight.
+### Why it is benign today and dangerous tomorrow
 
-### Nothing is broken, and that is the trap
+Checked across both zones on 2026-08-21 — every record that matters is **identical** either
+way:
 
-Verified 2026-08-21 on the live zone: five Google MX intact, one SPF record, DMARC intact,
-`google._domainkey` present at full length, all four Freshdesk `freshemail.io` CNAMEs
-resolving, apex and `www` and `support` and `rainmaker` and `docs` all correct, and the
-hostnames answering with valid TLS.
+| Record | Both zones agree |
+| --- | --- |
+| 5 Google MX | ✅ |
+| apex SPF | ✅ |
+| `google._domainkey` | ✅ |
+| `_dmarc` | ✅ |
+| apex `A`, `www` | ✅ |
 
-That is precisely why this is dangerous rather than merely annoying. The Wix zone is a
-complete working copy — the email-authentication work was done there before the move — so
-there is no symptom to notice. The only visible sign is that a panel nobody is looking at
-says `Active` next to records nobody is serving.
+Mail, the site, the CRM and the help centre are therefore safe right now, by coincidence
+rather than design. Two things make that a poor place to stay:
 
-**The standing risk:** this file previously said the Wix subscription was free to retire,
-on the basis that the zone had been exported and Vodien was serving it. That was true when
-written and is false now. Cancel Wix today and the domain goes dark — site, CRM, help
-centre and all inbound mail — with the exported file being a text document, not a
-restore.
+- **Any future edit applies to only some lookups.** Change a record in Vodien and roughly
+  a quarter of queries keep the Wix answer; change it in Wix and the reverse. The symptom
+  is a change that "didn't work", intermittently, with both panels showing it saved.
+- **A divergent DKIM or SPF record would fail intermittently.** Rotate the Google DKIM key
+  in one panel and a fraction of signature checks fail at random — the single hardest mail
+  fault to diagnose, and precisely the failure this document was written to prevent.
 
-### Before trying again
+### The repair, in order
 
-1. **Keep Wix.** Not until the zone settles — until a Vodien delegation has demonstrably
-   held for a sustained period, which after an unexplained five-day reversion means weeks,
-   not days.
-2. **Ask Vodien why.** A nameserver change accepted, verified live, and then silently
-   reverted five days later is a registrar-side fault. It is their answer to give, and
-   without it a second attempt is just a bet.
-3. **Watch the delegation, not the panel.** The `Active` badges said the same thing
-   throughout, while the zone was served first by Vodien and then by Wix. Only a resolver
-   distinguishes those states.
+1. **Delete Name Server 3 and Name Server 4** at the registrar, leaving only the two Vodien
+   rows. That makes Vodien unambiguously authoritative and drops the six Freshworks records
+   as originally intended.
+2. **Check the Wix account for the domain still being *connected*.** If Wix is what
+   re-asserted those nameservers, deleting them at the registrar buys days, not a fix.
+   Disconnect the domain there.
+3. **Verify with a resolver over several days**, not with either panel. The delegation is
+   correct only when repeated `NS` queries return the Vodien list every time, with no Wix
+   replies mixed in.
+4. **Only then cancel Wix.** Doing it in the other order is the real hazard: cancelling the
+   Wix zone while `ns3`/`ns4.wixdns.net` remain delegated leaves two of four nameservers
+   answering with failure instead of data, which turns today's benign split into
+   intermittent, hard-to-trace resolution errors across the site, the CRM and mail.
 
 ---
 
