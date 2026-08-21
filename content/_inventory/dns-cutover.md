@@ -312,6 +312,35 @@ None of this is a fault in the zone, and none of it is caused by the Vodien move
 DMARC reporting is for: it names a delivery risk that was always there and was invisible
 before the records were published.
 
+### A spoofed message, and how to tell it from forwarding
+
+A third report — Google, 2026-08-20, 79 messages — is 78 from the usual relay plus one
+from `92.47.62.130`, which fails both checks and has no reverse DNS.
+
+**It is spoofing, not forwarding, and the report says so precisely.** Its `auth_results`
+block contains an `spf` element and *no `dkim` element at all* — the message carried no
+signature. A forwarded message always carries the original signature, which is why the
+`apse1.cloud-sec-av.com` rows above show a DKIM result that *failed*: present but broken by
+modification. Absent and broken are different findings, and the distinction is the whole
+diagnostic:
+
+| | SPF | DKIM element | Meaning |
+| --- | --- | --- | --- |
+| Google relay | pass | present, pass | genuine, direct |
+| `us.cloud-sec-av.com` | softfail | present, pass | forwarded intact |
+| `apse1.cloud-sec-av.com` | softfail | present, **fail** | forwarded and modified |
+| `92.47.62.130` | softfail | **absent** | **spoofed** |
+
+One message a day is background noise rather than a campaign — every domain with a
+recognisable name receives this — and `p=none` meant it was delivered rather than blocked.
+
+**This cuts against the caution above, and the tension is the real finding.** Enforcement
+is exactly what stops the spoof, and exactly what would break the gateway-forwarded mail.
+`p=none` currently tolerates both. The sequence that resolves it is: identify who sits
+behind `apse1.cloud-sec-av.com`, get that path either fixed or accepted as a known
+exception, and only then move to `p=quarantine`. Tightening before that trades a real
+delivery failure for a marginal security gain.
+
 ### Decided 2026-08-21: keep `include:email.freshdesk.com`
 
 The evidence suggests it authorises nothing. Remove it anyway and the downside is
