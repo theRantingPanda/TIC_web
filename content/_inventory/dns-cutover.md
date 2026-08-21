@@ -18,6 +18,30 @@ post-cutover verification.
 
 ## Final zone state
 
+> ⚠ **This table is not currently accurate, and the zone is mid-change — do not use it to
+> audit or recreate records until this is resolved (raised 2026-08-21).**
+>
+> Six records this document says were dropped — `fwtrack`, `fwdkim`, and `9tp4z`,
+> `9tp4z2`, `9tp4z3`, `9tp4z4` `._domainkey` — were verified **absent on every resolver**
+> immediately after the cutover on 2026-08-16. On 2026-08-21 they answer again, but
+> inconsistently: `1.1.1.1`, `8.8.8.8` and `9.9.9.9` disagree record by record, which is
+> what a zone edit still propagating looks like rather than a settled state. `fslink`
+> stays absent everywhere.
+>
+> Targets are unchanged, so these are the Freshworks-suite records (`myfreshworks.com`,
+> account `wl689718`) and the Freshmarketer tracker — the set deliberately dropped when
+> the firm moved to Freshdesk only. Nothing about it is harmful: they are CNAMEs pointing
+> at unused infrastructure, they cost no SPF lookups, and the apex SPF, DKIM and DMARC are
+> untouched. It is a question of intent, not deliverability.
+>
+> Someone re-added them, or a bulk import at Vodien restored the pre-cutover set. Until
+> that is established the rows below cannot be marked reliably, so they are left as
+> written rather than guessed at.
+>
+> Separately and independently verified: the `freshdesk` type-99 SPF row **is** now gone —
+> it did not carry over to Vodien, and nothing reads type 99 anyway.
+
+
 | Host | Type | Value | Note |
 | --- | --- | --- | --- |
 | `asktic.com` | A | `216.24.57.1` | Render's load-balancer IP |
