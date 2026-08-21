@@ -4,43 +4,25 @@ The site moved from Wix hosting to Render on **2026-08-12**. This is what change
 it looks like now, and what was verified. Written down because the next person to touch
 this zone should not have to rediscover any of it.
 
-**DNS hosting moved to Vodien on 2026-08-16.** For the four days before that, registration
-sat at Vodien while `ns4/ns5.wixdns.net` stayed authoritative — the arrangement the rest of
-this document was written under. The zone is now served by Vodien and edited in Vodien's DNS
-panel. Wix hosts nothing and serves nothing.
+🔴 **The Vodien move reverted itself. Wix is authoritative again as of 2026-08-21, and
+the Wix subscription must not be cancelled.** DNS hosting moved to Vodien on 2026-08-16 and
+was verified there; five days later, with nobody having touched either panel, the
+delegation reads `ns4/ns5.wixdns.net` on all three public resolvers and the SOA names
+`ns4.wixdns.net`. See [The move reverted itself](#the-move-reverted-itself-2026-08-21).
 
-Everything below describing Wix as authoritative is history, kept because the removals and
-the email-authentication work still explain why the zone looks the way it does. The
-[Vodien section](#the-vodien-panel--read-before-touching-it) has the current state and the
-post-cutover verification.
+Nothing is broken — the Wix zone is complete and serving correctly, because the SPF, DMARC
+and DKIM work was done at Wix *before* the move. But every statement below about Wix
+serving nothing, and about the Wix subscription being free to retire, is now wrong and
+dangerous. Cancelling Wix today would take down the site, the CRM, the help centre and all
+mail at once.
 
 ---
 
 ## Final zone state
 
-> ⚠ **This table is not currently accurate, and the zone is mid-change — do not use it to
-> audit or recreate records until this is resolved (raised 2026-08-21).**
->
-> Six records this document says were dropped — `fwtrack`, `fwdkim`, and `9tp4z`,
-> `9tp4z2`, `9tp4z3`, `9tp4z4` `._domainkey` — were verified **absent on every resolver**
-> immediately after the cutover on 2026-08-16. On 2026-08-21 they answer again, but
-> inconsistently: `1.1.1.1`, `8.8.8.8` and `9.9.9.9` disagree record by record, which is
-> what a zone edit still propagating looks like rather than a settled state. `fslink`
-> stays absent everywhere.
->
-> Targets are unchanged, so these are the Freshworks-suite records (`myfreshworks.com`,
-> account `wl689718`) and the Freshmarketer tracker — the set deliberately dropped when
-> the firm moved to Freshdesk only. Nothing about it is harmful: they are CNAMEs pointing
-> at unused infrastructure, they cost no SPF lookups, and the apex SPF, DKIM and DMARC are
-> untouched. It is a question of intent, not deliverability.
->
-> Someone re-added them, or a bulk import at Vodien restored the pre-cutover set. Until
-> that is established the rows below cannot be marked reliably, so they are left as
-> written rather than guessed at.
->
-> Separately and independently verified: the `freshdesk` type-99 SPF row **is** now gone —
-> it did not carry over to Vodien, and nothing reads type 99 anyway.
-
+> ⚠ **This table describes the Wix zone, which is authoritative again — see
+> [The move reverted itself](#the-move-reverted-itself-2026-08-21). It is closer to correct
+> than it was, but `freshdesk` (type-99 SPF) is gone and should come out.**
 
 | Host | Type | Value | Note |
 | --- | --- | --- | --- |
@@ -89,6 +71,66 @@ suite, and the two sit interleaved under near-identical-looking names. The tell 
 `fwdkim1` chain is `fdspfus.freshemail.io` — `fd` is Freshdesk. Always resolve the CNAME
 before deciding a Freshworks record is disposable; the full split is tabulated
 [below](#the-zone-at-vodien-and-what-it-deliberately-drops).
+
+---
+
+## The move reverted itself (2026-08-21)
+
+**Nobody changed anything.** The domain owner confirms neither panel was touched, and the
+Vodien DNS tab still holds the same 18 records it held at cutover, all badged `Active`.
+
+What changed is the delegation. Measured 2026-08-21 against `1.1.1.1`, `8.8.8.8` and
+`9.9.9.9`, all three agreeing:
+
+```
+asktic.com.  NS   ns4.wixdns.net.
+asktic.com.  NS   ns5.wixdns.net.
+asktic.com.  SOA  ns4.wixdns.net.
+```
+
+On 2026-08-16, immediately after the cutover, the same three resolvers agreed on
+`ns1`/`ns2`/`ns3.vodien.com`. The registry has reverted the nameservers to Wix on its own.
+
+### This explains the "re-added" records, which were never re-added
+
+Earlier in this file the six Freshworks-suite records were recorded as having reappeared,
+and a question was raised about who put them back. Nobody did. **They are answering because
+Wix is authoritative again and the Wix zone always contained them** — they were only ever
+absent from the *Vodien* copy. `fslink` stayed absent throughout because it was deleted from
+the Wix zone before the move, which is the detail that should have given this away sooner.
+
+The record-by-record disagreement between resolvers on 2026-08-21 was not a zone edit
+propagating. It was the delegation itself flipping back, caught mid-flight.
+
+### Nothing is broken, and that is the trap
+
+Verified 2026-08-21 on the live zone: five Google MX intact, one SPF record, DMARC intact,
+`google._domainkey` present at full length, all four Freshdesk `freshemail.io` CNAMEs
+resolving, apex and `www` and `support` and `rainmaker` and `docs` all correct, and the
+hostnames answering with valid TLS.
+
+That is precisely why this is dangerous rather than merely annoying. The Wix zone is a
+complete working copy — the email-authentication work was done there before the move — so
+there is no symptom to notice. The only visible sign is that a panel nobody is looking at
+says `Active` next to records nobody is serving.
+
+**The standing risk:** this file previously said the Wix subscription was free to retire,
+on the basis that the zone had been exported and Vodien was serving it. That was true when
+written and is false now. Cancel Wix today and the domain goes dark — site, CRM, help
+centre and all inbound mail — with the exported file being a text document, not a
+restore.
+
+### Before trying again
+
+1. **Keep Wix.** Not until the zone settles — until a Vodien delegation has demonstrably
+   held for a sustained period, which after an unexplained five-day reversion means weeks,
+   not days.
+2. **Ask Vodien why.** A nameserver change accepted, verified live, and then silently
+   reverted five days later is a registrar-side fault. It is their answer to give, and
+   without it a second attempt is just a bet.
+3. **Watch the delegation, not the panel.** The `Active` badges said the same thing
+   throughout, while the zone was served first by Vodien and then by Wix. Only a resolver
+   distinguishes those states.
 
 ---
 
@@ -359,13 +401,11 @@ acting, since Google's reports alone cannot rule out direct sending to other pro
    observed source is Google's relay; the include stays. The Microsoft and Yahoo vantage
    points were deliberately not pursued — they would only matter if the include were being
    removed, and it is not.
-2. ~~Do not cancel the Wix subscription yet.~~ Discharged 2026-08-21 — the zone was
-   exported, so Wix is no longer the only copy of the records that were dropped and the
-   subscription can be retired at will. Two things about that export: this file does not
-   record where it lives, which is worth fixing here rather than in someone's memory; and it
-   is a point-in-time snapshot, so once the zone drifts it becomes a record of history
-   rather than a restore point. Treat it as evidence of what was, not as a backup of what
-   is.
+2. 🔴 **Do not cancel the Wix subscription.** This item was briefly marked discharged on
+   2026-08-21, on the basis that Vodien was serving the zone and an export existed. The
+   delegation has since reverted to Wix, so Wix is not a rollback any more — it is
+   *production*. Cancelling it takes the domain down. The export remains a text file, not a
+   restore, and this document still does not record where it lives.
 3. ~~Raise the TTL from `300`.~~ Nothing to do — **the zone already serves `3600`.** The
    panel's `300` is not what the nameservers publish; measured post-cutover, every record
    answers with `3600` and the `NS` RRset with `21600`. A resolver cannot report a TTL
@@ -630,12 +670,13 @@ naming makes that easy to do by accident.
 
 ### Post-cutover follow-ups
 
-**Nothing outstanding.** The DNS move to Vodien is done, verified against three resolvers,
+**One thing outstanding, and it is significant.** The DNS move to Vodien was done and verified against three resolvers,
 and confirmed on delivered messages over both sending paths. Every follow-up it raised is
 closed: the TTL needed no change, `dmarc@` is filtered out of the support queue, the SPF
-include stays, and the zone has been exported so Wix is free to retire. The reasoning behind
-each is in [Still open after the move](#still-open-after-the-move), kept under that heading
-because the decisions matter more than the fact they are finished.
+include stays. **But the move itself did not hold** — see
+[The move reverted itself](#the-move-reverted-itself-2026-08-21) — so Wix is authoritative
+again and must be kept. The reasoning behind each decision is in
+[Still open after the move](#still-open-after-the-move).
 
 One thing the move surfaced and did not resolve, deliberately: Freshdesk relays through
 Google Workspace and signs with the `google` selector, so `include:email.freshdesk.com` — 6

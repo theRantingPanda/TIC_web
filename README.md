@@ -248,11 +248,12 @@ apart, so resolve before deleting; removing a live one silently pushes ticket re
 toward spam. SPF, DMARC and Google DKIM are now published after years without them, with
 only **3 of SPF's 10 DNS lookups spare** — cost any future "add our SPF include" request
 before adding it, because exceeding the limit fails SPF permanently rather than degrading.
-And **the zone now lives at Vodien**, moved 2026-08-16 and verified against three
-resolvers plus delivered messages on both sending paths. Wix no longer serves it and the
-zone has been exported, so the old subscription is free to retire. Read the Vodien section
-of `dns-cutover.md` before editing — that panel has misreported the zone three separate
-ways, so check it against a resolver rather than trusting it.
+And **the zone is back on Wix.** It moved to Vodien on 2026-08-16 and was verified there,
+but by 2026-08-21 the delegation had reverted to `ns4/ns5.wixdns.net` on its own, with
+nobody touching either panel. Nothing is broken — the Wix zone is complete — but **the Wix
+subscription must not be cancelled**, and Vodien's panel still badges its unserved records
+`Active`. Read the Vodien section of `dns-cutover.md` before editing, and check a resolver
+rather than the panel.
 
 
 Two assumptions in that service could **not** be verified — `render.com` is blocked by
