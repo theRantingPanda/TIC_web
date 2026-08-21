@@ -280,9 +280,25 @@ marked as spam in Freshdesk.** That is enough — spam-marking clears the ticket
 clock, and it does not touch Gmail, so the reports stay readable under the `DMARC` label
 either way. The rest of this section is reference, not work outstanding.
 
-The filter is unverified in the sense that the next report is its first real test. If a
-ticket opens anyway, Freshdesk is reading beyond the inbox; spam-marking covers that case
-without further change.
+**Confirmed working.** Every aggregate report received since the filter went on carries the
+`DMARC` label and no `INBOX` label; the last report to reach the inbox is the one from
+2026-08-15 that opened ticket 49294. Freshdesk therefore reads the inbox only, and the
+spam-marking fallback has not been needed.
+
+**The volume is routine.** Four reports a day is what this domain should expect, and it is
+a sign of reach rather than of trouble — aggregate reports are daily telemetry from every
+provider that receives mail claiming to be from the domain, sent whether or not anything is
+wrong. Observed over 2026-08-16 to 2026-08-20:
+
+| Reporter | Submitters | Per day |
+| --- | --- | --- |
+| Google | `google.com` | 1 |
+| Microsoft | `protection.outlook.com` and `enterprise.protection.outlook.com` | 2 |
+| Yahoo | `yahoo.com`, occasionally `yahoo.fr` | 1 |
+
+Microsoft counting twice is normal — the consumer and enterprise filtering estates report
+separately. The count will drift as the recipient mix changes; a new provider appearing is
+not a signal of anything.
 
 **If it ever needs widening, note that Gmail ANDs the filter fields.** `to:` matches the
 header only, so a reporter addressing `dmarc@` by envelope or Bcc slips past. But adding a
