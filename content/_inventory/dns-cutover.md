@@ -21,9 +21,10 @@ subscription being free to retire, are wrong until the delegation is repaired.
 
 ## Final zone state
 
-> ⚠ **This table describes the Wix zone, which is authoritative again — see
-> [The move reverted itself](#the-move-reverted-itself-2026-08-21). It is closer to correct
-> than it was, but `freshdesk` (type-99 SPF) is gone and should come out.**
+> ⚠ **This table describes the *Wix* zone, which is one of two currently authoritative —
+> see [The delegation is split](#the-delegation-is-split-2026-08-21). The Vodien zone is
+> this list minus the six rows marked dropped. `freshdesk` (type-99 SPF) exists in neither
+> and should come out once the split is repaired.**
 
 | Host | Type | Value | Note |
 | --- | --- | --- | --- |
