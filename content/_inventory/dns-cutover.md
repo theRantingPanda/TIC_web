@@ -252,7 +252,7 @@ The report above was retrieved instead through the signed Freshdesk attachment U
 49294, which is exact. Forwarding a Microsoft and a Yahoo report into Freshdesk would make
 them retrievable the same way, at the cost of two tickets.
 
-### Recommendation: keep `include:email.freshdesk.com`
+### Decided 2026-08-21: keep `include:email.freshdesk.com`
 
 The evidence suggests it authorises nothing. Remove it anyway and the downside is
 asymmetric: if any Freshdesk message type falls back to direct sending, SPF fails
@@ -261,14 +261,15 @@ the gain is theoretical. At 7 of 10 lookups the record is **not near failure**; 
 costs budget, not correctness. DKIM is doing the real work regardless, and it passes.
 
 Revisit only if a new sender has to be added and the chain would otherwise exceed 10. At
-that point re-run the reports first.
+that point re-run the reports first — and get the Microsoft and Yahoo vantage points before
+acting, since Google's reports alone cannot rule out direct sending to other providers.
 
 ### Still open after the move
 
-1. ~~Read a week of DMARC reports to settle the SPF include.~~ Answered above: every
-   observed source is Google's relay, and the recommendation is to keep the include. The one
-   gap left is the Microsoft and Yahoo vantage points, which would only matter if the
-   include were going to be removed — and it is not.
+1. ~~Read a week of DMARC reports to settle the SPF include.~~ Closed 2026-08-21. Every
+   observed source is Google's relay; the include stays. The Microsoft and Yahoo vantage
+   points were deliberately not pursued — they would only matter if the include were being
+   removed, and it is not.
 2. **Do not cancel the Wix subscription yet.** It is the rollback, and the only remaining
    copy of the records that were dropped. Nothing now depends on keeping it beyond ordinary
    caution, so retire it whenever the zone has felt stable long enough.
