@@ -139,6 +139,11 @@ rather than design. Two things make that a poor place to stay:
   in one panel and a fraction of signature checks fail at random — the single hardest mail
   fault to diagnose, and precisely the failure this document was written to prevent.
 
+**DNSSEC is not in play, which is what makes the repair safe.** Checked 2026-08-21: the
+zone publishes no `DS` and no `DNSKEY`. Removing nameservers from a signed delegation can
+break validation for every resolver that enforces it; here there is nothing to break, so
+this is an ordinary delegation edit.
+
 ### The repair, in order
 
 1. **Delete Name Server 3 and Name Server 4** at the registrar, leaving only the two Vodien
@@ -697,8 +702,8 @@ naming makes that easy to do by accident.
 and confirmed on delivered messages over both sending paths. Every follow-up it raised is
 closed: the TTL needed no change, `dmarc@` is filtered out of the support queue, the SPF
 include stays. **But the move itself did not hold** — see
-[The move reverted itself](#the-move-reverted-itself-2026-08-21) — so Wix is authoritative
-again and must be kept. The reasoning behind each decision is in
+[The delegation is split](#the-delegation-is-split-2026-08-21) — so Wix is still one of two
+authoritative providers and must be kept until that is repaired. The reasoning behind each decision is in
 [Still open after the move](#still-open-after-the-move).
 
 One thing the move surfaced and did not resolve, deliberately: Freshdesk relays through
