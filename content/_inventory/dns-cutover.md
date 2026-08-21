@@ -822,23 +822,28 @@ does not answer.
 
 ### Add — the redirect
 
-Render already does this for `www.asktic.com` and this repo carries the pattern:
-`tic-help-redirect` in `render.yaml`, a static service whose only job is to redirect one
-hostname, with Render issuing the certificate. One such service can carry all four
-hostnames.
+**Use Vodien's own URL forwarding. Do not build anything for this.**
 
-```
-@      A       216.24.57.1                       # Render's load balancer, as for asktic.com
-www    CNAME   <redirect-service>.onrender.com
-```
+The apex of both names already points at `redirection.vodien.com` — that is Vodien's
+redirect service, and it is what the parking zone is *for*. The timeout observed on
+`asktic.com.sg` almost certainly means no forwarding target has been set, not that the
+service is broken. Find the URL-forwarding or web-forwarding setting in the domain's panel,
+set the target to `https://www.asktic.com`, and the existing DNS needs no change at all.
 
-Add each hostname as a custom domain **in Render first** — it states the DNS it wants, then
-validates and issues a certificate. The main cutover took about ten minutes per hostname,
-during which HTTPS fails; expect the same.
+**The one thing to verify is HTTPS.** Open `https://asktic.sg` in a browser afterwards. A
+certificate warning on a brand domain is worse than no redirect, so if Vodien's forwarding
+serves plain HTTP only, it is not usable and the fallback applies.
 
-Vodien's own forwarding is the lighter alternative, and the apex already points at its
-redirect host, so it may only need a forwarding target set somewhere in the panel. It is
-currently timing out, so it needs Vodien's input either way.
+**Fallback, only if Vodien's forwarding cannot do HTTPS:** a dedicated Render static service
+whose sole job is to redirect, following the `tic-help-redirect` pattern in `render.yaml`.
+One service carries all four hostnames, with `@ A 216.24.57.1` and
+`www CNAME <service>.onrender.com`, and each hostname added as a custom domain in Render
+first so it can issue a certificate — about ten minutes each.
+
+This was originally written the other way round, leading with the Render build. That was
+over-engineered: it stands up and maintains a service to do a job the registrar already
+offers as a setting, and it was reached by over-reading a timeout as a broken service rather
+than an unconfigured one.
 
 ### Add — the anti-spoofing records
 
