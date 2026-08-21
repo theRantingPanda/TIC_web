@@ -727,6 +727,67 @@ Deliverability will improve gradually rather than immediately. Filters weight do
 history, and this domain sent unauthenticated mail for years. Authentication is also not
 the only input — message content, attachments and recipient-side rules still apply.
 
+## The two parked domains (2026-08-21)
+
+Vodien holds three registrations: `asktic.com`, plus `asktic.sg` (expires 2028-04-04) and
+`asktic.com.sg` (2028-01-05), both auto-renewing. The two `.sg` names are parked, and they
+are parked differently.
+
+| | `asktic.sg` | `asktic.com.sg` |
+| --- | --- | --- |
+| Nameservers | **`ns4`/`ns5.wixdns.net`** | `ns1`/`ns2`/`ns3.vodien.com` |
+| Apex `A` | `185.230.63.107/.171/.186` | `103.11.189.189` (`redirection.vodien.com`) |
+| `www` | `cdn1.wixdns.net` | itself |
+| Wildcard | none | **yes — every name resolves** |
+| `MX` | none | **`0 mail.asktic.com.sg`** |
+| SPF / DMARC | **none** | **none** |
+
+### `asktic.sg` is a live Wix dependency
+
+Its apex points at **exactly the three Wix web servers this file records as removed from
+`asktic.com`**, and its nameservers are Wix's. So the Wix question is larger than the main
+zone: cancelling that subscription takes `asktic.sg` off the internet as well, DNS and
+hosting together. Move it to Vodien nameservers before retiring Wix, not after.
+
+### Neither name can be spoof-protected as it stands
+
+Neither publishes SPF or DMARC, so anyone can send mail as `@asktic.sg` or
+`@asktic.com.sg` and no receiving system has grounds to reject it. For a firm whose clients
+recognise the brand, a lookalike domain with no policy is the cheaper phishing route — and
+these are not lookalikes, they are the real registrations.
+
+A domain that sends no mail should say so explicitly:
+
+```
+@                       TXT   v=spf1 -all
+_dmarc                  TXT   v=DMARC1; p=reject; rua=mailto:dmarc@asktic.com
+*._domainkey            TXT   v=DKIM1; p=
+@                       MX    0 .
+```
+
+`p=reject` is safe here from the first day, and only here. There is no legitimate mail to
+break, which is precisely the argument that does *not* hold for `asktic.com` — see the
+gateway-forwarding finding above.
+
+**Two details that decide whether this works:**
+
+- **Cross-domain reporting needs authorising.** `rua` points at `dmarc@asktic.com`, a
+  different domain, so `asktic.com` must publish `asktic.sg._report._dmarc.asktic.com` and
+  `asktic.com.sg._report._dmarc.asktic.com`, each containing `v=DMARC1`. Both are absent as
+  of 2026-08-21, so reports would be silently dropped. Omitting `rua` entirely is the
+  simpler alternative and costs only visibility.
+- **`asktic.com.sg` already has an `MX`**, pointing at `mail.asktic.com.sg`, which the
+  wildcard resolves to Vodien's redirect host. That almost certainly runs no mail server,
+  so mail to the domain is already failing — slowly, by timeout and delayed bounce, rather
+  than cleanly. Confirm nobody uses an `@asktic.com.sg` address, then replace it with the
+  null `MX` above.
+
+The web side matters less and was not testable from here — this environment's proxy refuses
+both hostnames — but a `301` to `www.asktic.com` is the obvious end state for both.
+`asktic.com.sg` is already on Vodien's `redirection.vodien.com` service; whether it holds a
+valid certificate for `https://` is worth checking in a browser, because a certificate
+warning on a brand domain is worse than no redirect at all.
+
 ## `rainmaker` is not misrouted — the service is misnamed
 
 **Do not "fix" this record.** `rainmaker.asktic.com` points at `tic-crm-dev.onrender.com`,
