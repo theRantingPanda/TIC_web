@@ -829,16 +829,34 @@ redirect service, and it is what the parking zone is *for*. The timeout observed
 `asktic.com.sg` almost certainly means no forwarding target has been set, not that the
 service is broken.
 
-Vodien documents two routes. **Aliases under cPanel does not apply here** — these are
-registration-only products, with no hosting plan behind them, so there is no cPanel. The one
-that applies is **Account Manager → the domain → Domain Forwarding / URL Redirect**: set the
-target to `https://www.asktic.com` and pick **301 (permanent)**, not 302. A 302 tells search
-engines the move is temporary, so the `.sg` names would stay indexed in their own right
-instead of consolidating onto `www.asktic.com`. The existing DNS needs no change at all.
+**There is no forwarding option in the panel, and the evidence says that is not an
+oversight.** Searched 2026-08-21: every Vodien redirect article found routes through
+**cPanel**, which comes with a hosting plan. Their own guidance says that if the domain to
+be redirected "is not the main domain connected to your Vodien hosting service, you need to
+add the domain as an Addon or Parked Domain first" — presupposing hosting throughout. These
+three registrations are registration-only products, whose panel offers Overview, Name
+Servers, DNS Settings and Administration, and no forwarding tab.
 
-Vodien's own guidance: `vodien.com/learn/how-to-domain-forwarding/` and
-`vodien.com/help/article/website-redirect`. Their note about 24–48 hours to propagate is
-generic boilerplate; with TTL at `300` here it will be minutes.
+**A naming trap while searching:** Vodien's "How to Add a Domain Forwarder" is about *email*
+forwarders, under cPanel's Email panel. It is not URL redirection.
+
+**Not fully settled.** `vodien.com` and `help.vodien.com` are both blocked by this
+environment's egress proxy, so this rests on search snippets rather than the pages
+themselves. One support ticket — *is URL forwarding available on a registration-only
+domain?* — closes it definitively and costs nothing.
+
+**If the answer is no**, the choice is between buying a hosting plan purely to redirect two
+parked domains, adding Cloudflare's free tier as a third DNS provider for those two names,
+or the Render redirect service described below. Render adds no cost and no new provider,
+since it already serves the main site.
+
+**Whichever route, pick 301 (permanent), not 302.** A 302 tells search engines the move is
+temporary, so the `.sg` names stay indexed in their own right instead of consolidating onto
+`www.asktic.com`.
+
+An earlier revision of this section asserted that Account Manager offered a Domain
+Forwarding setting and dismissed the Render approach as over-engineered. The first half was
+taken from a summary rather than checked, and the panel does not have it.
 
 **The one thing to verify is HTTPS.** Open `https://asktic.sg` in a browser afterwards. A
 certificate warning on a brand domain is worse than no redirect, so if Vodien's forwarding
