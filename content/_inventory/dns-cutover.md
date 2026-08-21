@@ -155,13 +155,28 @@ this is an ordinary delegation edit.
 3. **Verify with a resolver over several days**, not with either panel. The delegation is
    correct only when repeated `NS` queries return the Vodien list every time, with no Wix
    replies mixed in.
-4. **Delete the `ns.vodien.com` row too.** After the Wix rows were removed on 2026-08-21
-   the tab read 3/6: `ns1`, `ns2`, and a bare `ns.vodien.com` carrying the same addresses as
-   `ns1`. **That hostname does not resolve** — checked on all three public resolvers, while
-   `ns1.vodien.com` resolves fine on the same query. It is a dead delegation entry of the
-   same class as the `asktic.com` row that blocked the original save: harmless, because
-   resolvers fall through to the working two, but it adds a failed lookup to some queries
-   and no redundancy at all. Two working nameservers is the correct end state.
+4. **Vodien requires three nameservers. Make the third `ns3.vodien.com`, not
+   `ns.vodien.com`.** After the Wix rows came out on 2026-08-21 the tab read 3/6, the third
+   being a bare `ns.vodien.com` — which **does not resolve** on any of the three public
+   resolvers, while `ns1`–`ns4.vodien.com` all do. An unresolvable nameserver is a dead
+   delegation entry of the same class as the `asktic.com` row that blocked the original
+   save.
+
+   The choice is not a matter of taste. **Vodien's own zone publishes exactly
+   `ns1`, `ns2`, `ns3.vodien.com`** as the `NS` RRset for `asktic.com`, so making the
+   registry delegation match it is the correct configuration; a parent delegation that
+   disagrees with the child's own `NS` list is a standard misconfiguration finding.
+
+   | Row | Host Name | IP Address |
+   | --- | --- | --- |
+   | Name Server 1 | `ns1.vodien.com` | `162.159.24.10, 2400:cb00:2049:1::a29f:180a` |
+   | Name Server 2 | `ns2.vodien.com` | `162.159.25.66, 2400:cb00:2049:1::a29f:1942` |
+   | Name Server 3 | `ns3.vodien.com` | `162.159.24.10, 2400:cb00:2049:1::a29f:180a` |
+
+   `ns3` sharing `ns1`'s addresses is Vodien's own design, not an error — three names over
+   two anycast addresses. Real redundancy is two servers, which is sufficient; it was worth
+   avoiding only back when the alternative pair would have collapsed to *one*.
+
 5. **Leave the TTL at `300` for now.** `3600` is the right resting value and is what the
    zone ran at for years, but not yet. The delegation has just proved it can change without
    anyone touching it, and a `300` TTL means the next surprise propagates — and recovers —
