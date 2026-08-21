@@ -10,8 +10,9 @@ build: the homepage was rebuilt on 2026-08-16 as a progressive-disclosure **conc
 and the palette was re-derived from the logo. What remains is real content for the
 placeholders that flow surfaced (see [below](#what-is-still-placeholder-content)) and an
 editorial pass over the ported copy
-([`port-worklist.md`](content/_inventory/port-worklist.md)). The zone moved from Wix to
-Vodien on 2026-08-16 and is verified — see
+([`port-worklist.md`](content/_inventory/port-worklist.md)). On DNS: the zone moved to
+Vodien on 2026-08-16 and **reverted to Wix on its own by 2026-08-21** — nothing is broken,
+but do not cancel the Wix subscription. See
 [`dns-cutover.md`](content/_inventory/dns-cutover.md).
 
 ---
