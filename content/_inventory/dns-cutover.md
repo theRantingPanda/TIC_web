@@ -267,14 +267,50 @@ either window, before or after the nameserver move. Combined with the Freshdesk 
 — which reached `smtp.gmail.com` by authenticated submission and was signed `s=google` —
 every observation says Freshdesk relays through Google Workspace and never sends direct.
 
-**Coverage limit, stated plainly.** Both reports are Google's vantage point: they describe
-mail Google *received*. If Freshdesk ever sent direct to a Microsoft or Yahoo recipient,
-these reports could not show it. The Microsoft and Yahoo reports would close that gap and
-have not been parsed — Gmail's connector exposes no attachment download, and lifting 9 KB of
-base64 out of raw MIME by hand is not reliable (an attempt corrupted, caught by the zip CRC).
-The report above was retrieved instead through the signed Freshdesk attachment URL on ticket
-49294, which is exact. Forwarding a Microsoft and a Yahoo report into Freshdesk would make
-them retrievable the same way, at the cost of two tickets.
+**Coverage gap now closed.** Both Google reports describe only mail Google *received*, so
+they could not have shown Freshdesk sending direct to a recipient elsewhere. A Microsoft
+report for the same window as the second Google one — `Enterprise Outlook`, 2026-08-19
+00:00 to 2026-08-20 00:00 UTC — supplies the other vantage point. It is far richer: 25
+records, 29 messages, where Google's showed one.
+
+| Source | Reverse | Messages | SPF | DKIM | DMARC |
+| --- | --- | --- | --- | --- | --- |
+| `2607:f8b0:4864:20::*` (23 addresses) | `mail-*.google.com` | 25 | pass | pass | pass |
+| `35.174.145.124` | `us.cloud-sec-av.com` | 2 | **softfail** | pass | pass |
+| `18.99.40.64` | `apse1.cloud-sec-av.com` | 2 | **softfail** | **fail** | **fail** |
+
+**Still no Freshdesk source.** Every message TIC actually originated left via Google's
+relay — IPv4 in Google's report, IPv6 here — signed `s=google`. Nothing sends direct from
+Freshdesk in either provider's view, which is what the include decision below rests on.
+
+### The two non-Google sources are a recipient-side mail gateway
+
+`cloud-sec-av.com` is not TIC infrastructure. Both records carry a DKIM signature with
+`d=asktic.com; s=google`, meaning Google signed the message legitimately and something
+relayed it afterwards — a security gateway in front of the recipient, scanning inbound mail.
+`apse1` is AWS ap-southeast-1, which fits a Singapore-side correspondent.
+
+This is textbook forwarding behaviour and the two rows show both halves of it:
+
+- **SPF softfails on both**, because the gateway's address is not in TIC's SPF and never
+  could be. That is expected and not fixable from this end.
+- **DKIM survives one and not the other.** `us.` relayed the message intact, so the
+  signature verified and DMARC passed on DKIM alone — exactly the case this file's email
+  authentication section predicted, where DKIM rescues forwarded mail that SPF cannot.
+  `apse1.` modified the message — a scan banner or footer is the usual cause — which broke
+  the signature.
+
+**This is the reason not to tighten DMARC.** Those 2 messages a day fail DMARC outright:
+no SPF, no DKIM, no alignment. Under the published `p=none` they are delivered and merely
+reported. Under `p=quarantine` they would go to junk, and under `p=reject` they would bounce
+— silently, at the recipient's gateway, for a correspondent who would simply stop hearing
+from the firm. Establish who sits behind `apse1.cloud-sec-av.com` before changing `p=`, and
+treat the same caution as applying to `-all`: hardening SPF would turn today's softfail into
+a hard fail for every gateway-forwarded message.
+
+None of this is a fault in the zone, and none of it is caused by the Vodien move. It is what
+DMARC reporting is for: it names a delivery risk that was always there and was invisible
+before the records were published.
 
 ### Decided 2026-08-21: keep `include:email.freshdesk.com`
 
