@@ -144,6 +144,37 @@ zone publishes no `DS` and no `DNSKEY`. Removing nameservers from a signed deleg
 break validation for every resolver that enforces it; here there is nothing to break, so
 this is an ordinary delegation edit.
 
+### Applied 2026-08-21, and how convergence behaves
+
+The registrar now lists exactly `ns1`, `ns2`, `ns3.vodien.com` — matching Vodien's own
+`NS` RRset. Sampling immediately afterwards still showed both providers, which is expected
+and not a failed change:
+
+| Signal | Reading |
+| --- | --- |
+| `NS` sampled 15× | 9 Wix, 6 Vodien |
+| `fwtrack` (Wix-only) | absent 8, present 4 — was present 7, absent 2 an hour earlier |
+| TTL tell | `www` at `300` (Vodien); apex `A`, `TXT`, DKIM at `3600` (Wix) |
+| Mail | 5 MX, exactly 1 SPF, DKIM and DMARC present throughout |
+
+**Convergence can outlast one TTL, and the reason is worth knowing.** A resolver holding a
+cached delegation that still names a Wix server will sometimes ask that server, and Wix
+answers with its *own* in-zone `NS` list — re-seeding the cache with `ns4/ns5.wixdns.net`
+on a fresh 21600-second timer. The parent `.com` delegation is Vodien-only now, so this
+cannot persist indefinitely; caches that expire and re-walk from the root pick up the
+correct list. But it means the change does not land uniformly at one deadline, and a Wix
+answer some hours later is not evidence the edit failed.
+
+**Judge it by `fwtrack`, not by the `NS` RRset.** It exists only in the Wix zone, so it is
+a direct read of which provider served a given lookup, without the self-refresh confusion.
+Converged means `fwtrack` absent on every attempt and every TTL reading `300`. Allow a full
+day before treating a persistent Wix answer as a fault worth raising with Vodien.
+
+**And it is one more reason not to cancel Wix yet.** While some resolvers still hold Wix in
+their cached delegation, deleting the Wix zone would have them querying a server that
+answers with failure rather than data — intermittent, and harder to diagnose than the split
+it replaced.
+
 ### The repair, in order
 
 1. **Delete Name Server 3 and Name Server 4** at the registrar, leaving only the two Vodien
