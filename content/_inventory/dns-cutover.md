@@ -802,6 +802,59 @@ redirect one hostname, with Render handling the certificate.
 
 ---
 
+## Pointing the `.sg` names at `www.asktic.com`
+
+Decided 2026-08-21: both `.sg` registrations should `301` to `www.asktic.com`. Both are now
+on Vodien nameservers carrying Vodien's default parking zone — apex, `localhost`, `mail`,
+`*`, `ftp` and an `MX`, all pointing at `103.11.189.189` (`redirection.vodien.com`), which
+does not answer.
+
+### Delete — all of these, on both domains
+
+| Record | Why |
+| --- | --- |
+| `@` A `103.11.189.189` | dead host; replaced below |
+| `*` A `103.11.189.189` | makes every typo and every probe resolve to a dead address |
+| `localhost` A `127.0.0.1` | publishing loopback in public DNS serves nobody |
+| `mail` A | there is no mail server |
+| `ftp` CNAME | there is no FTP |
+| `MX 0 mail.<domain>` | points at a host that accepts no mail, so mail fails by timeout |
+
+### Add — the redirect
+
+Render already does this for `www.asktic.com` and this repo carries the pattern:
+`tic-help-redirect` in `render.yaml`, a static service whose only job is to redirect one
+hostname, with Render issuing the certificate. One such service can carry all four
+hostnames.
+
+```
+@      A       216.24.57.1                       # Render's load balancer, as for asktic.com
+www    CNAME   <redirect-service>.onrender.com
+```
+
+Add each hostname as a custom domain **in Render first** — it states the DNS it wants, then
+validates and issues a certificate. The main cutover took about ten minutes per hostname,
+during which HTTPS fails; expect the same.
+
+Vodien's own forwarding is the lighter alternative, and the apex already points at its
+redirect host, so it may only need a forwarding target set somewhere in the panel. It is
+currently timing out, so it needs Vodien's input either way.
+
+### Add — the anti-spoofing records
+
+```
+@                TXT   v=spf1 -all
+_dmarc           TXT   v=DMARC1; p=reject; rua=mailto:dmarc@asktic.com
+*._domainkey     TXT   v=DKIM1; p=
+@                MX    0 .
+```
+
+If the panel refuses `.` as an `MX` target, simply publish no `MX` at all — slightly weaker,
+since it states nothing rather than stating "no mail", but far better than the current
+record.
+
+Drop TTL to `300` while making these changes and raise it afterwards.
+
 ## Order of work (as at 2026-08-21)
 
 1. **Wait out `asktic.com` convergence.** Nothing to do but re-check. Converged means
