@@ -822,56 +822,62 @@ does not answer.
 
 ### Add — the redirect
 
-**Use Vodien's own URL forwarding. Do not build anything for this.**
+**Decided 2026-08-21: a Render redirect service, `tic-sg-redirect`.** Defined in
+`render.yaml` alongside the other two services. One service carries all four hostnames —
+the apex and `www` of each `.sg` name — and `301`s them to `https://www.asktic.com`.
 
-The apex of both names already points at `redirection.vodien.com` — that is Vodien's
-redirect service, and it is what the parking zone is *for*. The timeout observed on
-`asktic.com.sg` almost certainly means no forwarding target has been set, not that the
-service is broken.
+### Why not the registrar, which would normally do this with a setting
 
-**There is no forwarding option in the panel, and the evidence says that is not an
-oversight.** Searched 2026-08-21: every Vodien redirect article found routes through
-**cPanel**, which comes with a hosting plan. Their own guidance says that if the domain to
-be redirected "is not the main domain connected to your Vodien hosting service, you need to
-add the domain as an Addon or Parked Domain first" — presupposing hosting throughout. These
-three registrations are registration-only products, whose panel offers Overview, Name
-Servers, DNS Settings and Administration, and no forwarding tab.
+There is no forwarding option in the panel, and that is not an oversight. Searched
+2026-08-21: every Vodien redirect article routes through **cPanel**, which comes with a
+hosting plan, and their guidance says that if the domain to be redirected "is not the main
+domain connected to your Vodien hosting service, you need to add the domain as an Addon or
+Parked Domain first" — presupposing hosting throughout. These three registrations are
+registration-only products; their panel offers Overview, Name Servers, DNS Settings and
+Administration, and nothing else.
 
-**A naming trap while searching:** Vodien's "How to Add a Domain Forwarder" is about *email*
-forwarders, under cPanel's Email panel. It is not URL redirection.
+That left buying a hosting plan purely to redirect two parked domains, adding Cloudflare's
+free tier as a third DNS provider for those names, or Render. Render adds neither cost nor
+a provider.
 
-**Not fully settled.** `vodien.com` and `help.vodien.com` are both blocked by this
-environment's egress proxy, so this rests on search snippets rather than the pages
-themselves. One support ticket — *is URL forwarding available on a registration-only
-domain?* — closes it definitively and costs nothing.
+Two things worth keeping from the search. Vodien's **"How to Add a Domain Forwarder" is
+about *email* forwarders**, under cPanel's Email panel — not URL redirection, and an easy
+wrong turn. And this rests on search snippets: `vodien.com` and `help.vodien.com` are both
+blocked by this environment's egress proxy, so the pages themselves were never read. A
+support ticket would settle it, and would only matter if the Render service proves awkward.
 
-**If the answer is no**, the choice is between buying a hosting plan purely to redirect two
-parked domains, adding Cloudflare's free tier as a third DNS provider for those two names,
-or the Render redirect service described below. Render adds no cost and no new provider,
-since it already serves the main site.
+### Setting it up
 
-**Whichever route, pick 301 (permanent), not 302.** A 302 tells search engines the move is
-temporary, so the `.sg` names stay indexed in their own right instead of consolidating onto
-`www.asktic.com`.
+```
+@      A       216.24.57.1
+www    CNAME   tic-sg-redirect.onrender.com
+```
 
-An earlier revision of this section asserted that Account Manager offered a Domain
-Forwarding setting and dismissed the Render approach as over-engineered. The first half was
-taken from a summary rather than checked, and the panel does not have it.
+**Add each hostname as a custom domain on the service first.** Render answers by `Host`
+header and will not recognise a name it has not been given; it issues the certificate only
+once DNS matches. Roughly ten minutes per hostname, HTTPS failing during each window. Add
+them one at a time and check the list after each — Render may auto-pair an apex with its
+`www`, which gets confusing across two registrations.
 
-**The one thing to verify is HTTPS.** Open `https://asktic.sg` in a browser afterwards. A
-certificate warning on a brand domain is worse than no redirect, so if Vodien's forwarding
-serves plain HTTP only, it is not usable and the fallback applies.
+**Never link an environment group to it**, and add no variables. It is a static build in
+the project that holds the CRM's `tic-crm-shared` group, and anything a static build can
+read is baked into published HTML.
 
-**Fallback, only if Vodien's forwarding cannot do HTTPS:** a dedicated Render static service
-whose sole job is to redirect, following the `tic-help-redirect` pattern in `render.yaml`.
-One service carries all four hostnames, with `@ A 216.24.57.1` and
-`www CNAME <service>.onrender.com`, and each hostname added as a custom domain in Render
-first so it can issue a certificate — about ten minutes each.
+**Do not put these rules on `tic-web`.** Render matches `source` on path only, so a `/*`
+rule there would match `www.asktic.com`'s own requests and redirect the homepage to itself.
+That is why this is a separate service, and why `tic-help-redirect` is too.
 
-This was originally written the other way round, leading with the Render build. That was
-over-engineered: it stands up and maintains a service to do a job the registrar already
-offers as a setting, and it was reached by over-reading a timeout as a broken service rather
-than an unconfigured one.
+`301`, not `302` — a `302` tells search engines the move is temporary, so the `.sg` names
+stay indexed in their own right instead of consolidating onto `www.asktic.com`.
+
+### What to check afterwards
+
+Open all four hostnames. Each should land on `https://www.asktic.com` with a valid padlock.
+Two assumptions in the service are still unverified, for the same reason as
+`tic-help-redirect` — that `destination` accepts an absolute off-site URL, and that
+`source: /*` matches the bare root. The meta-refresh in the build command is the safety net
+for the second: a blank flash before landing means it fired, and a second route with
+`source: /` fixes it.
 
 ### Add — the anti-spoofing records
 
