@@ -849,9 +849,22 @@ _dmarc           TXT   v=DMARC1; p=reject; rua=mailto:dmarc@asktic.com
 @                MX    0 .
 ```
 
-If the panel refuses `.` as an `MX` target, simply publish no `MX` at all — slightly weaker,
-since it states nothing rather than stating "no mail", but far better than the current
-record.
+**Vodien refuses the null `MX`.** Confirmed 2026-08-21: entering `.` as the hostname returns
+*"Target MX host is not valid"*. Publish no `MX` at all instead. That states nothing rather
+than stating "no mail", which is weaker than RFC 7505 but still far better than the parking
+record it replaces — and with `v=spf1 -all` and `p=reject` published, a forged message is
+rejected regardless of what the `MX` says.
+
+**The `www` CNAME must not point at `tic-web.onrender.com`.** That is the site service: it
+would *serve* the site at the `.sg` hostname, not redirect to `www.asktic.com`. The
+difference matters — a second hostname serving the same pages is duplicate content, held in
+check only by the canonical tags in `app/layout.tsx`, and it doubles the surface that has to
+stay correct. Point it at a redirect service instead.
+
+**Nothing resolves until the hostnames are registered in Render.** The `A` and `CNAME` above
+aim at Render's load balancer, but Render answers by `Host` header: until `asktic.sg` and
+`www.asktic.sg` are added as custom domains on the target service, requests arrive and are
+not recognised. Add them in Render first, then point DNS.
 
 Drop TTL to `300` while making these changes and raise it afterwards.
 
