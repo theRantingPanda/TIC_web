@@ -155,7 +155,19 @@ this is an ordinary delegation edit.
 3. **Verify with a resolver over several days**, not with either panel. The delegation is
    correct only when repeated `NS` queries return the Vodien list every time, with no Wix
    replies mixed in.
-4. **Only then cancel Wix.** Doing it in the other order is the real hazard: cancelling the
+4. **Delete the `ns.vodien.com` row too.** After the Wix rows were removed on 2026-08-21
+   the tab read 3/6: `ns1`, `ns2`, and a bare `ns.vodien.com` carrying the same addresses as
+   `ns1`. **That hostname does not resolve** — checked on all three public resolvers, while
+   `ns1.vodien.com` resolves fine on the same query. It is a dead delegation entry of the
+   same class as the `asktic.com` row that blocked the original save: harmless, because
+   resolvers fall through to the working two, but it adds a failed lookup to some queries
+   and no redundancy at all. Two working nameservers is the correct end state.
+5. **Leave the TTL at `300` for now.** `3600` is the right resting value and is what the
+   zone ran at for years, but not yet. The delegation has just proved it can change without
+   anyone touching it, and a `300` TTL means the next surprise propagates — and recovers —
+   in five minutes rather than an hour. The cost is more queries against Cloudflare-backed
+   anycast, which is nothing. Raise it once the delegation has held clean for a few weeks.
+6. **Only then cancel Wix.** Doing it in the other order is the real hazard: cancelling the
    Wix zone while `ns3`/`ns4.wixdns.net` remain delegated leaves two of four nameservers
    answering with failure instead of data, which turns today's benign split into
    intermittent, hard-to-trace resolution errors across the site, the CRM and mail.
@@ -167,12 +179,17 @@ this is an ordinary delegation edit.
 Registration and DNS both sit at Vodien now. Its control panel has a **Name Servers** tab
 holding the delegation and a **DNS Settings** tab holding the zone.
 
-**Check this panel against a resolver before believing it.** It has now misreported the
-zone three separate times, in three different ways: the Name Servers tab displayed a
-rejected edit as though it were the delegation; the green `Active` badges meant "saved at
-Vodien" while the records were serving nowhere; and the TTL column reads `300` against
-records the nameservers publish at `3600`. None of these announce themselves. Every check in
-this document was run against `1.1.1.1`, `8.8.8.8` and `9.9.9.9` for that reason.
+**Check this panel against a resolver before believing it.** It has misreported the zone
+twice, in two different ways: the Name Servers tab displayed a rejected edit as though it
+were the delegation, and the green `Active` badges meant "saved at Vodien" while the records
+were serving nowhere. Neither announces itself.
+
+A third apparent misreport was **not** the panel's fault and is recorded here so it is not
+repeated as a grievance: the TTL column reads `300` while measurements showed `3600`. Vodien
+really does serve `300`. The `3600` readings were Wix answering, during the period when
+[the delegation was split](#the-delegation-is-split-2026-08-21). A mixed TTL across records
+— `MX` at `300`, apex `TXT` at `3600` — is in fact a reliable *tell* that two providers are
+answering, and a cheaper one to check than the `NS` RRset.
 
 ### The move, and the one row that blocked it
 
