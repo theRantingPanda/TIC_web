@@ -228,16 +228,52 @@ route replies, notifications and forwards differently, and dropping the include 
 message type still sends direct would break SPF for exactly the mail nobody tests. Leave
 the zone alone until the DMARC reports settle it.
 
+### What the DMARC reports show
+
+Two Google aggregate reports decoded and parsed, covering the windows `1786752000`
+(pre-cutover) and `1787097600` (post-cutover), 46 messages in total:
+
+| Window | Source IP | Messages | SPF | DKIM | Selector |
+| --- | --- | --- | --- | --- | --- |
+| 2026-08-13/14 | `209.85.220.41` | 4 | pass | pass | `google` |
+| 2026-08-18/19 | `209.85.220.41` | 42 | pass | pass | `google` |
+
+**One source IP, and it is Google's outbound relay.** No record from any other address, in
+either window, before or after the nameserver move. Combined with the Freshdesk test message
+— which reached `smtp.gmail.com` by authenticated submission and was signed `s=google` —
+every observation says Freshdesk relays through Google Workspace and never sends direct.
+
+**Coverage limit, stated plainly.** Both reports are Google's vantage point: they describe
+mail Google *received*. If Freshdesk ever sent direct to a Microsoft or Yahoo recipient,
+these reports could not show it. The Microsoft and Yahoo reports would close that gap and
+have not been parsed — Gmail's connector exposes no attachment download, and lifting 9 KB of
+base64 out of raw MIME by hand is not reliable (an attempt corrupted, caught by the zip CRC).
+The report above was retrieved instead through the signed Freshdesk attachment URL on ticket
+49294, which is exact. Forwarding a Microsoft and a Yahoo report into Freshdesk would make
+them retrievable the same way, at the cost of two tickets.
+
+### Recommendation: keep `include:email.freshdesk.com`
+
+The evidence suggests it authorises nothing. Remove it anyway and the downside is
+asymmetric: if any Freshdesk message type falls back to direct sending, SPF fails
+permanently for that mail — and it would be exactly the mail nobody tests. Against that,
+the gain is theoretical. At 7 of 10 lookups the record is **not near failure**; the include
+costs budget, not correctness. DKIM is doing the real work regardless, and it passes.
+
+Revisit only if a new sender has to be added and the chain would otherwise exceed 10. At
+that point re-run the reports first.
+
 ### Still open after the move
 
-1. **Read a week of DMARC aggregate reports** before changing anything. They enumerate every
-   sending source and which checks it passed, which is the only way to establish whether
-   anything still sends direct from Freshdesk. If nothing does, `include:email.freshdesk.com`
-   and the four `freshemail.io` CNAMEs can go, taking SPF from 7 lookups to 1.
-2. **Do not cancel the Wix subscription** until that is settled. The Wix zone is the
-   rollback, and the only remaining copy of the records that were dropped.
+1. ~~Read a week of DMARC reports to settle the SPF include.~~ Answered above: every
+   observed source is Google's relay, and the recommendation is to keep the include. The one
+   gap left is the Microsoft and Yahoo vantage points, which would only matter if the
+   include were going to be removed — and it is not.
+2. **Do not cancel the Wix subscription yet.** It is the rollback, and the only remaining
+   copy of the records that were dropped. Nothing now depends on keeping it beyond ordinary
+   caution, so retire it whenever the zone has felt stable long enough.
 3. ~~Raise the TTL from `300`.~~ Nothing to do — **the zone already serves `3600`.** The
-   panel's `300` is not what the nameservers publish; measured 2026-08-17, every record
+   panel's `300` is not what the nameservers publish; measured post-cutover, every record
    answers with `3600` and the `NS` RRset with `21600`. A resolver cannot report a TTL
    higher than the authoritative value, so this is conclusive rather than a caching
    artefact. `3600` is the value worth having and matches what the zone ran at under Wix.
