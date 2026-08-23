@@ -4,27 +4,35 @@ The site moved from Wix hosting to Render on **2026-08-12**. This is what change
 it looks like now, and what was verified. Written down because the next person to touch
 this zone should not have to rediscover any of it.
 
-🔴 **The delegation is split across both providers, and must be repaired before the Wix
-subscription is cancelled.** DNS moved to Vodien on 2026-08-16 and was verified there. As
-of 2026-08-21 the registrar lists **four** nameservers — `ns1`/`ns2.vodien.com` *and*
-`ns3`/`ns4.wixdns.net` — so Wix and Vodien are both authoritative, serving two different
-zones, and each lookup lands on whichever answers first. See
-[The delegation is split](#the-delegation-is-split-2026-08-21).
+✅ **The delegation is clean as of 2026-08-23.** `asktic.com` answers from
+`ns1`/`ns2`/`ns3.vodien.com` and nothing else, confirmed unanimously across six independent
+public resolvers. Vodien is the only authoritative provider.
 
-Nothing is broken today, because the two zones agree on every record that matters. The
-danger is what happens next: an edit in either panel takes effect for only some lookups,
-and cancelling Wix while its nameservers remain delegated would leave half the delegation
-answering with failure. Statements below about Wix serving nothing, and about the
-subscription being free to retire, are wrong until the delegation is repaired.
+It was not always so, and the history matters more than most of this file. Between
+2026-08-16 and 2026-08-22 the registrar carried **four** nameservers — the two Vodien rows
+*and* `ns3`/`ns4.wixdns.net` — so both providers were authoritative over two different
+zones and every lookup landed on whichever answered first. That produced a fortnight of
+findings that looked like records being edited by unseen hands and were nothing of the
+kind. Read [The delegation is split](#the-delegation-is-split-2026-08-21) before diagnosing
+any future "the change didn't take" report on this zone; it is the single most misleading
+failure mode the domain has shown.
+
+**Wix is still not cancelled, deliberately.** Two loose ends remain, in this order: check
+whether the Wix account still holds `asktic.com` as a *connected domain* and disconnect it
+— that is the untreated likely cause of the re-assertion — and only then retire the
+subscription. See
+[Repaired and verified, 2026-08-23](#repaired-and-verified-2026-08-23).
 
 ---
 
 ## Final zone state
 
-> ⚠ **This table describes the *Wix* zone, which is one of two currently authoritative —
-> see [The delegation is split](#the-delegation-is-split-2026-08-21). The Vodien zone is
-> this list minus the six rows marked dropped. `freshdesk` (type-99 SPF) exists in neither
-> and should come out once the split is repaired.**
+> ⚠ **This table was written from the *Wix* zone, which is no longer authoritative for
+> anything — see [Repaired and verified](#repaired-and-verified-2026-08-23). What actually
+> serves today is this list **minus the six rows marked dropped**. Those six exist only in
+> the dead Wix zone and are gone from resolution; the table keeps them because
+> [why they were dropped](#the-trap-in-this-zone) is the part worth not relearning.
+> `freshdesk` (type-99 SPF) exists in neither zone.**
 
 | Host | Type | Value | Note |
 | --- | --- | --- | --- |
@@ -217,6 +225,52 @@ it replaced.
    Wix zone while `ns3`/`ns4.wixdns.net` remain delegated leaves two of four nameservers
    answering with failure instead of data, which turns today's benign split into
    intermittent, hard-to-trace resolution errors across the site, the CRM and mail.
+
+### Repaired and verified, 2026-08-23
+
+**The split is closed.** Six independent public resolvers, each with its own cache, were
+asked for `asktic.com`'s `NS` list on 2026-08-23. All six returned the same three names and
+no Wix reply appeared in any of them:
+
+| Resolver | Answer |
+| --- | --- |
+| `1.1.1.1` Cloudflare | `ns1`, `ns2`, `ns3.vodien.com` |
+| `8.8.8.8` Google | `ns1`, `ns2`, `ns3.vodien.com` |
+| `9.9.9.9` Quad9 | `ns1`, `ns2`, `ns3.vodien.com` |
+| `208.67.222.222` OpenDNS | `ns1`, `ns2`, `ns3.vodien.com` |
+| `8.26.56.26` Comodo | `ns1`, `ns2`, `ns3.vodien.com` |
+| `64.6.64.6` Neustar | `ns1`, `ns2`, `ns3.vodien.com` |
+
+Compare the sampling two days earlier, which returned **9 Wix replies to 3 Vodien** across
+three resolvers. Unanimity across six is the practical proof, because each of those caches
+resolves the delegation independently: if Wix were still delegated, some of them would have
+landed on it. The steps above worked, and step 4 held — the third row is `ns3.vodien.com`,
+which resolves, not the bare `ns.vodien.com`, which does not.
+
+**One caveat on how this was verified.** These are *recursive* answers, not a direct read of
+the parent delegation at the `.com` registry. A direct query to a gTLD server would settle it
+beyond doubt, but this sandbox intercepts UDP/53 and NATs it to its own resolver, so no
+authoritative server can be reached from here — the attempt returned `SERVFAIL` from a
+spoofed source address rather than a referral. Six agreeing caches is strong evidence, not a
+registry read. Anyone with `dig` on an unrestricted network can close the gap in one command:
+
+```
+dig +norecurse @a.gtld-servers.net asktic.com NS
+```
+
+**Two things still worth doing, neither urgent:**
+
+- **Check whether Wix still holds `asktic.com` as a connected domain**, and disconnect it if
+  so. This was the likeliest cause of the re-assertion, and it is untreated — the registrar
+  rows were removed, but if the mechanism that added them is still armed, they can come back.
+  Verifying this needs the Wix account.
+- **Then cancel Wix**, in that order, per step 6. The zone is no longer reachable by any
+  resolver, so cancelling is now safe from a delegation standpoint — but do the disconnect
+  first so the subscription is not cancelled while the thing that re-asserts is still live.
+
+The TTL stays at `300`. Two clean days is not "a few weeks", and step 5's reasoning is
+unchanged: the delegation has already proved it can change unprompted, and a short TTL keeps
+the next surprise to a five-minute recovery.
 
 ---
 
@@ -928,6 +982,42 @@ workspace; with four here plus `asktic.com` and `www.asktic.com` on `tic-web`, t
 bills at $0.25 each per month. Trivial, but it was not part of the original comparison
 against Vodien forwarding and should be, if that ever gets revisited.
 
+**Re-verified on 2026-08-23 against live DNS.** Both zones are identical and complete:
+
+| Record | `asktic.sg` | `asktic.com.sg` |
+| --- | --- | --- |
+| apex `A` | `216.24.57.1` | `216.24.57.1` |
+| `www` `CNAME` | `tic-sg-redirect.onrender.com` | `tic-sg-redirect.onrender.com` |
+| `MX` | none — null MX in force | none — null MX in force |
+| `SPF` | `v=spf1 -all` | `v=spf1 -all` |
+| `_dmarc` | `v=DMARC1; p=reject; rua=mailto:dmarc@asktic.com` | same |
+| `*._domainkey` | `v=DKIM1; p=` (revoked) | same |
+
+The `www` names resolve through to Render's Cloudflare-fronted origin
+(`gcp-us-west1-1.origin.onrender.com` → `216.24.57.7`, `216.24.57.15`), which is the shape a
+working Render custom domain has.
+
+### No `.sg` DMARC reports have arrived, and that is the good outcome
+
+Eight aggregate reports reached `dmarc@asktic.com` in the three days to 2026-08-23 — four
+from Google, four from Microsoft — and **every one of them is for `asktic.com`. Not one is
+for either `.sg` name.**
+
+That is not a failure of the authorisation records. A receiver generates an aggregate report
+only when it *sees mail* claiming to be from the domain. Zero reports means zero mail —
+legitimate or forged — has claimed either `.sg` name since the records went live. Nobody is
+spoofing them, which is exactly what the hardening was for.
+
+The consequence worth writing down: **the two `_report._dmarc` records are untested.** They
+are correct by construction and cost nothing, but no receiver has yet had cause to consult
+them, so their working is asserted rather than observed. The first time a `.sg` report
+appears in `dmarc@asktic.com` is the moment they are proven — and it is also the first
+evidence that someone has tried to forge one of the parked names, which is worth reading
+rather than filing.
+
+**The Gmail filter is holding.** All eight reports carry the label and none reached the
+Freshdesk queue, so the containment set up on 2026-08-19 is still working four days on.
+
 ### Two error shapes that both mean "Render has not been told this hostname"
 
 Seen 2026-08-23, with DNS already correct on all four names:
@@ -1038,13 +1128,22 @@ naming makes that easy to do by accident.
 
 ### Post-cutover follow-ups
 
-**One thing outstanding, and it is significant.** The DNS move to Vodien was done and verified against three resolvers,
-and confirmed on delivered messages over both sending paths. Every follow-up it raised is
-closed: the TTL needed no change, `dmarc@` is filtered out of the support queue, the SPF
-include stays. **But the move itself did not hold** — see
-[The delegation is split](#the-delegation-is-split-2026-08-21) — so Wix is still one of two
-authoritative providers and must be kept until that is repaired. The reasoning behind each decision is in
-[Still open after the move](#still-open-after-the-move).
+**The DNS move is complete and the delegation now holds.** It was verified against
+resolvers and confirmed on delivered messages over both sending paths, it broke into a
+[split delegation](#the-delegation-is-split-2026-08-21) for six days, and it was
+[repaired and re-verified on 2026-08-23](#repaired-and-verified-2026-08-23) across six
+independent resolvers. Every follow-up it raised is closed: the TTL needed no change,
+`dmarc@` is filtered out of the support queue, the SPF include stays. The reasoning behind
+each decision is in [Still open after the move](#still-open-after-the-move).
+
+What is left is small and sequenced:
+
+| # | Item | Why it is not done |
+| --- | --- | --- |
+| 1 | Disconnect `asktic.com` in the **Wix account**, if it is still listed as a connected domain | Needs the Wix login. This is the untreated likely cause of the nameservers re-asserting once already. |
+| 2 | Cancel the Wix subscription | Only after 1, so the subscription is not retired while the mechanism that re-asserts is still armed. |
+| 3 | Raise the TTL from `300` to `3600` | Wants a few clean weeks first, not two clean days. The delegation has already changed once without anyone touching it. |
+| 4 | Confirm the `.sg` redirects in a browser | Cannot be done from the agent sandbox — the environment's egress policy denies `CONNECT` to all four hostnames, which is a sandbox limit and not a Render fault. Four hostnames on `tic-sg-redirect` show **Verified** and **Certificate Issued**, and DNS resolves correctly, so this is confirmation rather than doubt. |
 
 One thing the move surfaced and did not resolve, deliberately: Freshdesk relays through
 Google Workspace and signs with the `google` selector, so `include:email.freshdesk.com` — 6

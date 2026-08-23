@@ -11,9 +11,10 @@ and the palette was re-derived from the logo. What remains is real content for t
 placeholders that flow surfaced (see [below](#what-is-still-placeholder-content)) and an
 editorial pass over the ported copy
 ([`port-worklist.md`](content/_inventory/port-worklist.md)). On DNS: the zone moved to
-Vodien on 2026-08-16, but the registrar now delegates to **both** Vodien and Wix at once —
-nothing is broken, though the split must be repaired before the Wix subscription is
-cancelled. See [`dns-cutover.md`](content/_inventory/dns-cutover.md).
+Vodien on 2026-08-16, spent six days delegated to **both** Vodien and Wix at once, and was
+repaired and re-verified on 2026-08-23 across six independent resolvers. Vodien is now the
+only authoritative provider. Wix stays subscribed until the domain is disconnected there.
+See [`dns-cutover.md`](content/_inventory/dns-cutover.md).
 
 ---
 
@@ -249,12 +250,15 @@ apart, so resolve before deleting; removing a live one silently pushes ticket re
 toward spam. SPF, DMARC and Google DKIM are now published after years without them, with
 only **3 of SPF's 10 DNS lookups spare** — cost any future "add our SPF include" request
 before adding it, because exceeding the limit fails SPF permanently rather than degrading.
-And **the delegation is split.** The zone moved to Vodien on 2026-08-16, but the registrar
-now lists four nameservers — two Vodien, two Wix — so both are authoritative over different
-zones and each lookup lands on whichever answers first. Nothing is broken, because the two
-zones agree on everything that matters, but an edit in either panel would apply to only some
-lookups. Repair it before cancelling Wix. Read the Vodien section of `dns-cutover.md` first,
-and check a resolver rather than the panel.
+And **the delegation was split for six days, which is the trap to know about.** Between
+2026-08-16 and 2026-08-22 the registrar listed four nameservers — two Vodien, two Wix — so
+both were authoritative over different zones and each lookup landed on whichever answered
+first. It is repaired: as of 2026-08-23 six independent resolvers unanimously return the
+three Vodien names. Nothing was ever broken, because the two zones agreed on everything that
+mattered, but the symptom it produced — records that appeared to change by themselves — cost
+days to diagnose. If a future edit to this zone "doesn't take", intermittently, check the
+delegation before anything else. Read the Vodien section of `dns-cutover.md` first, and check
+a resolver rather than the panel.
 
 
 Two assumptions in that service could **not** be verified — `render.com` is blocked by
