@@ -4,9 +4,11 @@ The site moved from Wix hosting to Render on **2026-08-12**. This is what change
 it looks like now, and what was verified. Written down because the next person to touch
 this zone should not have to rediscover any of it.
 
-✅ **The delegation is clean as of 2026-08-23.** `asktic.com` answers from
-`ns1`/`ns2`/`ns3.vodien.com` and nothing else, confirmed unanimously across six independent
-public resolvers. Vodien is the only authoritative provider.
+✅ **Done. Vodien is the sole DNS provider and Wix is cancelled, as of 2026-08-23.**
+`asktic.com` answers from `ns1`/`ns2`/`ns3.vodien.com` and nothing else, confirmed
+unanimously across six independent public resolvers, and the whole zone was re-verified
+after the Wix subscription was retired — mail, site, help centre and CRM all unaffected.
+See [Wix cancelled](#wix-cancelled-2026-08-23--nothing-broke).
 
 It was not always so, and the history matters more than most of this file. Between
 2026-08-16 and 2026-08-22 the registrar carried **four** nameservers — the two Vodien rows
@@ -17,11 +19,9 @@ kind. Read [The delegation is split](#the-delegation-is-split-2026-08-21) before
 any future "the change didn't take" report on this zone; it is the single most misleading
 failure mode the domain has shown.
 
-**Wix is still not cancelled, deliberately.** Two loose ends remain, in this order: check
-whether the Wix account still holds `asktic.com` as a *connected domain* and disconnect it
-— that is the untreated likely cause of the re-assertion — and only then retire the
-subscription. See
-[Repaired and verified, 2026-08-23](#repaired-and-verified-2026-08-23).
+**One thing is left, and it is a calendar reminder rather than a task:** the TTL is
+deliberately still at `300` and should go back to `3600` once the delegation has held clean
+for a few weeks. Nothing else is outstanding.
 
 ---
 
@@ -266,6 +266,37 @@ still `ns1`/`ns2`/`ns3.vodien.com` everywhere, with the full zone intact (5 Goog
 DMARC, `google._domainkey`, `support`, `rainmaker`, and all four Freshdesk `freshemail.io`
 DKIM CNAMEs answering normally).
 
+### Wix cancelled 2026-08-23 — nothing broke
+
+Contacts exported, subscription cancelled. Verified immediately afterwards, and everything
+holds:
+
+| | Result |
+| --- | --- |
+| Delegation, four resolvers | `ns1`/`ns2`/`ns3.vodien.com`, unanimous |
+| Google MX | all five present |
+| SPF, DMARC, `google._domainkey` | intact |
+| `www`, `support`, `rainmaker`, apex `A` | all resolving to the right targets |
+| Freshdesk DKIM — `1s3`, `q2zty`, `rvec3`, `fwdkim1` | all four resolving to `freshemail.io` |
+| `asktic.sg`, `asktic.com.sg` | both zones complete and unchanged |
+| `www.asktic.com`, `asktic.com`, `support.asktic.com` | `200` |
+| Mail | flowing both directions, confirmed on live traffic |
+
+**The cancellation was itself the last piece of proof.** If any share of lookups had still
+been landing on the Wix zone, retiring it would have turned those into failures — that was
+the exact hazard [step 6](#the-repair-in-order) was written to avoid. Nothing failed, which
+confirms from the other direction what the six-resolver sample showed: no traffic was
+reaching Wix any more.
+
+There is a second, quieter confirmation. The six Freshworks-suite records — `9tp4z`
+through `9tp4z4`, `fwdkim`, plus `fwtrack` and `fslink` — now return **nothing, every time**.
+Through the split they answered intermittently, present or absent depending on which zone a
+lookup happened to hit, and that inconsistency is what made this file wrong twice. They are
+consistently gone for the first time. The zone finally has one answer to every question.
+
+**`asktic.com` is now single-provider, single-zone, and fully accounted for.** The migration
+that began on 2026-08-12 is complete.
+
 ### Wix is now safe to cancel — what was checked
 
 Every way the subscription could still have been load-bearing, and its state on 2026-08-23:
@@ -397,7 +428,7 @@ not the control panel:
 | SPF | exactly one record; two would be a permerror |
 | DMARC | `p=none` with `rua` intact |
 | `google._domainkey` | **byte-for-byte identical** to the value published at Wix — 410 chars, compared programmatically |
-| Freshdesk DKIM | all four `freshemail.io` CNAMEs resolving |
+| Freshdesk DKIM | all four `freshemail.io` CNAMEs resolving — `1s3`, `q2zty`, `rvec3` `._domainkey` **and `fwdkim1`**. Not `9tp4z*`: those are `myfreshworks.com` and were dropped on purpose. |
 | Dropped Freshworks records | all seven returning nothing, as intended |
 | `www` / apex / `support` / `rainmaker` / `docs` | `200` / `200` / `302` / `302` / `302`, TLS valid on all five |
 
@@ -1164,8 +1195,8 @@ What is left is small and sequenced:
 | # | Item | Why it is not done |
 | --- | --- | --- |
 | ~~1~~ | ~~Disconnect `asktic.com` in the **Wix account**~~ | **Done 2026-08-23** — confirmed disconnected; delegation re-sampled afterwards and unmoved. |
-| 2 | Export Wix contacts, form submissions and analytics, then cancel the subscription | Cleared to proceed — see [what was checked](#wix-is-now-safe-to-cancel--what-was-checked). Nothing technical depends on Wix any more; the export is the only irreversible loss left. |
-| 3 | Raise the TTL from `300` to `3600` | Wants a few clean weeks first, not two clean days. The delegation has already changed once without anyone touching it. |
+| ~~2~~ | ~~Export Wix contacts, then cancel the subscription~~ | **Done 2026-08-23** — contacts exported, subscription cancelled, full zone re-verified afterwards with nothing broken. See [Wix cancelled](#wix-cancelled-2026-08-23--nothing-broke). |
+| 3 | Raise the TTL from `300` to `3600` | The only item left. Wants a few clean weeks first, not a few clean days — the delegation has already changed once without anyone touching it. Nothing else is pending, so this is a calendar reminder rather than a task. |
 | 4 | Confirm the `.sg` redirects in a browser | Cannot be done from the agent sandbox — the environment's egress policy denies `CONNECT` to all four hostnames, which is a sandbox limit and not a Render fault. Four hostnames on `tic-sg-redirect` show **Verified** and **Certificate Issued**, and DNS resolves correctly, so this is confirmation rather than doubt. |
 
 One thing the move surfaced and did not resolve, deliberately: Freshdesk relays through

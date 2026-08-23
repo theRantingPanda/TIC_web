@@ -13,10 +13,9 @@ editorial pass over the ported copy
 ([`port-worklist.md`](content/_inventory/port-worklist.md)). On DNS: the zone moved to
 Vodien on 2026-08-16, spent six days delegated to **both** Vodien and Wix at once, and was
 repaired and re-verified on 2026-08-23 across six independent resolvers. Vodien is now the
-only authoritative provider, the domain is disconnected in Wix, and nothing technical
-depends on that subscription any more — export its contacts and form submissions before
-cancelling, since those are the last thing it holds that the archive does not.
-See [`dns-cutover.md`](content/_inventory/dns-cutover.md).
+only authoritative provider and **the Wix subscription is cancelled** — contacts exported
+first, then the full zone re-verified with nothing broken. Mail, site, help centre and CRM
+were unaffected. See [`dns-cutover.md`](content/_inventory/dns-cutover.md).
 
 ---
 
