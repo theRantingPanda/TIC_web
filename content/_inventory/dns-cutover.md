@@ -893,6 +893,41 @@ a different domain, so `asktic.com` must publish `asktic.sg._report._dmarc.askti
 reports are discarded — silently, and with no effect on the `p=reject` protection itself,
 which is why it will not be noticed.
 
+### Done 2026-08-23
+
+Both `.sg` names now redirect to `www.asktic.com`, and the DMARC reporting authorisation is
+in place. Verified against live DNS and the Render dashboard.
+
+| | State |
+| --- | --- |
+| Render custom domains | all four **Verified**, **Certificate Issued** |
+| `asktic.sg._report._dmarc.asktic.com` | `v=DMARC1` ✅ |
+| `asktic.com.sg._report._dmarc.asktic.com` | `v=DMARC1` ✅ |
+| `asktic.com` zone | untouched — 5 MX, SPF, DMARC, DKIM all intact |
+
+**The authorisation records went into the `.sg` zones first**, which does nothing: the record
+has to be published by the domain that *receives* the reports, so it belongs on `asktic.com`.
+An easy mistake to repeat, because the panel's Sub Domain box appends whichever zone is open,
+so the right text in the wrong panel silently produces a self-referential name. Both wrong
+copies were removed.
+
+**Render paired the apex and `www` inconsistently.** It auto-creates a redirect between the
+two whenever both are added, and the direction depends on which went in first:
+
+```
+asktic.com.sg   ->  redirects to www.asktic.com.sg
+www.asktic.sg   ->  redirects to asktic.sg
+```
+
+One pair points apex→www, the other www→apex. Both still land on the service and get `301`d
+to `www.asktic.com`, so both work — visitors just take one extra hop on whichever leg is the
+redirect target. Cosmetic, and only worth unpicking if the extra hop ever matters.
+
+**These domains are now a small recurring cost.** Render includes 2 custom domains per
+workspace; with four here plus `asktic.com` and `www.asktic.com` on `tic-web`, the excess
+bills at $0.25 each per month. Trivial, but it was not part of the original comparison
+against Vodien forwarding and should be, if that ever gets revisited.
+
 ### Two error shapes that both mean "Render has not been told this hostname"
 
 Seen 2026-08-23, with DNS already correct on all four names:
