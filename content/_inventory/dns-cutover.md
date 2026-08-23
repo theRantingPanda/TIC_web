@@ -258,15 +258,33 @@ registry read. Anyone with `dig` on an unrestricted network can close the gap in
 dig +norecurse @a.gtld-servers.net asktic.com NS
 ```
 
-**Two things still worth doing, neither urgent:**
+**The Wix domain connection was checked and is disconnected** (confirmed 2026-08-23). That
+was the untreated half of the repair: removing the registrar rows stopped the symptom, and
+disconnecting the domain in Wix disarms the mechanism that put them there. The delegation
+was re-sampled across the same six resolvers immediately afterwards and had not moved —
+still `ns1`/`ns2`/`ns3.vodien.com` everywhere, with the full zone intact (5 Google MX, SPF,
+DMARC, `google._domainkey`, `support`, `rainmaker`, and all four Freshdesk `freshemail.io`
+DKIM CNAMEs answering normally).
 
-- **Check whether Wix still holds `asktic.com` as a connected domain**, and disconnect it if
-  so. This was the likeliest cause of the re-assertion, and it is untreated — the registrar
-  rows were removed, but if the mechanism that added them is still armed, they can come back.
-  Verifying this needs the Wix account.
-- **Then cancel Wix**, in that order, per step 6. The zone is no longer reachable by any
-  resolver, so cancelling is now safe from a delegation standpoint — but do the disconnect
-  first so the subscription is not cancelled while the thing that re-asserts is still live.
+### Wix is now safe to cancel — what was checked
+
+Every way the subscription could still have been load-bearing, and its state on 2026-08-23:
+
+| Could Wix still be doing this? | State | How it was checked |
+| --- | --- | --- |
+| Serving authoritative DNS for `asktic.com` | **No** | Six resolvers, unanimous Vodien, no Wix reply |
+| Re-asserting its nameservers at the registrar | **No** | Domain confirmed disconnected in the Wix account |
+| DNS *and* hosting for `asktic.sg` | **No** | Moved to Vodien NS + Render on 2026-08-21 |
+| Hosting the website | **No** | On Render since 2026-08-12 |
+| Serving images by hot-link from `wixstatic` | **No** | Zero `wixstatic` references in `app`, `components`, `lib`, `content`, `public`; all 16 images local |
+| Carrying mail | **Never did** | MX has always been Google Workspace |
+| Holding page content not yet archived | **No** | The two "uncaptured" pages return an empty `<main>` — they have no body content to lose. See [`_capture-status.md`](_capture-status.md) |
+
+**One thing to retrieve first, and it is not in this repository.** The old Wix site ran a
+contact form, so historic enquiries sit in Wix's own inbox/CRM rather than anywhere the
+capture reached — the archive covers pages and images, not visitor data. Export contacts,
+form submissions and any analytics history worth keeping **before** cancelling; that is
+irreversible in a way the DNS work was not.
 
 The TTL stays at `300`. Two clean days is not "a few weeks", and step 5's reasoning is
 unchanged: the delegation has already proved it can change unprompted, and a short TTL keeps
@@ -796,12 +814,17 @@ are parked differently.
 | `MX` | none | **`0 mail.asktic.com.sg`** |
 | SPF / DMARC | **none** | **none** |
 
-### `asktic.sg` is a live Wix dependency
+### `asktic.sg` was a live Wix dependency — discharged 2026-08-21
 
-Its apex points at **exactly the three Wix web servers this file records as removed from
-`asktic.com`**, and its nameservers are Wix's. So the Wix question is larger than the main
-zone: cancelling that subscription takes `asktic.sg` off the internet as well, DNS and
-hosting together. Move it to Vodien nameservers before retiring Wix, not after.
+**As written on 2026-08-21, and since resolved.** Its apex pointed at *exactly the three Wix
+web servers this file records as removed from `asktic.com`*, and its nameservers were Wix's.
+That made the Wix question larger than the main zone: cancelling the subscription would have
+taken `asktic.sg` off the internet as well, DNS and hosting together.
+
+It was moved before that could happen. `asktic.sg` now delegates to
+`ns1`/`ns2`/`ns3.vodien.com` and its apex answers `216.24.57.1` — Render, not Wix. The
+dependency is gone. Kept here because it is the kind of thing that is invisible until the
+cancellation breaks it, and the next parked name may have the same shape.
 
 ### Neither name can be spoof-protected as it stands
 
@@ -1140,8 +1163,8 @@ What is left is small and sequenced:
 
 | # | Item | Why it is not done |
 | --- | --- | --- |
-| 1 | Disconnect `asktic.com` in the **Wix account**, if it is still listed as a connected domain | Needs the Wix login. This is the untreated likely cause of the nameservers re-asserting once already. |
-| 2 | Cancel the Wix subscription | Only after 1, so the subscription is not retired while the mechanism that re-asserts is still armed. |
+| ~~1~~ | ~~Disconnect `asktic.com` in the **Wix account**~~ | **Done 2026-08-23** — confirmed disconnected; delegation re-sampled afterwards and unmoved. |
+| 2 | Export Wix contacts, form submissions and analytics, then cancel the subscription | Cleared to proceed — see [what was checked](#wix-is-now-safe-to-cancel--what-was-checked). Nothing technical depends on Wix any more; the export is the only irreversible loss left. |
 | 3 | Raise the TTL from `300` to `3600` | Wants a few clean weeks first, not two clean days. The delegation has already changed once without anyone touching it. |
 | 4 | Confirm the `.sg` redirects in a browser | Cannot be done from the agent sandbox — the environment's egress policy denies `CONNECT` to all four hostnames, which is a sandbox limit and not a Render fault. Four hostnames on `tic-sg-redirect` show **Verified** and **Certificate Issued**, and DNS resolves correctly, so this is confirmation rather than doubt. |
 
