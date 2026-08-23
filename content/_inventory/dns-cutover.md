@@ -870,6 +870,29 @@ That is why this is a separate service, and why `tic-help-redirect` is too.
 `301`, not `302` — a `302` tells search engines the move is temporary, so the `.sg` names
 stay indexed in their own right instead of consolidating onto `www.asktic.com`.
 
+### DNS done and verified, 2026-08-21
+
+Both `.sg` zones are complete, identical, and confirmed against live DNS. The Vodien parking
+records — `localhost`, `mail`, `ftp`, the `*` wildcard and the old `MX` — are gone from both.
+
+| Record | Value (both domains) |
+| --- | --- |
+| apex `A` | `216.24.57.1` |
+| `www` CNAME | `tic-sg-redirect.onrender.com` |
+| apex `TXT` | `v=spf1 -all` |
+| `_dmarc` TXT | `v=DMARC1; p=reject; rua=mailto:dmarc@asktic.com` |
+| `*._domainkey` TXT | `v=DKIM1; p=` |
+| `MX` | none |
+
+`tic-sg-redirect.onrender.com` resolves, so the service exists. What is left is entirely
+inside Render: the `/*` redirect route, and the four hostnames added as custom domains.
+
+**The `rua` still needs authorising.** Both `_dmarc` records report to `dmarc@asktic.com`,
+a different domain, so `asktic.com` must publish `asktic.sg._report._dmarc.asktic.com` and
+`asktic.com.sg._report._dmarc.asktic.com`, each containing `v=DMARC1`. Without them the
+reports are discarded — silently, and with no effect on the `p=reject` protection itself,
+which is why it will not be noticed.
+
 ### What to check afterwards
 
 Open all four hostnames. Each should land on `https://www.asktic.com` with a valid padlock.
