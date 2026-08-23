@@ -893,6 +893,24 @@ a different domain, so `asktic.com` must publish `asktic.sg._report._dmarc.askti
 reports are discarded — silently, and with no effect on the `p=reject` protection itself,
 which is why it will not be noticed.
 
+### Two error shapes that both mean "Render has not been told this hostname"
+
+Seen 2026-08-23, with DNS already correct on all four names:
+
+| Hostname | Browser shows | Why |
+| --- | --- | --- |
+| `asktic.sg`, `asktic.com.sg` | **Cloudflare Error 1001**, DNS resolution error | the apex `A` reaches Render's load balancer, which is Cloudflare-fronted — the chain resolves through `…onrender.com.cdn.cloudflare.net`. Cloudflare receives a `Host` it has no route for and answers 1001 |
+| `www.asktic.sg` | `ERR_SSL_VERSION_OR_CIPHER_MISMATCH` | the `www` CNAME reaches Render directly, and no certificate exists for a hostname Render has not been issued one for, so TLS fails before HTTP |
+
+**Neither is a DNS fault, and the Cloudflare page is misleading on that point.** Every record
+resolves correctly and identically to `www.asktic.com`, which works. The missing step is
+entirely inside Render: the four hostnames have to be added as custom domains on
+`tic-sg-redirect` before it will answer for them or request certificates.
+
+Worth remembering as a pair — an apex showing a *Cloudflare* error while its `www` shows a
+*TLS* error is the signature of exactly this, and sends people to look at DNS, which is the
+one thing that is right.
+
 ### What to check afterwards
 
 Open all four hostnames. Each should land on `https://www.asktic.com` with a valid padlock.
