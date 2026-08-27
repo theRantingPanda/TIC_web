@@ -649,20 +649,51 @@ either way. The rest of this section is reference, not work outstanding.
 2026-08-15 that opened ticket 49294. Freshdesk therefore reads the inbox only, and the
 spam-marking fallback has not been needed.
 
-**The volume is routine.** Four reports a day is what this domain should expect, and it is
-a sign of reach rather than of trouble — aggregate reports are daily telemetry from every
+**The volume is routine, and it grows.** Aggregate reports are daily telemetry from every
 provider that receives mail claiming to be from the domain, sent whether or not anything is
-wrong. Observed over 2026-08-16 to 2026-08-20:
+wrong. A new reporter appearing is a sign of reach, not of trouble. Observed to 2026-08-27:
 
-| Reporter | Submitters | Per day |
-| --- | --- | --- |
-| Google | `google.com` | 1 |
-| Microsoft | `protection.outlook.com` and `enterprise.protection.outlook.com` | 2 |
-| Yahoo | `yahoo.com`, occasionally `yahoo.fr` | 1 |
+| Reporter | Sender | Per day | First seen |
+| --- | --- | --- | --- |
+| Google | `noreply-dmarc-support@google.com` | 1 | from the start |
+| Microsoft | `dmarcreport@microsoft.com` | 2 | from the start |
+| Yahoo | `noreply@dmarc.yahoo.com` | 1 | 2026-08-17 |
+| Mail.Ru | `dmarc_support@corp.mail.ru` | 1 | 2026-08-26 |
+| **Mimecast** | `dmarc_rua@mimecast.com` | 1 | 2026-08-27 |
 
 Microsoft counting twice is normal — the consumer and enterprise filtering estates report
-separately. The count will drift as the recipient mix changes; a new provider appearing is
-not a signal of anything.
+separately. **The pool has roughly doubled in ten days and should be expected to keep
+growing.** Mimecast in particular is a large corporate mail gateway sitting in front of many
+insurers — Now Health among them — so it will report for as long as TIC corresponds with
+anyone behind it. There is no way to make aggregate reports stop, short of removing `rua=`
+from the DMARC record, which would also remove the only visibility into who is forging the
+domain. They are a permanent, growing background flow, and the containment below is what
+makes that tolerable rather than the volume ever reducing.
+
+### Mimecast is the predicted leak, and it arrived 2026-08-27
+
+The widening note below was written against a hypothetical — *"a reporter addressing `dmarc@`
+by envelope or Bcc slips past"*. Mimecast is that case, made real.
+
+**Its reports are not in the Gmail mailbox at all.** A search of the whole connected account
+for `from:mimecast.com`, with no date bound, returns nothing, while five other aggregate
+reports arrived over the same two days and are all present under the `DMARC` label. They are
+reaching Freshdesk and being consumed there, which means they are addressed in a way the
+filter — matching `dmarc@asktic.com` — never sees. So they open tickets, with SLA clocks, and
+the containment applied on 2026-08-16 does not touch them.
+
+**The fix is the widening that was already drafted, plus the Mimecast sender.** Put the whole
+condition in *Has the words*, leave every other field empty, and remember that Gmail **ANDs**
+separate fields — adding a clause alongside a populated *To* box matches strictly fewer
+messages, which is the opposite of the intent:
+
+```
+{to:dmarc@asktic.com deliveredto:dmarc@asktic.com cc:dmarc@asktic.com from:dmarc_rua@mimecast.com subject:"Report Domain: asktic.com"}
+```
+
+The `from:` clause is the one that catches Mimecast today. The `subject:` clause is the one
+that will catch the next reporter nobody has heard of yet, so do not drop it in favour of
+listing senders — the sender list is the part that goes stale.
 
 **If it ever needs widening, note that Gmail ANDs the filter fields.** `to:` matches the
 header only, so a reporter addressing `dmarc@` by envelope or Bcc slips past. But adding a
