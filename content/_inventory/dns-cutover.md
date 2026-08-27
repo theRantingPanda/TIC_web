@@ -675,12 +675,19 @@ makes that tolerable rather than the volume ever reducing.
 The widening note below was written against a hypothetical — *"a reporter addressing `dmarc@`
 by envelope or Bcc slips past"*. Mimecast is that case, made real.
 
-**Its reports are not in the Gmail mailbox at all.** A search of the whole connected account
-for `from:mimecast.com`, with no date bound, returns nothing, while five other aggregate
-reports arrived over the same two days and are all present under the `DMARC` label. They are
-reaching Freshdesk and being consumed there, which means they are addressed in a way the
-filter — matching `dmarc@asktic.com` — never sees. So they open tickets, with SLA clocks, and
-the containment applied on 2026-08-16 does not touch them.
+**Its reports leave no trace in Gmail.** A search of the whole connected account for
+`from:mimecast.com`, with no date bound, returns nothing — while five other aggregate reports
+arrived over the same two days and are all present under the `DMARC` label.
+
+**Read that carefully, because the obvious conclusion is the wrong one.** It does not mean the
+reports bypass Gmail. It means they land in the **inbox**, unmatched by a filter keyed to
+`dmarc@asktic.com`, and Freshdesk fetches and removes them before anything else sees them. The
+filtered reports survive precisely *because* they were archived out of the inbox and Freshdesk
+never reached them. Absence from Gmail is therefore evidence of ingestion, not of non-delivery.
+
+The consequence either way: Mimecast's reports open tickets, with live SLA clocks, and the
+containment applied on 2026-08-16 does not touch them. The consequence of getting the
+mechanism right: **a Gmail filter does fix it**, for the same reason it fixed the others.
 
 **The fix is the widening that was already drafted, plus the Mimecast sender.** Put the whole
 condition in *Has the words*, leave every other field empty, and remember that Gmail **ANDs**
@@ -694,6 +701,20 @@ messages, which is the opposite of the intent:
 The `from:` clause is the one that catches Mimecast today. The `subject:` clause is the one
 that will catch the next reporter nobody has heard of yet, so do not drop it in favour of
 listing senders — the sender list is the part that goes stale.
+
+**The filter's actions do not change — only what it matches.** Two boxes, the same two that
+have been in force since 2026-08-16:
+
+| Action | Why |
+| --- | --- |
+| ☑ Skip the Inbox (Archive it) | The one that does the work. Freshdesk polls the **inbox**; Gmail filters run at delivery, before Freshdesk arrives, so an archived report is already beyond its reach. |
+| ☑ Apply the label `DMARC` | Visibility only. Contributes nothing to containment. |
+| ☑ Also apply to matching conversations | Brings existing reports into line. |
+
+Leave **Delete it** unticked — the reports are the evidence base that settled the
+`include:email.freshdesk.com` question and are the only visibility into who forges the domain.
+Leave **Never send it to Spam** unticked too: there is no spam problem to solve, and the flag
+would also protect a forged report.
 
 **If it ever needs widening, note that Gmail ANDs the filter fields.** `to:` matches the
 header only, so a reporter addressing `dmarc@` by envelope or Bcc slips past. But adding a
