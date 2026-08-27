@@ -702,6 +702,20 @@ The `from:` clause is the one that catches Mimecast today. The `subject:` clause
 that will catch the next reporter nobody has heard of yet, so do not drop it in favour of
 listing senders — the sender list is the part that goes stale.
 
+**Applied 2026-08-27. Verification is pending and cannot be rushed.** Re-running
+`from:dmarc_rua@mimecast.com` straight after the change still returns nothing, and that is the
+expected result, not a failure: the reports that arrived before the filter had already been
+ingested and removed by Freshdesk, so there was no backlog for *Also apply to matching
+conversations* to sweep up. The filter can only prove itself on the **next** arrival. Since
+Mimecast reports daily, the test resolves within about 24 hours, and it has exactly two
+outcomes:
+
+- **A Mimecast report appears under the `DMARC` label and no Freshdesk ticket opens** — the
+  containment works, and the mechanism described above was read correctly.
+- **A Freshdesk ticket opens anyway, and Gmail still shows nothing** — then the reports really
+  are not passing through this mailbox, the reasoning above is wrong, and the fix has to move
+  to the Freshdesk side (a dispatch rule on the requester address, option 2 below).
+
 **The filter's actions do not change — only what it matches.** Two boxes, the same two that
 have been in force since 2026-08-16:
 
