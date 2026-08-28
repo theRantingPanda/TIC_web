@@ -716,6 +716,38 @@ outcomes:
   are not passing through this mailbox, the reasoning above is wrong, and the fix has to move
   to the Freshdesk side (a dispatch rule on the requester address, option 2 below).
 
+#### Checked 2026-08-28: inconclusive, and the reason is worth knowing
+
+Twenty-four hours on, the filter is demonstrably working for everything it can see. Six
+reports arrived in the window and every one carries the `DMARC` label with no `INBOX` label:
+
+| Reporter | Reports | Contained |
+| --- | --- | --- |
+| Google | 2 | ✅ |
+| Microsoft | 3 | ✅ |
+| Yahoo | 1 | ✅ |
+| Mail.Ru | 1 | ✅ |
+| **Mimecast** | **0** | — nothing to contain |
+
+**Mimecast sent nothing at all**, so the test did not run. Neither outcome above has been
+observed, and the honest reading is *unknown*, not *fixed*.
+
+**Gmail cannot settle this on its own.** Absence from Gmail is exactly what both outcomes
+predict — either the report was contained (but there was no report), or it bypassed the
+mailbox (but there was no report). **The discriminating evidence is Freshdesk:** if a Mimecast
+ticket opened in the same window while Gmail stayed empty, the reasoning above is wrong. If no
+ticket opened either, no report was sent and the question is simply still open. That check
+needs a Freshdesk look, and the read skill takes a ticket ID rather than a search, so it is a
+human step.
+
+**This also puts a question mark over the "daily, permanently" answer given on 2026-08-27.**
+That is sound for Google, Microsoft, Yahoo and Mail.Ru — consumer estates that see mail
+claiming this domain more or less continuously. Mimecast is a different animal: a per-tenant
+corporate gateway that only reports when one of *its customers* receives mail claiming to be
+from `asktic.com`. If TIC exchanges mail with a Mimecast-protected insurer weekly, Mimecast
+reports weekly, not daily. One quiet day is not enough to correct the claim, but it is enough
+to flag it as unproven for this reporter specifically.
+
 **The filter's actions do not change — only what it matches.** Two boxes, the same two that
 have been in force since 2026-08-16:
 
