@@ -716,7 +716,50 @@ outcomes:
   are not passing through this mailbox, the reasoning above is wrong, and the fix has to move
   to the Freshdesk side (a dispatch rule on the requester address, option 2 below).
 
-#### Checked 2026-08-28: inconclusive, and the reason is worth knowing
+#### Settled 2026-08-29: the Gmail filter cannot contain these, and never could
+
+**More Mimecast reports arrived at Freshdesk after the filter went on. The mechanism recorded
+above is wrong, and this is the second time it has been wrong in the same direction.** Both
+earlier readings assumed the reports pass through the Google Workspace mailbox and are merely
+mislabelled or consumed too fast to see. They do not pass through it at all.
+
+The test that settles it — asked of Gmail on 2026-08-29:
+
+| Query | Result | What it rules out |
+| --- | --- | --- |
+| `to:hello@asktic.com newer_than:12d` | **18 threads**, including one that morning | "`hello@` mail bypasses Gmail" — it plainly does not |
+| `from:dmarc_rua@mimecast.com` (no date bound) | **0, ever** | "Freshdesk consumes them before they can be seen" — other `hello@` mail persists fine |
+
+Both explanations required one of those two results to come out the other way. Mail to
+`hello@` lands in this mailbox reliably and stays there; Mimecast's reports have never been in
+it at any address. **Therefore Mimecast reaches Freshdesk by a path that does not traverse
+Google Workspace, and no Gmail filter — however worded — can ever touch them.**
+
+**Leave the widened filter in place anyway.** It is correct and working for Google, Microsoft,
+Yahoo and Mail.Ru, which is why those five-a-day are contained. The `from:dmarc_rua@mimecast.com`
+clause in it is simply inert, and costs nothing if the routing ever changes.
+
+**The fix is Freshdesk-side, which is where option 2 below always said it would have to go.**
+Freshdesk offers two mechanisms, both verified against its own documentation:
+
+| Approach | Effect | Verdict |
+| --- | --- | --- |
+| **Automation rule on ticket creation** matching requester `dmarc_rua@mimecast.com` — set Status **Closed**, add tag `DMARC` | Ticket is born closed, so no first-response SLA clock ever starts. Reports are retained and findable by tag. | **Preferred.** Nothing is destroyed and the noise stops. |
+| **Delete the contact** `dmarc_rua@mimecast.com` | Freshdesk auto-routes all future mail from that address to spam. | Blunter. Stops ticket creation entirely, but the reports become awkward to read and the behaviour is a side effect of contact deletion rather than a stated rule. |
+
+A Dispatch'r rule with action *Delete the Ticket* also works but is worse than closing: it puts
+the reports in Trash on a retention timer, for no gain over a closed ticket.
+
+**Still unknown, and it needs one artifact.** Which address Mimecast is actually sending to.
+The likeliest candidate is Freshdesk's native ingestion address —
+`askticcomhello@asktic.freshdesk.com`, already recorded on ticket 49294 as this instance's
+`support_email` — because it has its own MX under `freshdesk.com` and bypasses Google entirely.
+That is a hypothesis, not a finding. **Pulling any one Mimecast ticket via `get_ticket` settles
+it**, since the payload carries `support_email` and the requester. The read skill takes a ticket
+ID and offers no search, so the ID has to come from a human. The fix above does not depend on
+the answer.
+
+#### Superseded: checked 2026-08-28, read as inconclusive
 
 Twenty-four hours on, the filter is demonstrably working for everything it can see. Six
 reports arrived in the window and every one carries the `DMARC` label with no `INBOX` label:
