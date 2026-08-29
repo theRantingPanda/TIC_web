@@ -644,10 +644,13 @@ marked as spam in Freshdesk.** That is enough — spam-marking clears the ticket
 clock, and it does not touch Gmail, so the reports stay readable under the `DMARC` label
 either way. The rest of this section is reference, not work outstanding.
 
-**Confirmed working.** Every aggregate report received since the filter went on carries the
-`DMARC` label and no `INBOX` label; the last report to reach the inbox is the one from
-2026-08-15 that opened ticket 49294. Freshdesk therefore reads the inbox only, and the
-spam-marking fallback has not been needed.
+**~~Confirmed working.~~ This claim was wrong, and stood for thirteen days. See
+[Settled 2026-08-29](#settled-2026-08-29-the-gmail-filter-never-stopped-freshdesk-and-never-could).**
+The evidence recorded here — every report carrying the `DMARC` label and no `INBOX` label —
+is real and still true, but it only proves *the Gmail filter fires*. It says nothing whatever
+about Freshdesk, and **nobody checked Freshdesk.** Tickets kept opening the whole time. The
+inference "Freshdesk therefore reads the inbox only" did not follow from the observation and
+was never tested.
 
 **The volume is routine, and it grows.** Aggregate reports are daily telemetry from every
 provider that receives mail claiming to be from the domain, sent whether or not anything is
@@ -716,48 +719,67 @@ outcomes:
   are not passing through this mailbox, the reasoning above is wrong, and the fix has to move
   to the Freshdesk side (a dispatch rule on the requester address, option 2 below).
 
-#### Settled 2026-08-29: the Gmail filter cannot contain these, and never could
+#### Settled 2026-08-29: the Gmail filter never stopped Freshdesk, and never could
 
-**More Mimecast reports arrived at Freshdesk after the filter went on. The mechanism recorded
-above is wrong, and this is the second time it has been wrong in the same direction.** Both
-earlier readings assumed the reports pass through the Google Workspace mailbox and are merely
-mislabelled or consumed too fast to see. They do not pass through it at all.
+Three ticket IDs supplied by hand — 49442, 49443, 49448 — and pulled via `get_ticket`. All
+three are DMARC aggregate reports. All three are addressed to `dmarc@asktic.com`. All three
+opened on 2026-08-29 with a live first-response clock of `2026-08-31T10:00:00Z`:
 
-The test that settles it — asked of Gmail on 2026-08-29:
+| Ticket | Reporter | Requester address | Opened |
+| --- | --- | --- | --- |
+| 49442 | Mimecast | `no-reply@us-4.mimecastreport.com` | 07:39 |
+| 49443 | Microsoft | `dmarcreport@microsoft.com` | 08:32 |
+| 49448 | Google | `noreply-dmarc-support@google.com` | 10:09 |
 
-| Query | Result | What it rules out |
-| --- | --- | --- |
-| `to:hello@asktic.com newer_than:12d` | **18 threads**, including one that morning | "`hello@` mail bypasses Gmail" — it plainly does not |
-| `from:dmarc_rua@mimecast.com` (no date bound) | **0, ever** | "Freshdesk consumes them before they can be seen" — other `hello@` mail persists fine |
+**Ticket 49443 is the proof, because that same message is sitting in Gmail with the `DMARC`
+label.** Report-ID `1b7ae691b9b44c6b9f032ea60bc84ed4`, labelled and out of the inbox at
+`08:31:54Z`, opening a Freshdesk ticket at `08:32:05Z` — eleven seconds later, from one
+message.
 
-Both explanations required one of those two results to come out the other way. Mail to
-`hello@` lands in this mailbox reliably and stays there; Mimecast's reports have never been in
-it at any address. **Therefore Mimecast reaches Freshdesk by a path that does not traverse
-Google Workspace, and no Gmail filter — however worded — can ever touch them.**
+**So `dmarc@asktic.com` delivers to the Gmail mailbox *and* to Freshdesk, independently.**
+Archiving the Gmail copy does nothing to the copy Freshdesk already has. The containment
+applied on 2026-08-16 has never stopped a single ticket, for any reporter, and the tickets
+have been accruing SLA breaches for thirteen days behind a `No New Tix Notification` tag that
+hides the alert but not the clock — visible on 49448.
 
-**Leave the widened filter in place anyway.** It is correct and working for Google, Microsoft,
-Yahoo and Mail.Ru, which is why those five-a-day are contained. The `from:dmarc_rua@mimecast.com`
-clause in it is simply inert, and costs nothing if the routing ever changes.
+**Mimecast is not a special case in the way three earlier entries in this file claimed.** It is
+not "the predicted leak", it is not bypassing a filter that works for others, and the widened
+`from:` clause was never going to help. Every reporter behaves identically. Mimecast differs in
+exactly one narrow respect: unlike the other four it never appears in Gmail at all — searched
+by exact address, by domain, and across spam and trash — so for Mimecast the Freshdesk copy is
+the only copy. Why Google Workspace has no copy of it is unresolved and does not affect the fix.
 
-**The fix is Freshdesk-side, which is where option 2 below always said it would have to go.**
-Freshdesk offers two mechanisms, both verified against its own documentation:
+**Three wrong readings preceded this, all the same mistake.** Each assumed the Gmail filter was
+the containment and reasoned about why Mimecast escaped it — consumed too fast to see, then
+routed around the mailbox, then addressed differently. The premise was never checked. One
+`get_ticket` on any ticket would have shown a Microsoft report opening one, which is the fact
+that breaks all three explanations at once. Ask what the artifact says before theorising about
+why it is missing.
 
-| Approach | Effect | Verdict |
-| --- | --- | --- |
-| **Automation rule on ticket creation** matching requester `dmarc_rua@mimecast.com` — set Status **Closed**, add tag `DMARC` | Ticket is born closed, so no first-response SLA clock ever starts. Reports are retained and findable by tag. | **Preferred.** Nothing is destroyed and the noise stops. |
-| **Delete the contact** `dmarc_rua@mimecast.com` | Freshdesk auto-routes all future mail from that address to spam. | Blunter. Stops ticket creation entirely, but the reports become awkward to read and the behaviour is a side effect of contact deletion rather than a stated rule. |
+**The fix, and it must cover every reporter rather than one sender.** In Freshdesk, a ticket
+creation rule (Admin → Workflows → Automations → *Ticket Creation*):
 
-A Dispatch'r rule with action *Delete the Ticket* also works but is worse than closing: it puts
-the reports in Trash on a retention timer, for no gain over a closed ticket.
+| | |
+| --- | --- |
+| **Condition** | To email **is** `dmarc@asktic.com` |
+| **Actions** | Set Status → **Closed**; add tag `DMARC` |
 
-**Still unknown, and it needs one artifact.** Which address Mimecast is actually sending to.
-The likeliest candidate is Freshdesk's native ingestion address —
-`askticcomhello@asktic.freshdesk.com`, already recorded on ticket 49294 as this instance's
-`support_email` — because it has its own MX under `freshdesk.com` and bypasses Google entirely.
-That is a hypothesis, not a finding. **Pulling any one Mimecast ticket via `get_ticket` settles
-it**, since the payload carries `support_email` and the requester. The read skill takes a ticket
-ID and offers no search, so the ID has to come from a human. The fix above does not depend on
-the answer.
+Matching the recipient rather than the sender is the point: it catches Google, Microsoft,
+Yahoo, Mail.Ru, Mimecast and every reporter that appears next, needs no maintenance as the pool
+grows, and cannot collide with client mail — no human writes to `dmarc@`. A ticket created
+already closed never starts a first-response clock, and the reports stay readable in Freshdesk
+under the tag.
+
+Do **not** substitute a sender list; that is what the Gmail filter did and it goes stale by
+design. Do not use *Delete the Ticket* either — it destroys the only copy of the Mimecast
+reports for no gain over closing.
+
+**Leave the Gmail filter in place.** It correctly labels and archives the four reporters that
+do arrive there, which keeps them out of the inbox and readable. It was simply never the thing
+stopping tickets.
+
+**Existing open DMARC tickets need clearing once**, since the rule only applies at creation.
+The three above were already deleted by hand; any others should be closed in bulk.
 
 #### Superseded: checked 2026-08-28, read as inconclusive
 
