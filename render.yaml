@@ -512,3 +512,51 @@ services:
         # Repointed from /knowledge on 2026-08-19. That path is now a tombstone, so a
         # help hostname would have landed visitors on a page saying the page had moved.
         # /kb is the knowledge base itself.
+
+  # ---------------------------------------------------------------------------
+  # The two parked .sg registrations -> https://www.asktic.com
+  #
+  # asktic.sg and asktic.com.sg both 301 here. Four hostnames, one service:
+  # the apex and www of each.
+  #
+  # Why a separate service and not a route on tic-web: Render matches `source` on
+  # path only, with no host component, so a `/*` rule on tic-web would match
+  # www.asktic.com's own requests and redirect the homepage to itself. Same reason
+  # tic-help-redirect exists. This is the trap to remember if anyone is ever tempted
+  # to "simplify" by folding these rules into the main service.
+  #
+  # Why Render at all, when a registrar normally does this with a setting: Vodien's
+  # documented redirect paths all run through cPanel, which comes with a hosting plan.
+  # These three names are registration-only products and their panel has no forwarding
+  # tab. Confirmed against the panel; Vodien's own help site could not be read directly
+  # because it is blocked by this environment's egress proxy. The alternatives were a
+  # hosting plan bought purely to redirect two parked domains, or Cloudflare's free tier
+  # as a third DNS provider. This adds neither cost nor a provider.
+  #
+  # DNS at Vodien for each of the two domains:
+  #   @     A      216.24.57.1
+  #   www   CNAME  tic-sg-redirect.onrender.com
+  # Add each hostname as a custom domain on this service FIRST — Render answers by Host
+  # header and will not recognise a hostname it has not been given, and it issues the
+  # certificate only once DNS matches. About ten minutes per hostname.
+  #
+  # The same two assumptions noted against tic-help-redirect apply here and are still
+  # unverified for the same reason — that `destination` takes an absolute off-site URL,
+  # and that `source: /*` matches the bare root. The meta-refresh below is the safety net
+  # for the second: if https://asktic.sg/ shows a blank flash before landing, that is the
+  # fallback firing, and a second route with `source: /` fixes it.
+  - type: web
+    name: tic-sg-redirect
+    runtime: static
+    # No build. The placeholder is what gets served if a request misses the rule below.
+    buildCommand: mkdir -p out && printf '<!doctype html><meta http-equiv="refresh" content="0;url=https://www.asktic.com/">' > out/index.html
+    staticPublishPath: ./out
+    pullRequestPreviewsEnabled: false
+    # NEVER link an environment group or add a variable here. Same rule as tic-web and
+    # for the same reason: this is a static build in the project that holds the Rainmaker
+    # CRM's tic-crm-shared group (~93 variables, database credentials, carrier API keys),
+    # and anything a static build can read is baked into published HTML.
+    routes:
+      - type: redirect
+        source: /*
+        destination: https://www.asktic.com/

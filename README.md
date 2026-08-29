@@ -8,10 +8,14 @@ section.
 Render as of 2026-08-12. The migration phases are complete. The site is now on its second
 build: the homepage was rebuilt on 2026-08-16 as a progressive-disclosure **concern flow**
 and the palette was re-derived from the logo. What remains is real content for the
-placeholders that flow surfaced (see [below](#what-is-still-placeholder-content)), an
+placeholders that flow surfaced (see [below](#what-is-still-placeholder-content)) and an
 editorial pass over the ported copy
-([`port-worklist.md`](content/_inventory/port-worklist.md)) and two DNS items
-([`dns-cutover.md`](content/_inventory/dns-cutover.md)).
+([`port-worklist.md`](content/_inventory/port-worklist.md)). On DNS: the zone moved to
+Vodien on 2026-08-16, spent six days delegated to **both** Vodien and Wix at once, and was
+repaired and re-verified on 2026-08-23 across six independent resolvers. Vodien is now the
+only authoritative provider and **the Wix subscription is cancelled** — contacts exported
+first, then the full zone re-verified with nothing broken. Mail, site, help centre and CRM
+were unaffected. See [`dns-cutover.md`](content/_inventory/dns-cutover.md).
 
 ---
 
@@ -222,9 +226,9 @@ on it: this site's nav links to `/knowledge` directly.
 
 **The site is live at [www.asktic.com](https://www.asktic.com), served by Render.**
 
-DNS hosting stayed on Wix — registration moved to Vodien, the nameservers did not, and
-that plan was dropped. `ns4/ns5.wixdns.net` remain authoritative, so the zone is managed
-in Wix's DNS panel.
+DNS hosting stayed on Wix at the time — registration had moved to Vodien, the nameservers
+had not. That changed on 2026-08-16, when the zone moved to Vodien as well;
+`ns1/ns2.vodien.com` are authoritative now and the zone is managed in Vodien's DNS panel.
 
 | Host | Type | Value |
 | --- | --- | --- |
@@ -240,12 +244,22 @@ The full record — final zone state, what was removed and why, the rollback, an
 outstanding SPF/DMARC gap — is in
 [`content/_inventory/dns-cutover.md`](content/_inventory/dns-cutover.md).
 
-**Two things to know before editing this zone.** The Freshworks `_domainkey` and `fwdkim`
-records authenticate the mail Freshdesk sends on the firm's behalf — deleting them
-silently pushes ticket replies toward spam. And SPF, DMARC and Google DKIM are now
-published after years without them, with only **2 of SPF's 10 DNS lookups spare** —
-cost any future "add our SPF include" request before adding it, because exceeding the
-limit fails SPF permanently rather than degrading.
+**Three things to know before editing this zone.** Some Freshworks `_domainkey` records
+authenticate the mail Freshdesk sends on the firm's behalf and some belong to the dropped
+Freshworks suite — the names are indistinguishable and only the CNAME target tells them
+apart, so resolve before deleting; removing a live one silently pushes ticket replies
+toward spam. SPF, DMARC and Google DKIM are now published after years without them, with
+only **3 of SPF's 10 DNS lookups spare** — cost any future "add our SPF include" request
+before adding it, because exceeding the limit fails SPF permanently rather than degrading.
+And **the delegation was split for six days, which is the trap to know about.** Between
+2026-08-16 and 2026-08-22 the registrar listed four nameservers — two Vodien, two Wix — so
+both were authoritative over different zones and each lookup landed on whichever answered
+first. It is repaired: as of 2026-08-23 six independent resolvers unanimously return the
+three Vodien names. Nothing was ever broken, because the two zones agreed on everything that
+mattered, but the symptom it produced — records that appeared to change by themselves — cost
+days to diagnose. If a future edit to this zone "doesn't take", intermittently, check the
+delegation before anything else. Read the Vodien section of `dns-cutover.md` first, and check
+a resolver rather than the panel.
 
 
 Two assumptions in that service could **not** be verified — `render.com` is blocked by
