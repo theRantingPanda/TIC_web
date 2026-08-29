@@ -807,6 +807,49 @@ mail does not reach Gmail** — in practice, Mimecast. The other four could in p
 suppressed by something upstream; Mimecast reaches Freshdesk and nowhere else, so a closed
 Mimecast ticket proves the rule fired inside Freshdesk rather than something else intervening.
 
+#### Tested 2026-08-29 13:51: the `To email` condition does not match
+
+**Ticket 49451 is the test case and it failed.** Microsoft Report-ID
+`2fc62beac22e4d269700be609b2b8ea4` arrived in Gmail at `11:32:55Z` and created the ticket at
+`11:33:12Z` — comfortably after the rule went in around `11:20Z`:
+
+```
+to_emails   ["dmarc@asktic.com"]      <- exactly what the condition specifies
+status      2  (Open)                  <- should be 5 (Closed)
+tags        []                         <- DMARC tag not applied
+fr_due_by   2026-08-31T10:00:00Z       <- clock running
+```
+
+Two nearby tickets confirm the probe was sound rather than mistimed: 49449 and 49450 are
+ordinary marketing mail to `hello@`, both untouched and both correctly outside the rule.
+
+**Why it probably does not match — stated as a hypothesis, because this file has already
+carried three confident wrong explanations of this exact problem.** The likeliest cause is that
+Freshdesk's `To email` condition evaluates the address the ticket *arrived on* — the
+`support_email`, `askticcomhello@asktic.freshdesk.com`, identical on every ticket here — rather
+than the original `To:` header that the API reports as `to_emails`. Two mundane alternatives
+are just as worth checking first: the rule may be saved but not enabled, or an earlier rule in
+the execution order may be matching and halting the chain.
+
+**The fix that does not depend on any of that: match the subject.** RFC 7489 §7.2.1.1 fixes the
+aggregate-report subject format, so every reporter carries a `Report-ID`. Observed across all
+six:
+
+| Reporter | Subject |
+| --- | --- |
+| Google | `Report domain: asktic.com Submitter: google.com Report-ID: …` |
+| Mimecast | `Report domain: asktic.com Submitter: mimecast.org Report-ID: …` |
+| Microsoft | `Report Domain: asktic.com Submitter: protection.outlook.com Report-ID: …` |
+| Microsoft | `[Preview] Report Domain: asktic.com Submitter: enterprise… Report-ID: …` |
+| Yahoo | `Report Domain: asktic.com Submitter: yahoo.com Report-ID: <…>` |
+| Mail.Ru | `Report Domain: asktic.com; Submitter: Mail.Ru; Report-ID: …` |
+
+**Condition: Subject contains `Report-ID`.** Note what this survives that narrower strings do
+not — Google and Mimecast write `Report domain` with a lowercase *d*, Microsoft prefixes
+`[Preview]`, and Mail.Ru separates with semicolons, so `asktic.com Submitter` fails on Mail.Ru
+and a case-sensitive `Report Domain` fails on two others. `Report-ID` is the only token common
+to all six, and no human correspondence contains it.
+
 #### Superseded: checked 2026-08-28, read as inconclusive
 
 Twenty-four hours on, the filter is demonstrably working for everything it can see. Six
