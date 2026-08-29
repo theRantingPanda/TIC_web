@@ -781,6 +781,32 @@ stopping tickets.
 **Existing open DMARC tickets need clearing once**, since the rule only applies at creation.
 The three above were already deleted by hand; any others should be closed in bulk.
 
+#### Rule applied 2026-08-29. How to verify it, properly this time
+
+**The verification is real, unlike the Gmail one it replaces.** That one could only ever be
+checked by absence — nothing in a mailbox — which is why three wrong readings survived it. This
+one leaves a positive artifact: the next DMARC report to arrive creates a ticket that is
+**already `status: 5` (Closed)** with no `fr_due_by` clock, instead of `status: 2` (Open) with
+one. Pull it with `get_ticket` and read the status field. That is the whole test.
+
+Finding the ticket needs no search. Ticket IDs are sequential, the last known DMARC tickets are
+49442/49443/49448, and reports land several times a day, so probing forward from 49448 reaches
+the next one within a handful of IDs. Observed arrival times, UTC:
+
+| Reporter | Roughly |
+| --- | --- |
+| Mail.Ru | 02:52 |
+| Mimecast | 07:39 |
+| Microsoft (enterprise) | 08:32 |
+| Microsoft (consumer) | 11:33 |
+| Yahoo | 13:07 |
+| Google | 23:59 |
+
+**Do not read a closed ticket as proof the rule is sound until one arrives from a reporter whose
+mail does not reach Gmail** — in practice, Mimecast. The other four could in principle be
+suppressed by something upstream; Mimecast reaches Freshdesk and nowhere else, so a closed
+Mimecast ticket proves the rule fired inside Freshdesk rather than something else intervening.
+
 #### Superseded: checked 2026-08-28, read as inconclusive
 
 Twenty-four hours on, the filter is demonstrably working for everything it can see. Six
